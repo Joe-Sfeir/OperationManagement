@@ -16,7 +16,8 @@
     "jsx": "react-jsx",
     "types": [
       "node"
-    ]
+    ],
+    "resolveJsonModule": true
   },
   "include": [
     "src/**/*.test.ts"

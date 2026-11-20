@@ -1,0 +1,3166 @@
+{
+ "weekly": {
+  "CTT4": [
+   {
+    "week": "2025-12-29",
+    "opening": 41,
+    "produced": 0,
+    "sold": 0,
+    "returns": 0,
+    "closing": 41,
+    "lowest": 41,
+    "productionDays": 0,
+    "salesDocs": 0,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-01-05",
+    "opening": 41,
+    "produced": 0,
+    "sold": 2,
+    "returns": 0,
+    "closing": 39,
+    "lowest": 39,
+    "productionDays": 0,
+    "salesDocs": 1,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-01-12",
+    "opening": 39,
+    "produced": 12,
+    "sold": 14,
+    "returns": 0,
+    "closing": 37,
+    "lowest": 28,
+    "productionDays": 3,
+    "salesDocs": 5,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-01-19",
+    "opening": 37,
+    "produced": 8,
+    "sold": 12,
+    "returns": 1,
+    "closing": 34,
+    "lowest": 32,
+    "productionDays": 2,
+    "salesDocs": 8,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-01-26",
+    "opening": 34,
+    "produced": 0,
+    "sold": 1,
+    "returns": 0,
+    "closing": 33,
+    "lowest": 33,
+    "productionDays": 0,
+    "salesDocs": 1,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-02-02",
+    "opening": 33,
+    "produced": 0,
+    "sold": 4,
+    "returns": 2,
+    "closing": 31,
+    "lowest": 31,
+    "productionDays": 0,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-02-09",
+    "opening": 31,
+    "produced": 8,
+    "sold": 3,
+    "returns": 0,
+    "closing": 36,
+    "lowest": 31,
+    "productionDays": 2,
+    "salesDocs": 2,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-02-16",
+    "opening": 36,
+    "produced": 0,
+    "sold": 2,
+    "returns": 1,
+    "closing": 35,
+    "lowest": 35,
+    "productionDays": 0,
+    "salesDocs": 2,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-02-23",
+    "opening": 35,
+    "produced": 0,
+    "sold": 1,
+    "returns": 0,
+    "closing": 34,
+    "lowest": 34,
+    "productionDays": 0,
+    "salesDocs": 1,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-03-02",
+    "opening": 34,
+    "produced": 0,
+    "sold": 0,
+    "returns": 0,
+    "closing": 34,
+    "lowest": 34,
+    "productionDays": 0,
+    "salesDocs": 0,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-03-09",
+    "opening": 34,
+    "produced": 0,
+    "sold": 6,
+    "returns": 0,
+    "closing": 28,
+    "lowest": 28,
+    "productionDays": 0,
+    "salesDocs": 4,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-03-16",
+    "opening": 28,
+    "produced": 0,
+    "sold": 5,
+    "returns": 0,
+    "closing": 23,
+    "lowest": 23,
+    "productionDays": 0,
+    "salesDocs": 2,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-03-23",
+    "opening": 23,
+    "produced": 16,
+    "sold": 1,
+    "returns": 0,
+    "closing": 38,
+    "lowest": 23,
+    "productionDays": 4,
+    "salesDocs": 1,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-03-30",
+    "opening": 38,
+    "produced": 7,
+    "sold": 13,
+    "returns": 0,
+    "closing": 32,
+    "lowest": 32,
+    "productionDays": 2,
+    "salesDocs": 6,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-04-06",
+    "opening": 32,
+    "produced": 8,
+    "sold": 5,
+    "returns": 0,
+    "closing": 35,
+    "lowest": 31,
+    "productionDays": 2,
+    "salesDocs": 4,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-04-13",
+    "opening": 35,
+    "produced": 4,
+    "sold": 1,
+    "returns": 0,
+    "closing": 38,
+    "lowest": 35,
+    "productionDays": 1,
+    "salesDocs": 1,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-04-20",
+    "opening": 38,
+    "produced": 0,
+    "sold": 6,
+    "returns": 0,
+    "closing": 32,
+    "lowest": 32,
+    "productionDays": 0,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-04-27",
+    "opening": 32,
+    "produced": 0,
+    "sold": 13,
+    "returns": 1,
+    "closing": 20,
+    "lowest": 20,
+    "productionDays": 0,
+    "salesDocs": 7,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-05-04",
+    "opening": 20,
+    "produced": 7,
+    "sold": 3,
+    "returns": 1,
+    "closing": 25,
+    "lowest": 20,
+    "productionDays": 2,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-05-11",
+    "opening": 25,
+    "produced": 4,
+    "sold": 10,
+    "returns": 0,
+    "closing": 19,
+    "lowest": 19,
+    "productionDays": 1,
+    "salesDocs": 5,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-05-18",
+    "opening": 19,
+    "produced": 12,
+    "sold": 9,
+    "returns": 0,
+    "closing": 22,
+    "lowest": 16,
+    "productionDays": 3,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-05-25",
+    "opening": 22,
+    "produced": 5,
+    "sold": 5,
+    "returns": 0,
+    "closing": 22,
+    "lowest": 22,
+    "productionDays": 1,
+    "salesDocs": 2,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-06-01",
+    "opening": 22,
+    "produced": 0,
+    "sold": 5,
+    "returns": 1,
+    "closing": 18,
+    "lowest": 18,
+    "productionDays": 0,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-06-08",
+    "opening": 18,
+    "produced": 0,
+    "sold": 9,
+    "returns": 0,
+    "closing": 9,
+    "lowest": 9,
+    "productionDays": 0,
+    "salesDocs": 6,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-06-15",
+    "opening": 9,
+    "produced": 9,
+    "sold": 6,
+    "returns": 0,
+    "closing": 12,
+    "lowest": 8,
+    "productionDays": 3,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-06-22",
+    "opening": 12,
+    "produced": 8,
+    "sold": 5,
+    "returns": 0,
+    "closing": 15,
+    "lowest": 12,
+    "productionDays": 2,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-06-29",
+    "opening": 15,
+    "produced": 0,
+    "sold": 6,
+    "returns": 1,
+    "closing": 10,
+    "lowest": 10,
+    "productionDays": 0,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-07-06",
+    "opening": 10,
+    "produced": 0,
+    "sold": 7,
+    "returns": 0,
+    "closing": 3,
+    "lowest": 3,
+    "productionDays": 0,
+    "salesDocs": 5,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-07-13",
+    "opening": 3,
+    "produced": 12,
+    "sold": 10,
+    "returns": 0,
+    "closing": 5,
+    "lowest": 1,
+    "productionDays": 3,
+    "salesDocs": 7,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-07-20",
+    "opening": 5,
+    "produced": 15,
+    "sold": 9,
+    "returns": 0,
+    "closing": 11,
+    "lowest": 5,
+    "productionDays": 2,
+    "salesDocs": 5,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-07-27",
+    "opening": 11,
+    "produced": 10,
+    "sold": 10,
+    "returns": 0,
+    "closing": 11,
+    "lowest": 5,
+    "productionDays": 3,
+    "salesDocs": 4,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-08-03",
+    "opening": 11,
+    "produced": 9,
+    "sold": 5,
+    "returns": 0,
+    "closing": 15,
+    "lowest": 11,
+    "productionDays": 2,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-08-10",
+    "opening": 15,
+    "produced": 9,
+    "sold": 9,
+    "returns": 0,
+    "closing": 15,
+    "lowest": 8,
+    "productionDays": 3,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-08-17",
+    "opening": 15,
+    "produced": 12,
+    "sold": 4,
+    "returns": 2,
+    "closing": 25,
+    "lowest": 15,
+    "productionDays": 3,
+    "salesDocs": 2,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-08-24",
+    "opening": 25,
+    "produced": 5,
+    "sold": 11,
+    "returns": 0,
+    "closing": 19,
+    "lowest": 17,
+    "productionDays": 1,
+    "salesDocs": 7,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-08-31",
+    "opening": 19,
+    "produced": 19,
+    "sold": 0,
+    "returns": 0,
+    "closing": 38,
+    "lowest": 19,
+    "productionDays": 4,
+    "salesDocs": 0,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-09-07",
+    "opening": 38,
+    "produced": 4,
+    "sold": 14,
+    "returns": 0,
+    "closing": 28,
+    "lowest": 24,
+    "productionDays": 1,
+    "salesDocs": 5,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-09-14",
+    "opening": 28,
+    "produced": 20,
+    "sold": 4,
+    "returns": 0,
+    "closing": 44,
+    "lowest": 28,
+    "productionDays": 4,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-09-21",
+    "opening": 44,
+    "produced": 0,
+    "sold": 4,
+    "returns": 0,
+    "closing": 40,
+    "lowest": 40,
+    "productionDays": 0,
+    "salesDocs": 3,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-09-28",
+    "opening": 40,
+    "produced": 0,
+    "sold": 6,
+    "returns": 0,
+    "closing": 34,
+    "lowest": 34,
+    "productionDays": 0,
+    "salesDocs": 6,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-10-05",
+    "opening": 34,
+    "produced": 0,
+    "sold": 2,
+    "returns": 0,
+    "closing": 32,
+    "lowest": 32,
+    "productionDays": 0,
+    "salesDocs": 2,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-10-12",
+    "opening": 32,
+    "produced": 0,
+    "sold": 4,
+    "returns": 0,
+    "closing": 28,
+    "lowest": 28,
+    "productionDays": 0,
+    "salesDocs": 4,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-10-19",
+    "opening": 28,
+    "produced": 11,
+    "sold": 10,
+    "returns": 1,
+    "closing": 30,
+    "lowest": 24,
+    "productionDays": 3,
+    "salesDocs": 4,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-10-26",
+    "opening": 30,
+    "produced": 0,
+    "sold": 1,
+    "returns": 0,
+    "closing": 29,
+    "lowest": 29,
+    "productionDays": 0,
+    "salesDocs": 1,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-11-02",
+    "opening": 29,
+    "produced": 11,
+    "sold": 4,
+    "returns": 0,
+    "closing": 36,
+    "lowest": 27,
+    "productionDays": 3,
+    "salesDocs": 2,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-11-09",
+    "opening": 36,
+    "produced": 4,
+    "sold": 5,
+    "returns": 0,
+    "closing": 35,
+    "lowest": 35,
+    "productionDays": 1,
+    "salesDocs": 2,
+    "min": 15,
+    "cap": 40
+   },
+   {
+    "week": "2026-11-16",
+    "opening": 35,
+    "produced": 0,
+    "sold": 2,
+    "returns": 0,
+    "closing": 33,
+    "lowest": 33,
+    "productionDays": 0,
+    "salesDocs": 1,
+    "min": 15,
+    "cap": 40
+   }
+  ],
+  "CTT2": [
+   {
+    "week": "2025-12-29",
+    "opening": 62,
+    "produced": 0,
+    "sold": 7,
+    "returns": 0,
+    "closing": 55,
+    "lowest": 55,
+    "productionDays": 0,
+    "salesDocs": 2,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-01-05",
+    "opening": 55,
+    "produced": 40,
+    "sold": 26,
+    "returns": 0,
+    "closing": 69,
+    "lowest": 52,
+    "productionDays": 4,
+    "salesDocs": 12,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-01-12",
+    "opening": 69,
+    "produced": 32,
+    "sold": 20,
+    "returns": 0,
+    "closing": 81,
+    "lowest": 69,
+    "productionDays": 4,
+    "salesDocs": 9,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-01-19",
+    "opening": 81,
+    "produced": 38,
+    "sold": 27,
+    "returns": 1,
+    "closing": 93,
+    "lowest": 79,
+    "productionDays": 4,
+    "salesDocs": 11,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-01-26",
+    "opening": 93,
+    "produced": 0,
+    "sold": 27,
+    "returns": 0,
+    "closing": 66,
+    "lowest": 66,
+    "productionDays": 0,
+    "salesDocs": 9,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-02-02",
+    "opening": 66,
+    "produced": 0,
+    "sold": 24,
+    "returns": 0,
+    "closing": 42,
+    "lowest": 42,
+    "productionDays": 0,
+    "salesDocs": 7,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-02-09",
+    "opening": 42,
+    "produced": 0,
+    "sold": 22,
+    "returns": 0,
+    "closing": 20,
+    "lowest": 20,
+    "productionDays": 0,
+    "salesDocs": 6,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-02-16",
+    "opening": 20,
+    "produced": 38,
+    "sold": 11,
+    "returns": 0,
+    "closing": 47,
+    "lowest": 11,
+    "productionDays": 4,
+    "salesDocs": 5,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-02-23",
+    "opening": 47,
+    "produced": 36,
+    "sold": 8,
+    "returns": 0,
+    "closing": 75,
+    "lowest": 47,
+    "productionDays": 4,
+    "salesDocs": 3,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-03-02",
+    "opening": 75,
+    "produced": 30,
+    "sold": 16,
+    "returns": 0,
+    "closing": 89,
+    "lowest": 74,
+    "productionDays": 3,
+    "salesDocs": 7,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-03-09",
+    "opening": 89,
+    "produced": 8,
+    "sold": 31,
+    "returns": 0,
+    "closing": 66,
+    "lowest": 66,
+    "productionDays": 1,
+    "salesDocs": 9,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-03-16",
+    "opening": 66,
+    "produced": 10,
+    "sold": 25,
+    "returns": 0,
+    "closing": 51,
+    "lowest": 51,
+    "productionDays": 1,
+    "salesDocs": 7,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-03-23",
+    "opening": 51,
+    "produced": 40,
+    "sold": 15,
+    "returns": 0,
+    "closing": 76,
+    "lowest": 45,
+    "productionDays": 4,
+    "salesDocs": 4,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-03-30",
+    "opening": 76,
+    "produced": 28,
+    "sold": 34,
+    "returns": 0,
+    "closing": 70,
+    "lowest": 59,
+    "productionDays": 3,
+    "salesDocs": 9,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-04-06",
+    "opening": 70,
+    "produced": 20,
+    "sold": 18,
+    "returns": 0,
+    "closing": 72,
+    "lowest": 70,
+    "productionDays": 2,
+    "salesDocs": 11,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-04-13",
+    "opening": 72,
+    "produced": 30,
+    "sold": 28,
+    "returns": 0,
+    "closing": 74,
+    "lowest": 64,
+    "productionDays": 3,
+    "salesDocs": 12,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-04-20",
+    "opening": 74,
+    "produced": 34,
+    "sold": 7,
+    "returns": 0,
+    "closing": 101,
+    "lowest": 74,
+    "productionDays": 4,
+    "salesDocs": 6,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-04-27",
+    "opening": 101,
+    "produced": 22,
+    "sold": 9,
+    "returns": 0,
+    "closing": 114,
+    "lowest": 95,
+    "productionDays": 3,
+    "salesDocs": 6,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-05-04",
+    "opening": 114,
+    "produced": 26,
+    "sold": 42,
+    "returns": 5,
+    "closing": 103,
+    "lowest": 99,
+    "productionDays": 3,
+    "salesDocs": 14,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-05-11",
+    "opening": 103,
+    "produced": 26,
+    "sold": 15,
+    "returns": 0,
+    "closing": 114,
+    "lowest": 103,
+    "productionDays": 3,
+    "salesDocs": 8,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-05-18",
+    "opening": 114,
+    "produced": 24,
+    "sold": 19,
+    "returns": 0,
+    "closing": 119,
+    "lowest": 106,
+    "productionDays": 3,
+    "salesDocs": 9,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-05-25",
+    "opening": 119,
+    "produced": 8,
+    "sold": 24,
+    "returns": 0,
+    "closing": 103,
+    "lowest": 103,
+    "productionDays": 1,
+    "salesDocs": 5,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-06-01",
+    "opening": 103,
+    "produced": 0,
+    "sold": 20,
+    "returns": 0,
+    "closing": 83,
+    "lowest": 83,
+    "productionDays": 0,
+    "salesDocs": 9,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-06-08",
+    "opening": 83,
+    "produced": 1,
+    "sold": 12,
+    "returns": 0,
+    "closing": 72,
+    "lowest": 72,
+    "productionDays": 1,
+    "salesDocs": 8,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-06-15",
+    "opening": 72,
+    "produced": 0,
+    "sold": 28,
+    "returns": 1,
+    "closing": 45,
+    "lowest": 45,
+    "productionDays": 0,
+    "salesDocs": 11,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-06-22",
+    "opening": 45,
+    "produced": 38,
+    "sold": 21,
+    "returns": 4,
+    "closing": 66,
+    "lowest": 42,
+    "productionDays": 4,
+    "salesDocs": 11,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-06-29",
+    "opening": 66,
+    "produced": 40,
+    "sold": 27,
+    "returns": 0,
+    "closing": 79,
+    "lowest": 66,
+    "productionDays": 5,
+    "salesDocs": 13,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-07-06",
+    "opening": 79,
+    "produced": 0,
+    "sold": 13,
+    "returns": 0,
+    "closing": 66,
+    "lowest": 66,
+    "productionDays": 0,
+    "salesDocs": 5,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-07-13",
+    "opening": 66,
+    "produced": 8,
+    "sold": 16,
+    "returns": 0,
+    "closing": 58,
+    "lowest": 56,
+    "productionDays": 1,
+    "salesDocs": 10,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-07-20",
+    "opening": 58,
+    "produced": 32,
+    "sold": 26,
+    "returns": 0,
+    "closing": 64,
+    "lowest": 56,
+    "productionDays": 3,
+    "salesDocs": 12,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-07-27",
+    "opening": 64,
+    "produced": 40,
+    "sold": 30,
+    "returns": 0,
+    "closing": 74,
+    "lowest": 57,
+    "productionDays": 5,
+    "salesDocs": 13,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-08-03",
+    "opening": 74,
+    "produced": 34,
+    "sold": 52,
+    "returns": 0,
+    "closing": 56,
+    "lowest": 49,
+    "productionDays": 4,
+    "salesDocs": 18,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-08-10",
+    "opening": 56,
+    "produced": 32,
+    "sold": 55,
+    "returns": 0,
+    "closing": 33,
+    "lowest": 33,
+    "productionDays": 5,
+    "salesDocs": 22,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-08-17",
+    "opening": 33,
+    "produced": 56,
+    "sold": 28,
+    "returns": 4,
+    "closing": 65,
+    "lowest": 33,
+    "productionDays": 5,
+    "salesDocs": 9,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-08-24",
+    "opening": 65,
+    "produced": 51,
+    "sold": 33,
+    "returns": 3,
+    "closing": 86,
+    "lowest": 65,
+    "productionDays": 5,
+    "salesDocs": 14,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-08-31",
+    "opening": 86,
+    "produced": 60,
+    "sold": 24,
+    "returns": 0,
+    "closing": 122,
+    "lowest": 86,
+    "productionDays": 5,
+    "salesDocs": 9,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-09-07",
+    "opening": 122,
+    "produced": 60,
+    "sold": 36,
+    "returns": 0,
+    "closing": 146,
+    "lowest": 121,
+    "productionDays": 5,
+    "salesDocs": 14,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-09-14",
+    "opening": 146,
+    "produced": 18,
+    "sold": 35,
+    "returns": 1,
+    "closing": 130,
+    "lowest": 127,
+    "productionDays": 3,
+    "salesDocs": 14,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-09-21",
+    "opening": 130,
+    "produced": 16,
+    "sold": 35,
+    "returns": 0,
+    "closing": 111,
+    "lowest": 111,
+    "productionDays": 2,
+    "salesDocs": 15,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-09-28",
+    "opening": 111,
+    "produced": 38,
+    "sold": 19,
+    "returns": 0,
+    "closing": 130,
+    "lowest": 111,
+    "productionDays": 5,
+    "salesDocs": 10,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-10-05",
+    "opening": 130,
+    "produced": 32,
+    "sold": 18,
+    "returns": 0,
+    "closing": 144,
+    "lowest": 123,
+    "productionDays": 4,
+    "salesDocs": 6,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-10-12",
+    "opening": 144,
+    "produced": 16,
+    "sold": 10,
+    "returns": 1,
+    "closing": 151,
+    "lowest": 143,
+    "productionDays": 4,
+    "salesDocs": 8,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-10-19",
+    "opening": 151,
+    "produced": 4,
+    "sold": 10,
+    "returns": 0,
+    "closing": 145,
+    "lowest": 145,
+    "productionDays": 1,
+    "salesDocs": 7,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-10-26",
+    "opening": 145,
+    "produced": 16,
+    "sold": 13,
+    "returns": 0,
+    "closing": 148,
+    "lowest": 142,
+    "productionDays": 3,
+    "salesDocs": 5,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-11-02",
+    "opening": 148,
+    "produced": 12,
+    "sold": 47,
+    "returns": 0,
+    "closing": 113,
+    "lowest": 113,
+    "productionDays": 3,
+    "salesDocs": 16,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-11-09",
+    "opening": 113,
+    "produced": 4,
+    "sold": 20,
+    "returns": 0,
+    "closing": 97,
+    "lowest": 97,
+    "productionDays": 1,
+    "salesDocs": 9,
+    "min": 50,
+    "cap": 120
+   },
+   {
+    "week": "2026-11-16",
+    "opening": 97,
+    "produced": 16,
+    "sold": 18,
+    "returns": 0,
+    "closing": 95,
+    "lowest": 95,
+    "productionDays": 2,
+    "salesDocs": 8,
+    "min": 50,
+    "cap": 120
+   }
+  ],
+  "HTT2": [
+   {
+    "week": "2025-12-29",
+    "opening": 96,
+    "produced": 0,
+    "sold": 6,
+    "returns": 0,
+    "closing": 90,
+    "lowest": 90,
+    "productionDays": 0,
+    "salesDocs": 2,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-01-05",
+    "opening": 90,
+    "produced": 16,
+    "sold": 25,
+    "returns": 0,
+    "closing": 81,
+    "lowest": 73,
+    "productionDays": 2,
+    "salesDocs": 10,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-01-12",
+    "opening": 81,
+    "produced": 32,
+    "sold": 24,
+    "returns": 0,
+    "closing": 89,
+    "lowest": 66,
+    "productionDays": 4,
+    "salesDocs": 7,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-01-19",
+    "opening": 89,
+    "produced": 34,
+    "sold": 21,
+    "returns": 0,
+    "closing": 102,
+    "lowest": 84,
+    "productionDays": 4,
+    "salesDocs": 9,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-01-26",
+    "opening": 102,
+    "produced": 28,
+    "sold": 23,
+    "returns": 0,
+    "closing": 107,
+    "lowest": 100,
+    "productionDays": 3,
+    "salesDocs": 8,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-02-02",
+    "opening": 107,
+    "produced": 30,
+    "sold": 36,
+    "returns": 0,
+    "closing": 101,
+    "lowest": 91,
+    "productionDays": 3,
+    "salesDocs": 13,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-02-09",
+    "opening": 101,
+    "produced": 26,
+    "sold": 13,
+    "returns": 0,
+    "closing": 114,
+    "lowest": 100,
+    "productionDays": 3,
+    "salesDocs": 7,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-02-16",
+    "opening": 114,
+    "produced": 32,
+    "sold": 7,
+    "returns": 0,
+    "closing": 139,
+    "lowest": 114,
+    "productionDays": 4,
+    "salesDocs": 4,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-02-23",
+    "opening": 139,
+    "produced": 16,
+    "sold": 14,
+    "returns": 0,
+    "closing": 141,
+    "lowest": 127,
+    "productionDays": 2,
+    "salesDocs": 6,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-03-02",
+    "opening": 141,
+    "produced": 24,
+    "sold": 4,
+    "returns": 2,
+    "closing": 163,
+    "lowest": 140,
+    "productionDays": 3,
+    "salesDocs": 3,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-03-09",
+    "opening": 163,
+    "produced": 0,
+    "sold": 14,
+    "returns": 1,
+    "closing": 150,
+    "lowest": 150,
+    "productionDays": 0,
+    "salesDocs": 7,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-03-16",
+    "opening": 150,
+    "produced": 0,
+    "sold": 17,
+    "returns": 0,
+    "closing": 133,
+    "lowest": 133,
+    "productionDays": 0,
+    "salesDocs": 6,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-03-23",
+    "opening": 133,
+    "produced": 0,
+    "sold": 7,
+    "returns": 0,
+    "closing": 126,
+    "lowest": 126,
+    "productionDays": 0,
+    "salesDocs": 3,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-03-30",
+    "opening": 126,
+    "produced": 0,
+    "sold": 5,
+    "returns": 0,
+    "closing": 121,
+    "lowest": 121,
+    "productionDays": 0,
+    "salesDocs": 2,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-04-06",
+    "opening": 121,
+    "produced": 8,
+    "sold": 35,
+    "returns": 0,
+    "closing": 94,
+    "lowest": 91,
+    "productionDays": 1,
+    "salesDocs": 10,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-04-13",
+    "opening": 94,
+    "produced": 24,
+    "sold": 36,
+    "returns": 0,
+    "closing": 82,
+    "lowest": 82,
+    "productionDays": 3,
+    "salesDocs": 9,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-04-20",
+    "opening": 82,
+    "produced": 32,
+    "sold": 6,
+    "returns": 2,
+    "closing": 110,
+    "lowest": 82,
+    "productionDays": 4,
+    "salesDocs": 5,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-04-27",
+    "opening": 110,
+    "produced": 24,
+    "sold": 32,
+    "returns": 0,
+    "closing": 102,
+    "lowest": 96,
+    "productionDays": 3,
+    "salesDocs": 16,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-05-04",
+    "opening": 102,
+    "produced": 0,
+    "sold": 14,
+    "returns": 0,
+    "closing": 88,
+    "lowest": 88,
+    "productionDays": 0,
+    "salesDocs": 7,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-05-11",
+    "opening": 88,
+    "produced": 18,
+    "sold": 37,
+    "returns": 1,
+    "closing": 70,
+    "lowest": 61,
+    "productionDays": 2,
+    "salesDocs": 16,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-05-18",
+    "opening": 70,
+    "produced": 24,
+    "sold": 25,
+    "returns": 0,
+    "closing": 69,
+    "lowest": 67,
+    "productionDays": 3,
+    "salesDocs": 8,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-05-25",
+    "opening": 69,
+    "produced": 8,
+    "sold": 17,
+    "returns": 0,
+    "closing": 60,
+    "lowest": 60,
+    "productionDays": 1,
+    "salesDocs": 8,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-06-01",
+    "opening": 60,
+    "produced": 0,
+    "sold": 22,
+    "returns": 0,
+    "closing": 38,
+    "lowest": 38,
+    "productionDays": 0,
+    "salesDocs": 11,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-06-08",
+    "opening": 38,
+    "produced": 32,
+    "sold": 13,
+    "returns": 0,
+    "closing": 57,
+    "lowest": 38,
+    "productionDays": 4,
+    "salesDocs": 8,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-06-15",
+    "opening": 57,
+    "produced": 32,
+    "sold": 35,
+    "returns": 0,
+    "closing": 54,
+    "lowest": 43,
+    "productionDays": 4,
+    "salesDocs": 18,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-06-22",
+    "opening": 54,
+    "produced": 32,
+    "sold": 44,
+    "returns": 0,
+    "closing": 42,
+    "lowest": 32,
+    "productionDays": 4,
+    "salesDocs": 19,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-06-29",
+    "opening": 42,
+    "produced": 40,
+    "sold": 24,
+    "returns": 1,
+    "closing": 59,
+    "lowest": 42,
+    "productionDays": 5,
+    "salesDocs": 11,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-07-06",
+    "opening": 59,
+    "produced": 32,
+    "sold": 16,
+    "returns": 0,
+    "closing": 75,
+    "lowest": 54,
+    "productionDays": 4,
+    "salesDocs": 11,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-07-13",
+    "opening": 75,
+    "produced": 38,
+    "sold": 27,
+    "returns": 0,
+    "closing": 86,
+    "lowest": 75,
+    "productionDays": 5,
+    "salesDocs": 9,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-07-20",
+    "opening": 86,
+    "produced": 32,
+    "sold": 15,
+    "returns": 0,
+    "closing": 103,
+    "lowest": 86,
+    "productionDays": 3,
+    "salesDocs": 6,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-07-27",
+    "opening": 103,
+    "produced": 40,
+    "sold": 25,
+    "returns": 0,
+    "closing": 118,
+    "lowest": 96,
+    "productionDays": 5,
+    "salesDocs": 11,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-08-03",
+    "opening": 118,
+    "produced": 32,
+    "sold": 39,
+    "returns": 0,
+    "closing": 111,
+    "lowest": 109,
+    "productionDays": 4,
+    "salesDocs": 16,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-08-10",
+    "opening": 111,
+    "produced": 32,
+    "sold": 29,
+    "returns": 0,
+    "closing": 114,
+    "lowest": 107,
+    "productionDays": 5,
+    "salesDocs": 14,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-08-17",
+    "opening": 114,
+    "produced": 48,
+    "sold": 20,
+    "returns": 0,
+    "closing": 142,
+    "lowest": 114,
+    "productionDays": 5,
+    "salesDocs": 7,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-08-24",
+    "opening": 142,
+    "produced": 27,
+    "sold": 47,
+    "returns": 0,
+    "closing": 122,
+    "lowest": 122,
+    "productionDays": 5,
+    "salesDocs": 17,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-08-31",
+    "opening": 122,
+    "produced": 20,
+    "sold": 32,
+    "returns": 0,
+    "closing": 110,
+    "lowest": 110,
+    "productionDays": 5,
+    "salesDocs": 13,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-09-07",
+    "opening": 110,
+    "produced": 20,
+    "sold": 43,
+    "returns": 0,
+    "closing": 87,
+    "lowest": 84,
+    "productionDays": 5,
+    "salesDocs": 18,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-09-14",
+    "opening": 87,
+    "produced": 32,
+    "sold": 14,
+    "returns": 0,
+    "closing": 105,
+    "lowest": 87,
+    "productionDays": 4,
+    "salesDocs": 6,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-09-21",
+    "opening": 105,
+    "produced": 32,
+    "sold": 63,
+    "returns": 0,
+    "closing": 74,
+    "lowest": 74,
+    "productionDays": 4,
+    "salesDocs": 17,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-09-28",
+    "opening": 74,
+    "produced": 40,
+    "sold": 25,
+    "returns": 0,
+    "closing": 89,
+    "lowest": 71,
+    "productionDays": 5,
+    "salesDocs": 9,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-10-05",
+    "opening": 89,
+    "produced": 32,
+    "sold": 38,
+    "returns": 0,
+    "closing": 83,
+    "lowest": 79,
+    "productionDays": 4,
+    "salesDocs": 15,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-10-12",
+    "opening": 83,
+    "produced": 48,
+    "sold": 36,
+    "returns": 0,
+    "closing": 95,
+    "lowest": 80,
+    "productionDays": 4,
+    "salesDocs": 13,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-10-19",
+    "opening": 95,
+    "produced": 34,
+    "sold": 26,
+    "returns": 7,
+    "closing": 110,
+    "lowest": 95,
+    "productionDays": 4,
+    "salesDocs": 13,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-10-26",
+    "opening": 110,
+    "produced": 48,
+    "sold": 66,
+    "returns": 0,
+    "closing": 92,
+    "lowest": 88,
+    "productionDays": 3,
+    "salesDocs": 23,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-11-02",
+    "opening": 92,
+    "produced": 36,
+    "sold": 32,
+    "returns": 10,
+    "closing": 106,
+    "lowest": 84,
+    "productionDays": 3,
+    "salesDocs": 12,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-11-09",
+    "opening": 106,
+    "produced": 36,
+    "sold": 12,
+    "returns": 0,
+    "closing": 130,
+    "lowest": 106,
+    "productionDays": 4,
+    "salesDocs": 5,
+    "min": 70,
+    "cap": 140
+   },
+   {
+    "week": "2026-11-16",
+    "opening": 130,
+    "produced": 16,
+    "sold": 24,
+    "returns": 0,
+    "closing": 122,
+    "lowest": 120,
+    "productionDays": 2,
+    "salesDocs": 8,
+    "min": 70,
+    "cap": 140
+   }
+  ]
+ },
+ "monthly": [
+  {
+   "month": "2026-01",
+   "sold": {
+    "CTT4": 29,
+    "CTT2": 107,
+    "HTT2": 99
+   },
+   "produced": {
+    "CTT4": 20,
+    "CTT2": 110,
+    "HTT2": 110
+   }
+  },
+  {
+   "month": "2026-02",
+   "sold": {
+    "CTT4": 10,
+    "CTT2": 65,
+    "HTT2": 70
+   },
+   "produced": {
+    "CTT4": 8,
+    "CTT2": 74,
+    "HTT2": 104
+   }
+  },
+  {
+   "month": "2026-03",
+   "sold": {
+    "CTT4": 15,
+    "CTT2": 104,
+    "HTT2": 42
+   },
+   "produced": {
+    "CTT4": 20,
+    "CTT2": 98,
+    "HTT2": 24
+   }
+  },
+  {
+   "month": "2026-04",
+   "sold": {
+    "CTT4": 35,
+    "CTT2": 79,
+    "HTT2": 114
+   },
+   "produced": {
+    "CTT4": 15,
+    "CTT2": 124,
+    "HTT2": 88
+   }
+  },
+  {
+   "month": "2026-05",
+   "sold": {
+    "CTT4": 27,
+    "CTT2": 100,
+    "HTT2": 93
+   },
+   "produced": {
+    "CTT4": 28,
+    "CTT2": 84,
+    "HTT2": 50
+   }
+  },
+  {
+   "month": "2026-06",
+   "sold": {
+    "CTT4": 26,
+    "CTT2": 96,
+    "HTT2": 117
+   },
+   "produced": {
+    "CTT4": 17,
+    "CTT2": 55,
+    "HTT2": 112
+   }
+  },
+  {
+   "month": "2026-07",
+   "sold": {
+    "CTT4": 41,
+    "CTT2": 97,
+    "HTT2": 104
+   },
+   "produced": {
+    "CTT4": 37,
+    "CTT2": 104,
+    "HTT2": 166
+   }
+  },
+  {
+   "month": "2026-08",
+   "sold": {
+    "CTT4": 29,
+    "CTT2": 169,
+    "HTT2": 137
+   },
+   "produced": {
+    "CTT4": 40,
+    "CTT2": 185,
+    "HTT2": 143
+   }
+  },
+  {
+   "month": "2026-09",
+   "sold": {
+    "CTT4": 26,
+    "CTT2": 143,
+    "HTT2": 165
+   },
+   "produced": {
+    "CTT4": 38,
+    "CTT2": 164,
+    "HTT2": 124
+   }
+  },
+  {
+   "month": "2026-10",
+   "sold": {
+    "CTT4": 19,
+    "CTT2": 56,
+    "HTT2": 176
+   },
+   "produced": {
+    "CTT4": 11,
+    "CTT2": 84,
+    "HTT2": 178
+   }
+  },
+  {
+   "month": "2026-11",
+   "sold": {
+    "CTT4": 11,
+    "CTT2": 85,
+    "HTT2": 68
+   },
+   "produced": {
+    "CTT4": 15,
+    "CTT2": 32,
+    "HTT2": 88
+   }
+  }
+ ],
+ "summary": [
+  [
+   "NTG sales & production history 2026 — cleaned from NTG ERP stock cards",
+   "",
+   "",
+   "",
+   ""
+  ],
+  [
+   "Source: NTG stock cards (Main Warehouse = sales/returns/transfers in; Production Warehouse = produced goods), 01/01/2026–20/11/2026. Weekly = Mon–Sun. Stats use the 45 full weeks 5 Jan–15 Nov 2026.",
+   "",
+   "",
+   "",
+   ""
+  ],
+  [
+   "Check: the ERP reproduces NTG Form 1 week 2–6 Nov exactly (incl. the +10 HTT2 returns).",
+   "",
+   "",
+   "",
+   ""
+  ],
+  [
+   "Metric",
+   "CTT4",
+   "CTT2",
+   "HTT2",
+   "Note"
+  ],
+  [
+   "Weekly sales — mean",
+   "5.91",
+   "23.91",
+   "25.67",
+   "tanks/week"
+  ],
+  [
+   "Weekly sales — std. deviation",
+   "3.94",
+   "11.2",
+   "14.04",
+   ""
+  ],
+  [
+   "Coefficient of variation",
+   "0.67",
+   "0.47",
+   "0.55",
+   "sd / mean"
+  ],
+  [
+   "Weekly sales — median",
+   "5",
+   "24",
+   "25",
+   ""
+  ],
+  [
+   "Weekly sales — max",
+   "14",
+   "55",
+   "66",
+   ""
+  ],
+  [
+   "Weekly production — mean",
+   "5.53",
+   "24.4",
+   "26.02",
+   ""
+  ],
+  [
+   "Weeks with any production (of 45)",
+   "26",
+   "39",
+   "39",
+   ""
+  ],
+  [
+   "Total produced (45 wks)",
+   "249",
+   "1098",
+   "1171",
+   ""
+  ],
+  [
+   "Total sold (45 wks)",
+   "266",
+   "1076",
+   "1155",
+   ""
+  ],
+  [
+   "Total returns (45 wks)",
+   "11",
+   "20",
+   "24",
+   ""
+  ],
+  [
+   "Stock — lowest point",
+   "1",
+   "11",
+   "32",
+   ""
+  ],
+  [
+   "Stock — highest week-end",
+   "44",
+   "151",
+   "163",
+   ""
+  ],
+  [
+   "Stock — mean week-end",
+   "26.42",
+   "87.31",
+   "98.76",
+   ""
+  ],
+  [
+   "Min stock (NTG policy)",
+   "15",
+   "50",
+   "70",
+   "Form 1"
+  ],
+  [
+   "Weeks dipping below min",
+   "10",
+   "10",
+   "10",
+   "of 45"
+  ],
+  [
+   "Weeks ending below min",
+   "7",
+   "5",
+   "7",
+   "of 45"
+  ],
+  [
+   "Storage cap (NTG)",
+   "40",
+   "120",
+   "140",
+   "Form 2 Q16"
+  ],
+  [
+   "Weeks ending above cap",
+   "1",
+   "8",
+   "4",
+   "of 45"
+  ],
+  [
+   "Stock on 20 Nov",
+   "33",
+   "95",
+   "122",
+   ""
+  ],
+  [
+   "Statistical check of NTG minimums (illustrative, normal demand, review 1 wk + lead time 1 wk)",
+   "",
+   "",
+   "",
+   ""
+  ],
+  [
+   "Item",
+   "CTT4",
+   "CTT2",
+   "HTT2",
+   "Formula"
+  ],
+  [
+   "Safety stock @95% service",
+   "9.2",
+   "26.1",
+   "32.7",
+   "1.645 × σ × √2"
+  ],
+  [
+   "Order-up-to level",
+   "21",
+   "73.9",
+   "84",
+   "μ × 2 + SS"
+  ],
+  [
+   "NTG minimum stock",
+   "15",
+   "50",
+   "70",
+   "Form 1"
+  ]
+ ],
+ "dailyProduction": [
+  {
+   "date": "2026-01-05",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-01-06",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-01-07",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-01-09",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-01-12",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-01-14",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-01-15",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 10
+  },
+  {
+   "date": "2026-01-16",
+   "CTT4": 4,
+   "CTT2": 6,
+   "HTT2": 6
+  },
+  {
+   "date": "2026-01-20",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 10
+  },
+  {
+   "date": "2026-01-21",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-01-22",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-01-23",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-01-27",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-01-28",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 10
+  },
+  {
+   "date": "2026-01-29",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 10
+  },
+  {
+   "date": "2026-02-04",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 10
+  },
+  {
+   "date": "2026-02-05",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 10
+  },
+  {
+   "date": "2026-02-06",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 10
+  },
+  {
+   "date": "2026-02-11",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-02-12",
+   "CTT4": 4,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-02-13",
+   "CTT4": 4,
+   "CTT2": 0,
+   "HTT2": 10
+  },
+  {
+   "date": "2026-02-17",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-02-18",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-02-19",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-02-20",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-02-24",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-02-25",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-02-26",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-02-27",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-03-03",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-03-04",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-03-05",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-03-13",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-03-18",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-03-24",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-03-25",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-03-26",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-03-27",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-03-31",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-04-01",
+   "CTT4": 3,
+   "CTT2": 8,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-04-02",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-04-07",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-04-09",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-04-13",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-04-15",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-04-16",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-04-20",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-04-22",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-04-23",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-04-24",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-04-28",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-04-29",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-04-30",
+   "CTT4": 0,
+   "CTT2": 6,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-05-05",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-05-06",
+   "CTT4": 3,
+   "CTT2": 8,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-05-08",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-05-11",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 0
+  },
+  {
+   "date": "2026-05-13",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 10
+  },
+  {
+   "date": "2026-05-14",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-05-19",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-05-20",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-05-21",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-05-25",
+   "CTT4": 5,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-08",
+   "CTT4": 0,
+   "CTT2": 1,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-09",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-10",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-11",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-15",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-16",
+   "CTT4": 2,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-17",
+   "CTT4": 3,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-18",
+   "CTT4": 4,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-23",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-24",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-25",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-26",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-29",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-06-30",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-01",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-02",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-03",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-07",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-08",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-09",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-10",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-13",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 6
+  },
+  {
+   "date": "2026-07-14",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-15",
+   "CTT4": 4,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-16",
+   "CTT4": 4,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-17",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-21",
+   "CTT4": 10,
+   "CTT2": 16,
+   "HTT2": 16
+  },
+  {
+   "date": "2026-07-22",
+   "CTT4": 5,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-24",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-27",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-28",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-29",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-30",
+   "CTT4": 2,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-07-31",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-04",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-05",
+   "CTT4": 5,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-06",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-07",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-10",
+   "CTT4": 1,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-11",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-12",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-13",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-14",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-17",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-18",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-19",
+   "CTT4": 4,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-20",
+   "CTT4": 4,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-21",
+   "CTT4": 0,
+   "CTT2": 10,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-24",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-25",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-08-26",
+   "CTT4": 0,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-08-27",
+   "CTT4": 0,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-08-28",
+   "CTT4": 5,
+   "CTT2": 11,
+   "HTT2": 3
+  },
+  {
+   "date": "2026-08-31",
+   "CTT4": 5,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-09-01",
+   "CTT4": 5,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-09-02",
+   "CTT4": 5,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-09-03",
+   "CTT4": 4,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-09-04",
+   "CTT4": 0,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-09-07",
+   "CTT4": 0,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-09-08",
+   "CTT4": 0,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-09-09",
+   "CTT4": 0,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-09-10",
+   "CTT4": 0,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-09-11",
+   "CTT4": 4,
+   "CTT2": 12,
+   "HTT2": 4
+  },
+  {
+   "date": "2026-09-15",
+   "CTT4": 5,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-09-16",
+   "CTT4": 5,
+   "CTT2": 2,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-09-17",
+   "CTT4": 5,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-09-18",
+   "CTT4": 5,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-09-22",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-09-23",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-09-24",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-09-25",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-09-28",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-09-29",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-09-30",
+   "CTT4": 0,
+   "CTT2": 6,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-10-01",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-10-02",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-10-06",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-10-07",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-10-08",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-10-09",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-10-13",
+   "CTT4": 0,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-10-14",
+   "CTT4": 0,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-10-15",
+   "CTT4": 0,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-10-16",
+   "CTT4": 0,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-10-19",
+   "CTT4": 0,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-10-21",
+   "CTT4": 3,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-10-22",
+   "CTT4": 4,
+   "CTT2": 0,
+   "HTT2": 6
+  },
+  {
+   "date": "2026-10-23",
+   "CTT4": 4,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-10-27",
+   "CTT4": 0,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-10-28",
+   "CTT4": 0,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-10-30",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 24
+  },
+  {
+   "date": "2026-11-04",
+   "CTT4": 3,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-11-05",
+   "CTT4": 4,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-11-06",
+   "CTT4": 4,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-11-09",
+   "CTT4": 4,
+   "CTT2": 4,
+   "HTT2": 12
+  },
+  {
+   "date": "2026-11-11",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-11-12",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-11-13",
+   "CTT4": 0,
+   "CTT2": 0,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-11-17",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  },
+  {
+   "date": "2026-11-19",
+   "CTT4": 0,
+   "CTT2": 8,
+   "HTT2": 8
+  }
+ ]
+}
