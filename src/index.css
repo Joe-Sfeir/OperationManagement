@@ -1,0 +1,45 @@
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-canvas font-sans text-14 text-text antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid theme('colors.text');
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Numbers and timers: Plex Mono with tabular figures (bible, Type). */
+  .num {
+    @apply font-mono;
+    font-variant-numeric: tabular-nums;
+  }
+  .panel {
+    @apply rounded-panel border border-hairline bg-panel;
+  }
+}
+
+/* Reduced motion: interface transitions snap. The 3D scene steps instead of tweening (handled in code). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}

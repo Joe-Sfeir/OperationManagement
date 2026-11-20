@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Concept contact sheet</title>
+<style>
+@font-face { font-family: "IBM Plex Sans"; font-weight: 400; src: url("../../node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 600; src: url("../../node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 400; src: url("../../node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); }
+:root {
+  --canvas: #0F1214; --panel: #161A1D; --hair: #2A3035; --hair2: #3A4247;
+  --text: #E6E3DC; --muted: #A0A7AC; --faint: #7F878C;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--canvas); color: var(--text); font: 14px/20px "IBM Plex Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; line-height: 16px; font-variant-numeric: tabular-nums; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+header.top { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; justify-content: space-between; padding: 12px 24px; border-bottom: 1px solid var(--hair); }
+h1 { font-size: 14px; font-weight: 600; margin: 0; }
+h2 { font-size: 14px; font-weight: 600; margin: 0; }
+p { margin: 0; }
+.muted { color: var(--muted); font-size: 12px; line-height: 16px; }
+main { max-width: 1520px; margin: 0 auto; padding: 24px; display: grid; gap: 16px; }
+.how { display: grid; gap: 4px; padding: 16px; border: 1px solid var(--hair); border-radius: 8px; background: var(--panel); }
+.how ol { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.el { display: grid; grid-template-columns: minmax(280px, 5fr) 7fr; gap: 16px; padding: 16px; border: 1px solid var(--hair); border-radius: 8px; background: var(--panel); }
+.el .meta { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.el .title { display: flex; gap: 12px; align-items: baseline; }
+.el .title .mono { color: var(--muted); }
+.prompt { position: relative; margin: 0; padding: 12px; border: 1px solid var(--hair); border-radius: 4px; white-space: pre-wrap; word-break: break-word; color: var(--muted); }
+.prompt b { color: var(--text); font-weight: 400; }
+button { font: 12px/16px "IBM Plex Sans", system-ui, sans-serif; color: var(--text); background: transparent; border: 1px solid var(--hair2); border-radius: 4px; padding: 6px 10px; cursor: pointer; transition: border-color 150ms cubic-bezier(.42,0,.58,1); }
+button:hover { border-color: var(--muted); }
+.refs { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.refs li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; line-height: 16px; }
+.refs li > span:first-child::before { content: "Attach: "; color: var(--muted); }
+.refs img { height: 48px; border-radius: 4px; border: 1px solid var(--hair); }
+.slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-content: start; }
+.slot { margin: 0; display: grid; gap: 6px; min-width: 0; }
+.slot img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; border: 1px solid var(--hair); display: block; background: var(--canvas); }
+.slot.approved img { border: 2px solid var(--text); }
+.slot figcaption { display: flex; gap: 8px; align-items: center; justify-content: space-between; min-width: 0; }
+.slot figcaption code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.tag { font-size: 12px; line-height: 16px; padding: 0 6px; border: 1px solid var(--text); border-radius: 4px; }
+.ph { aspect-ratio: 4 / 3; border: 1px dashed var(--hair2); border-radius: 4px; display: grid; place-content: center; gap: 4px; text-align: center; padding: 8px; }
+.ph span { color: var(--muted); font-size: 12px; }
+.ph code { color: var(--faint); word-break: break-all; }
+@media (max-width: 900px) {
+  main { padding: 16px; }
+  header.top { padding: 12px 16px; }
+  .el { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) { .slots { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { * { transition-duration: 0ms !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Concept contact sheet</h1>
+  <p class="muted"><span class="mono">0</span> of <span class="mono">21</span> variations in place, <span class="mono">0</span> approved. Prompts read from docs/STYLE_BIBLE.md.</p>
+</header>
+<main>
+  <section class="how" aria-label="How to fill this sheet">
+    <h2>Fill and approve</h2>
+    <ol class="muted">
+      <li>Copy a prompt (style anchor already included) into Nano Banana, Higgsfield or Midjourney, and attach the listed photo.</li>
+      <li>Save three variations into <code>reference/concepts/</code> using the file names in the empty slots.</li>
+      <li>Run <code>npm run concepts:sheet</code> to refresh this page.</li>
+      <li>Copy the ones you approve, same name, into <code>reference/concepts/approved/</code>. They get a white frame here.</li>
+    </ol>
+  </section>
+  <article class="el" id="machine-hero">
+    <div class="meta">
+      <div class="title"><span class="mono">1</span><h2>Machine hero</h2><code class="muted">machine-hero</code></div>
+      <ul class="refs"><li><span>Plan-view drawing from the manual (layout)</span><span class="muted">not in reference/photos/ yet</span></li><li><span>Hoist photo (real colours and clutter)</span><span class="muted">not in reference/photos/ yet</span></li></ul>
+      <pre class="prompt mono" id="p-machine-hero">Isometric 3D render, true orthographic isometric camera, scale-model look, soft warm key light from top left, cool fill, ambient occlusion, matte painted steel, cream #D9CFB8 cabinets, blue #2F6FC9 doors and motors, black moulds, dark green epoxy floor with a yellow safety line, near-black background #0F1214, clean and precise, no people faces, no text, no logos, no neon, no gradients. <b>industrial rotational moulding carousel machine seen from above at isometric angle, central drum hub with ring of small blue motors, four steel arms with ring frames holding black dome-topped moulds, cream box oven on the right with blue sliding doors and front wall cut away showing orange glow inside, round blue cooling chamber with side fan at upper left, overhead dosing platform with two hoppers and a white hose, chain hoist lifting a grey water tank</b></pre>
+      <div><button type="button" data-copy="p-machine-hero">Copy prompt</button></div>
+    </div>
+    <div class="slots"><figure class="slot empty"><div class="ph"><span>v1 missing</span><code>machine-hero-v1.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v2 missing</span><code>machine-hero-v2.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v3 missing</span><code>machine-hero-v3.png</code></div></figure></div>
+  </article>
+  <article class="el" id="oven-close-up">
+    <div class="meta">
+      <div class="title"><span class="mono">2</span><h2>Oven close-up</h2><code class="muted">oven-close-up</code></div>
+      <ul class="refs"><li><span>Cooking chamber drawing</span><span class="muted">not in reference/photos/ yet</span></li></ul>
+      <pre class="prompt mono" id="p-oven-close-up">Isometric 3D render, true orthographic isometric camera, scale-model look, soft warm key light from top left, cool fill, ambient occlusion, matte painted steel, cream #D9CFB8 cabinets, blue #2F6FC9 doors and motors, black moulds, dark green epoxy floor with a yellow safety line, near-black background #0F1214, clean and precise, no people faces, no text, no logos, no neon, no gradients. <b>cut-away cream panelled oven with blue sliding doors half open, black mould on a steel arm inside tumbling, warm orange interior light spilling onto the floor, exhaust stack on top</b></pre>
+      <div><button type="button" data-copy="p-oven-close-up">Copy prompt</button></div>
+    </div>
+    <div class="slots"><figure class="slot empty"><div class="ph"><span>v1 missing</span><code>oven-close-up-v1.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v2 missing</span><code>oven-close-up-v2.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v3 missing</span><code>oven-close-up-v3.png</code></div></figure></div>
+  </article>
+  <article class="el" id="cooling-chamber">
+    <div class="meta">
+      <div class="title"><span class="mono">3</span><h2>Cooling chamber</h2><code class="muted">cooling-chamber</code></div>
+      <ul class="refs"><li><span>Cooling chamber drawing</span><span class="muted">not in reference/photos/ yet</span></li></ul>
+      <pre class="prompt mono" id="p-cooling-chamber">Isometric 3D render, true orthographic isometric camera, scale-model look, soft warm key light from top left, cool fill, ambient occlusion, matte painted steel, cream #D9CFB8 cabinets, blue #2F6FC9 doors and motors, black moulds, dark green epoxy floor with a yellow safety line, near-black background #0F1214, clean and precise, no people faces, no text, no logos, no neon, no gradients. <b>cylindrical blue cooling chamber open on one side, yellow interior, large black side fan, black mould on a steel arm inside, faint water mist</b></pre>
+      <div><button type="button" data-copy="p-cooling-chamber">Copy prompt</button></div>
+    </div>
+    <div class="slots"><figure class="slot empty"><div class="ph"><span>v1 missing</span><code>cooling-chamber-v1.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v2 missing</span><code>cooling-chamber-v2.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v3 missing</span><code>cooling-chamber-v3.png</code></div></figure></div>
+  </article>
+  <article class="el" id="demoulding">
+    <div class="meta">
+      <div class="title"><span class="mono">4</span><h2>Demoulding</h2><code class="muted">demoulding</code></div>
+      <ul class="refs"><li><span>Hoist photo</span><span class="muted">not in reference/photos/ yet</span></li></ul>
+      <pre class="prompt mono" id="p-demoulding">Isometric 3D render, true orthographic isometric camera, scale-model look, soft warm key light from top left, cool fill, ambient occlusion, matte painted steel, cream #D9CFB8 cabinets, blue #2F6FC9 doors and motors, black moulds, dark green epoxy floor with a yellow safety line, near-black background #0F1214, clean and precise, no people faces, no text, no logos, no neon, no gradients. <b>orange chain hoist on a cream beam lifting a freshly moulded grey polyethylene water tank out of an open black mould, two simple worker figures guiding it, row of finished tanks nearby</b></pre>
+      <div><button type="button" data-copy="p-demoulding">Copy prompt</button></div>
+    </div>
+    <div class="slots"><figure class="slot empty"><div class="ph"><span>v1 missing</span><code>demoulding-v1.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v2 missing</span><code>demoulding-v2.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v3 missing</span><code>demoulding-v3.png</code></div></figure></div>
+  </article>
+  <article class="el" id="raw-material-hall">
+    <div class="meta">
+      <div class="title"><span class="mono">5</span><h2>Raw-material hall</h2><code class="muted">raw-material-hall</code></div>
+      <ul class="refs"><li><span>Extruder and silo photo</span><span class="muted">not in reference/photos/ yet</span></li></ul>
+      <pre class="prompt mono" id="p-raw-material-hall">Isometric 3D render, true orthographic isometric camera, scale-model look, soft warm key light from top left, cool fill, ambient occlusion, matte painted steel, cream #D9CFB8 cabinets, blue #2F6FC9 doors and motors, black moulds, dark green epoxy floor with a yellow safety line, near-black background #0F1214, clean and precise, no people faces, no text, no logos, no neon, no gradients. <b>polymer powder hall, three tall cream silos with blue screw feeders and cut-away level gauges, blue extruder with large blue electric motor, pulveriser with powder outlet, stacked white resin sacks on pallets, yellow forklift carrying a powder bin</b></pre>
+      <div><button type="button" data-copy="p-raw-material-hall">Copy prompt</button></div>
+    </div>
+    <div class="slots"><figure class="slot empty"><div class="ph"><span>v1 missing</span><code>raw-material-hall-v1.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v2 missing</span><code>raw-material-hall-v2.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v3 missing</span><code>raw-material-hall-v3.png</code></div></figure></div>
+  </article>
+  <article class="el" id="sourcing-map">
+    <div class="meta">
+      <div class="title"><span class="mono">6</span><h2>Sourcing map</h2><code class="muted">sourcing-map</code></div>
+      <p class="muted">No photo to attach.</p>
+      <pre class="prompt mono" id="p-sourcing-map">Isometric 3D render, true orthographic isometric camera, scale-model look, soft warm key light from top left, cool fill, ambient occlusion, matte painted steel, cream #D9CFB8 cabinets, blue #2F6FC9 doors and motors, black moulds, dark green epoxy floor with a yellow safety line, near-black background #0F1214, clean and precise, no people faces, no text, no logos, no neon, no gradients. <b>flat dark map of Europe, the Mediterranean, the Red Sea and the Arabian Gulf, muted grey land, three thin route lines converging on Beirut from Hamburg, Jubail and Bahrain, small ship and plane icons, minimal cartographic style</b></pre>
+      <div><button type="button" data-copy="p-sourcing-map">Copy prompt</button></div>
+    </div>
+    <div class="slots"><figure class="slot empty"><div class="ph"><span>v1 missing</span><code>sourcing-map-v1.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v2 missing</span><code>sourcing-map-v2.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v3 missing</span><code>sourcing-map-v3.png</code></div></figure></div>
+  </article>
+  <article class="el" id="full-dashboard">
+    <div class="meta">
+      <div class="title"><span class="mono">7</span><h2>Full dashboard</h2><code class="muted">full-dashboard</code></div>
+      <ul class="refs"><li><span>HMI page 0 (what operators already look at)</span><span class="muted">not in reference/photos/ yet</span></li><li><span>Console photo</span><span class="muted">not in reference/photos/ yet</span></li></ul>
+      <pre class="prompt mono" id="p-full-dashboard">Isometric 3D render, true orthographic isometric camera, scale-model look, soft warm key light from top left, cool fill, ambient occlusion, matte painted steel, cream #D9CFB8 cabinets, blue #2F6FC9 doors and motors, black moulds, dark green epoxy floor with a yellow safety line, near-black background #0F1214, clean and precise, no people faces, no text, no logos, no neon, no gradients. <b>industrial control room web dashboard, dark UI, isometric 3D rotational moulding machine filling the centre, thin left panel listing four arms with progress bars, right panel with three large numeric KPIs, bottom timeline bar, IBM Plex type, restrained amber accent</b></pre>
+      <div><button type="button" data-copy="p-full-dashboard">Copy prompt</button></div>
+    </div>
+    <div class="slots"><figure class="slot empty"><div class="ph"><span>v1 missing</span><code>full-dashboard-v1.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v2 missing</span><code>full-dashboard-v2.png</code></div></figure><figure class="slot empty"><div class="ph"><span>v3 missing</span><code>full-dashboard-v3.png</code></div></figure></div>
+  </article>
+
+</main>
+<script>
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-copy]');
+  if (!b) return;
+  const text = document.getElementById(b.dataset.copy).textContent;
+  try { await navigator.clipboard.writeText(text); b.textContent = 'Copied'; }
+  catch { const r = document.createRange(); r.selectNodeContents(document.getElementById(b.dataset.copy)); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selected, press Ctrl+C'; }
+  setTimeout(() => (b.textContent = 'Copy prompt'), 1500);
+});
+</script>
+</body>
+</html>
