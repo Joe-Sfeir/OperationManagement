@@ -36,7 +36,8 @@ export function MachineScene({ interactive = true, inHall = false }: { interacti
       <DemouldStation onSelect={interactive ? () => select('demould') : undefined} />
       <Console />
       <Operators />
-      <WaitCues />
+      {/* Small side-by-side views show the red ring only; the timer text would crowd them. */}
+      <WaitCues showText={interactive} />
       {interactive && <StationLabels onSelect={select} />}
     </group>
   );

@@ -7,7 +7,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { installInlinedHighs } from './highsBrowser';
-import { buildInput, manualInput, solvePlan, whatIf, type PlanResult, type PlanSettings, type WhatIfCell } from './model';
+import { buildInput, solvePlan, whatIf, type PlanResult, type PlanSettings, type WhatIfCell } from './model';
 
 export interface PlanState {
   /** loading: solver starting. solving: a newer answer is on its way. */
@@ -17,7 +17,6 @@ export interface PlanState {
   settings: PlanSettings | null;
   cells: WhatIfCell[] | null;
   cellsPending: boolean;
-  manual: PlanResult | null;
   error: string | null;
 }
 
@@ -29,7 +28,7 @@ const gridKeyOf = (s: PlanSettings) => JSON.stringify({ ...s, armDays: 0, demand
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 export function usePlan(settings: PlanSettings): PlanState {
-  const [state, setState] = useState<PlanState>({ phase: 'loading', result: null, settings: null, cells: null, cellsPending: true, manual: null, error: null });
+  const [state, setState] = useState<PlanState>({ phase: 'loading', result: null, settings: null, cells: null, cellsPending: true, error: null });
   const run = useRef(0);
   const gridKey = useRef('');
   const key = JSON.stringify(settings);
@@ -63,19 +62,6 @@ export function usePlan(settings: PlanSettings): PlanState {
     );
     return () => clearTimeout(timer);
   }, [key]);
-
-  // The hand-solved case never changes: solve it once.
-  useEffect(() => {
-    let alive = true;
-    installInlinedHighs();
-    solvePlan(manualInput, pause).then(
-      (manual) => alive && setState((s) => ({ ...s, manual })),
-      () => undefined,
-    );
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   return state;
 }

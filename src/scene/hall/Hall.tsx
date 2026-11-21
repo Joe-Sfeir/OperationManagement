@@ -11,6 +11,7 @@ import { MeshReflectorMaterial } from '@react-three/drei';
 import { palette } from '../../design/tokens';
 import { useTwin } from '../../app/store';
 import { mats } from '../materials';
+import { Railing } from '../parts';
 import { HALL, LAMPS } from '../layout';
 import { signTexture, type SignSpec } from './signs';
 
@@ -287,6 +288,79 @@ function Pool() {
   );
 }
 
+/** Tyre marks on the forklift lane: drawn once on a canvas, laid on the floor. */
+function TyreMarks() {
+  const mat = useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = 1024;
+    c.height = 128;
+    const ctx = c.getContext('2d')!;
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+    for (let i = 0; i < 26; i++) {
+      const y0 = 22 + rnd() * 84;
+      ctx.strokeStyle = `rgba(8,10,10,${0.05 + rnd() * 0.12})`;
+      ctx.lineWidth = 5 + rnd() * 5;
+      ctx.beginPath();
+      const x0 = rnd() * 500;
+      ctx.moveTo(x0, y0);
+      ctx.bezierCurveTo(x0 + 150, y0 + (rnd() - 0.5) * 26, x0 + 320, y0 + (rnd() - 0.5) * 26, x0 + 420 + rnd() * 200, y0 + (rnd() - 0.5) * 16);
+      ctx.stroke();
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false });
+  }, []);
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-18.5, 0.004, 8.55]} material={mat}>
+      <planeGeometry args={[21, 2.9]} />
+    </mesh>
+  );
+}
+
+/** Things fixed to the building near the machine: the electric panel the manual's plan view shows by the cooling chamber, service pipes, guard rails, a tool trolley. */
+function Fittings() {
+  const M = mats();
+  const HM = hallMats();
+  return (
+    <group>
+      {/* Electric panel: two-door cabinet with a conduit up to the wall rail */}
+      <group position={[-5.4, 0, -10.4]}>
+        <Slab size={[1.9, 2.1, 0.55]} position={[0, 1.13, 0]} material={M.console} shadow />
+        <Slab size={[1.96, 0.08, 0.6]} position={[0, 0.04, 0]} material={HM.black} />
+        <Slab size={[0.02, 1.9, 0.01]} position={[0, 1.13, 0.281]} material={HM.black} />
+        {[-0.48, 0.48].map((x) => (
+          <Slab key={x} size={[0.5, 0.3, 0.012]} position={[x, 1.7, 0.282]} material={HM.black} />
+        ))}
+        <Slab size={[0.28, 0.28, 0.012]} position={[0.48, 1.15, 0.282]} material={HM.bollard} />
+        <Slab size={[0.12, 4.1, 0.12]} position={[0.7, 4.2, -0.2]} material={HM.post} />
+      </group>
+      {/* Service pipes along the back wall: water (blue) to the cooling chamber, and a cable tray */}
+      <Slab size={[34, 0.09, 0.09]} position={[1.5, 3.25, HALL.z0 + 0.5]} material={M.blue} />
+      <Slab size={[56, 0.06, 0.3]} position={[CX, 3.75, HALL.z0 + 0.5]} material={HM.post} />
+      <Slab size={[0.09, 3.2, 0.09]} position={[-4.2, 1.65, HALL.z0 + 0.5]} material={M.blue} />
+      {/* Yellow guard rails on the hot side, outside the red line */}
+      <Railing material={HM.bollard} points={[[13.6, 0, -4.4], [13.6, 0, 4.6]]} spacing={1.5} />
+      <Railing material={HM.bollard} points={[[5.0, 0, -11.2], [10.4, 0, -8.4]]} spacing={1.5} />
+      {/* Tool trolley by the demould platform */}
+      <group position={[-9.3, 0, 3.6]} rotation={[0, 0.4, 0]}>
+        <Slab size={[1.0, 0.62, 0.52]} position={[0, 0.5, 0]} material={M.blueDark} shadow />
+        <Slab size={[1.06, 0.04, 0.58]} position={[0, 0.83, 0]} material={HM.black} />
+        {[0.34, 0.5, 0.66].map((y) => (
+          <Slab key={y} size={[0.9, 0.012, 0.01]} position={[0, y, 0.262]} material={HM.post} />
+        ))}
+        {[-0.4, 0.4].flatMap((x) =>
+          [-0.2, 0.2].map((z) => (
+            <mesh key={`${x}${z}`} position={[x, 0.09, z]} rotation={[0, 0, Math.PI / 2]} material={HM.black}>
+              <cylinderGeometry args={[0.09, 0.09, 0.05, 12]} />
+            </mesh>
+          )),
+        )}
+      </group>
+    </group>
+  );
+}
+
 export function Hall() {
   const HM = hallMats();
   return (
@@ -329,6 +403,8 @@ export function Hall() {
       <Slab size={[0.3, 0.02, D]} position={[HALL.x1 + 0.15, 0.31, CZ]} material={mats().section} />
 
       <Lamps />
+      <Fittings />
+      <TyreMarks />
 
       {/* Standing signs, facing the open side of the hall */}
       <PostSign spec={SIGNS.line} position={[-3.6, 0, 10.6]} rotation={[0, 0.25, 0]} />

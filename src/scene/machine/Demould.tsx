@@ -155,6 +155,9 @@ export function DemouldStation({ onSelect }: { onSelect?: () => void }) {
         <Box size={[0.5, 0.22, 0.4]} position={[0, 0.02, 0]} material={M.steelDark} radius={0.03} />
         <Box size={[0.62, 0.46, 0.42]} position={[0, -0.34, 0]} material={M.hoist} radius={0.06} />
         <Cyl r={0.15} h={0.5} position={[0.1, -0.34, 0]} rotation={[Math.PI / 2, 0, 0]} material={M.steelDark} segments={14} />
+        {/* Pendant control on its cable, within reach of the platform */}
+        <Bar from={[0.3, -0.5, 0.3]} to={[0.3, -4.6, 0.3]} r={0.012} material={M.rubber} segments={5} />
+        <Box size={[0.1, 0.3, 0.08]} position={[0.3, -4.75, 0.3]} material={M.yellow} radius={0.015} />
       </group>
       <mesh ref={chain} material={M.chain} castShadow>
         <cylinderGeometry args={[0.025, 0.025, 1, 6]} />

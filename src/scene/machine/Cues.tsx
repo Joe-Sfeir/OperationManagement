@@ -20,7 +20,7 @@ const mmss = (min: number) => {
  * floor at its position and a growing timer. Both come from the simulator's
  * queue data, not from a fixed rule.
  */
-export function WaitCues() {
+export function WaitCues({ showText = true }: { showText?: boolean }) {
   const plant = usePlant();
   const n = plant.result.config.arms.length;
   const rings = useRef<(THREE.Group | null)[]>([]);
@@ -29,7 +29,8 @@ export function WaitCues() {
   useFrame(() => {
     const s = plant.get();
     s.arms.forEach((a, i) => {
-      const waiting = a.stage === 'waitOven' || a.stage === 'blocked';
+      // A wait shorter than a quarter of a minute is just the arms changing places: no cue for that.
+      const waiting = (a.stage === 'waitOven' || a.stage === 'blocked') && a.waitingMin > 0.25;
       const ring = rings.current[i];
       const label = labels.current[i];
       if (ring) {
@@ -37,7 +38,7 @@ export function WaitCues() {
         if (waiting) ring.position.set(...polar(R_ARM, armAngleDeg(a, plant.result.ring, useTwin.getState().reduced), 0.02));
       }
       if (label) {
-        label.style.display = waiting ? 'flex' : 'none';
+        label.style.display = waiting && showText ? 'flex' : 'none';
         if (waiting) label.lastElementChild!.textContent = mmss(a.waitingMin);
       }
     });

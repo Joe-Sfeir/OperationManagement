@@ -62,3 +62,33 @@ The M0 and M2 approval gates were skipped on H's instruction ("my main goal is t
 - Not checked: frame rate on a real GPU, screen readers, reduced-motion mode on screen, the camera glide mid-move.
 - No timed shift log, so the twin is calibrated, not validated.
 - Copied numbers: `src/scene/raw/layout.ts` copies the machine slab's front edge and the hopper offsets from `machine/Floor.tsx` and `machine/Loading.tsx`. Change them together.
+
+## Second pass after H's review (21 Nov, afternoon)
+
+H's comments: the 3D reads as blocks and floats on a void; navigate by dragging, not tabs; the arm must go back to loading for layers 2 and 3; the four pages say too much. Plan: `/root/.claude/plans/` (approved by H).
+
+**Decisions H made**
+- The layer 2 and 3 trips to loading are inside the 28.5 min oven visit.
+- Drag to move, scroll to zoom, fixed angle.
+- Source letters hidden behind a "Sources" switch.
+- A hall like the site photo, with light clutter.
+
+**Done**
+- **Layers.** Default is now return to loading, with `tripsInsideVisit`. The cycle is still 120.0 min, with 16 visits and 4 + 8 + 8 tanks. A loaded arm waits 8.1 min for the oven (NTG estimate 8). An empty arm waits 14.3 min at demould for the loading position, which is kept for the arm in the oven.
+- **Sources switch.** `SourceBadge` renders nothing unless it is on; numbers keep the source as a hover title.
+- **Navigation.** Perspective lens at the same isometric angle. Drag pans along the floor, wheel or pinch zooms toward the pointer, arrow keys and + / - work. Tabs, station clicks and Reset view fly the camera. The left panel follows the area under the camera. Tested with scripted mouse input.
+- **Hall.** One reflective epoxy floor, back and end walls, columns, roof-beam stubs, windows, lamps with pools of light, roller door, mould rack, electric panel, wall pipes, guard rails, zone signs and three safety signs. Near walls and roof cut away.
+- **Detail.** Arm numbers, maker's plate, bolt circles, hazard stripes, cable trunking, diesel and water lines, hoist pendant, tyre marks. Operators have jointed limbs and step only when the simulator moves them.
+- **Pages.** Redesign and Report are simplified (one screen each); the detail moved to `docs/VALIDATION.md`, `docs/MODEL.md`, `docs/ASSUMPTIONS.md`, `docs/OWNER_GUIDE.md`. A help overlay opens from the top bar.
+
+**Deviations from the plan**
+- Tone mapping stays ACES. AgX made the hall look flat.
+- No normal maps. The earlier black-frame bug came from derivative shading, so surface detail is geometry and printed plates instead.
+- I built the hall myself rather than handing it to an agent, to stay under the usage limits.
+
+**Cost of the new look**
+- About 3,500 draw calls and 580k triangles a frame over three passes (main, shadow, floor reflection). On a slow graphics card the app switches to simple lighting by itself, which drops the reflection pass and the post effects.
+
+**Still to do**
+- Plan and Sourcing page simplification (agents, one at a time).
+- Frame rate on a real laptop; screen readers.

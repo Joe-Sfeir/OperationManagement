@@ -2,7 +2,7 @@
 
 A simulated, animated model of Machine 3700, the carousel rotational-moulding machine at Nassar Techno Group (NTG), with a weekly planning tool. Built for AUB DCSN 200, Fall 2026/27.
 
-Everything that moves on screen is driven by a discrete-event simulation. Every number shown carries a letter that says where it comes from: **N** NTG reported, **V** team visit, **C** calculated, **S** estimate.
+Everything that moves on screen is driven by a discrete-event simulation. Every number has a source: **N** NTG reported, **V** team visit, **C** calculated, **S** estimate. Switch **Sources** on in the top bar to see the letters.
 
 ![Machine 3700 twin](docs/screens/machine-1600x1000.jpg)
 
@@ -36,8 +36,8 @@ Then open the address it prints (usually http://localhost:5173).
 
 | Screen | What it shows |
 | --- | --- |
-| Machine | The carousel in isometric 3D: four arms, oven, cooling chamber, loading platform, hoist, tank buffer. Play, pause, scrub, change speed (100x plays one 120 min arm cycle in 1.2 min). Click a position for its inputs. |
-| Raw material | The powder hall: sacks, extruder, pulveriser, three silos with live levels, forklift bin to the hoppers. |
+| Machine | The plant hall in 3D: the carousel with four arms, oven, cooling chamber, loading platform, hoist and tank buffer. Drag to move, scroll to zoom, click a position for its inputs. Play, pause, scrub, change speed (100x plays one 120 min arm cycle in 1.2 min). |
+| Raw material | The same hall, further along: sacks, extruder, pulveriser, three silos with live levels, forklift bin to the hoppers. Drag there or use the tab. |
 | Redesign | Four ways to share the arms between products over a week, side by side, with a recommendation and its rule. |
 | Plan | A linear programme solved in the browser (HiGHS): tanks to make each week so stock stays above NTG's minimum with the least machine time. |
 | Sourcing | Routes and landed cost for resin into Beirut, with EOQ and quantity discounts. Prices are researched estimates, not quotes. |
@@ -58,7 +58,7 @@ python3 -I tools/extract_data.py data/NTG_Data_Inventory_v1.xlsx data/NTG_Histor
 
 ## How the simulator works, in short
 
-Four independent arms travel one way round five positions (loading, oven, air cooling, cooling chamber, demould) and cannot overtake. A position holds one arm, so the oven serves one arm at a time. The arm cycle is an output of the model, not an input. With the inventory's times it comes out at 120 min and 4 + 8 + 8 tanks from a shift, which is what NTG reports. See `docs/MODEL.md`.
+Four independent arms travel one way round five positions (loading, oven, air cooling, cooling chamber, demould) and cannot overtake. A position holds one arm, so the oven serves one arm at a time. For layers 2 and 3 the arm swings back out to loading, is dosed, and returns; those swings are part of the 28.5 min oven visit. The arm cycle is an output of the model, not an input. With the inventory's times it comes out at 120 min and 4 + 8 + 8 tanks from a shift, which is what NTG reports. See `docs/MODEL.md`.
 
 **Calibrated, not validated.** No timed shift log exists yet. Known gaps are stated in the Report screen rather than tuned away. The main one: the last two arms come out 8.5 and 38.5 minutes after the 8.5 h mark.
 

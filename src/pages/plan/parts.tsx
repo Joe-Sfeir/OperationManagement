@@ -1,37 +1,20 @@
-/** Small pieces shared by the Plan page sections. Layout only; colours and type come from the tokens. */
+/** Small pieces shared by the Plan page. Layout only; colours and type come from the tokens. */
 import { useState, type ReactNode } from 'react';
 import { Num } from '../../ui/kit';
 import { color } from '../../design/tokens';
 
-export function SectionHeader({ id, title, note, action }: { id: string; title: string; note?: ReactNode; action?: ReactNode }) {
+/** One control of the inputs strip: a short label above the control. */
+export function Control({ label, htmlFor, children }: { label: string; htmlFor?: string; children: ReactNode }) {
   return (
-    <header className="mb-4 flex flex-wrap items-start justify-between gap-x-6 gap-y-2">
-      <div className="min-w-0">
-        <h2 id={id} className="text-14 font-semibold">
-          {title}
-        </h2>
-        {note && <p className="mt-1 max-w-[90ch] text-12 text-textMuted">{note}</p>}
-      </div>
-      {action}
-    </header>
-  );
-}
-
-/** A labelled row of the inputs panel. `htmlFor` ties the label to a single control; groups name themselves. */
-export function Field({ label, htmlFor, hint, children }: { label: string; htmlFor?: string; hint?: ReactNode; children: ReactNode }) {
-  return (
-    <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-[10.5rem_minmax(0,1fr)] sm:gap-4">
+    <div className="min-w-0">
       {htmlFor ? (
-        <label htmlFor={htmlFor} className="text-14 sm:pt-0.5">
+        <label htmlFor={htmlFor} className="mb-1.5 block text-12 text-textMuted">
           {label}
         </label>
       ) : (
-        <span className="text-14 sm:pt-0.5">{label}</span>
+        <span className="mb-1.5 block text-12 text-textMuted">{label}</span>
       )}
-      <div className="min-w-0">
-        {children}
-        {hint && <div className="mt-1.5 text-12 text-textMuted">{hint}</div>}
-      </div>
+      <div className="flex min-h-[1.75rem] flex-wrap items-center gap-x-3 gap-y-1">{children}</div>
     </div>
   );
 }
@@ -40,25 +23,7 @@ export function Field({ label, htmlFor, hint, children }: { label: string; htmlF
  * A number box that never fights the keyboard: the text is free while typing,
  * and a value is passed on only when it is a valid number in range.
  */
-export function NumberField({
-  value,
-  onCommit,
-  label,
-  min = 0,
-  max,
-  step = 1,
-  id,
-  wide,
-}: {
-  value: number;
-  onCommit: (v: number) => void;
-  label: string;
-  min?: number;
-  max?: number;
-  step?: number;
-  id?: string;
-  wide?: boolean;
-}) {
+export function NumberField({ value, onCommit, label, min = 0, max, step = 1, id }: { value: number; onCommit: (v: number) => void; label: string; min?: number; max?: number; step?: number; id?: string }) {
   const [text, setText] = useState(String(value));
   const [seen, setSeen] = useState(value);
   if (value !== seen) {
@@ -86,9 +51,8 @@ export function NumberField({
       }}
       onBlur={() => setText(String(value))}
       className={[
-        'num rounded-control border bg-canvas px-1.5 py-0.5 text-right text-14 text-text transition-colors duration-150 ease-machine',
+        'num w-12 rounded-control border bg-canvas px-1.5 py-0.5 text-right text-14 text-text transition-colors duration-150 ease-machine',
         '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-        wide ? 'w-16' : 'w-10 sm:w-12',
         valid ? 'border-hairlineStrong hover:border-textMuted' : 'border-alertRed',
       ].join(' ')}
     />
@@ -96,18 +60,7 @@ export function NumberField({
 }
 
 export function Slider({ id, value, min, max, step, onChange }: { id: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void }) {
-  return (
-    <input
-      id={id}
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={value}
-      onChange={(e) => onChange(Number(e.target.value))}
-      className="h-5 w-full min-w-0 max-w-[22rem] cursor-pointer accent-text"
-    />
-  );
+  return <input id={id} type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="h-5 w-40 min-w-0 cursor-pointer accent-text" />;
 }
 
 /** A computed figure: tag C with a short note on how it was worked out. */
@@ -117,7 +70,7 @@ export function Calc({ value, unit, title, size }: { value: ReactNode; unit?: st
 
 export type Mark = 'pass' | 'fail' | 'allowed' | 'idle';
 
-/** Status mark. Shape and the word beside it carry the meaning; red is a fill, never text. */
+/** Status mark. Shape and the words beside it carry the meaning; red is a fill, never text. */
 export function StatusMark({ kind }: { kind: Mark }) {
   const common = 'inline-block h-2.5 w-2.5 shrink-0';
   if (kind === 'fail') return <span aria-hidden="true" className={common} style={{ background: color.alertRed }} />;
@@ -126,8 +79,8 @@ export function StatusMark({ kind }: { kind: Mark }) {
   return <span aria-hidden="true" className={`${common} rounded-full`} style={{ background: color.steelLight }} />;
 }
 
-export const th = 'border-b border-hairline px-2 py-1.5 text-12 font-medium text-textMuted';
-export const td = 'border-b border-hairline px-2 py-1.5 align-top';
+export const th = 'border-b border-hairline px-1.5 py-1.5 text-12 font-medium text-textMuted sm:px-2';
+export const td = 'border-b border-hairline px-1.5 py-1.5 sm:px-2';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -139,13 +92,6 @@ export function weekDates(weekOne: Date, t: number): string {
   b.setUTCDate(b.getUTCDate() + 4);
   const end = `${b.getUTCDate()} ${MONTHS[b.getUTCMonth()]}`;
   return a.getUTCMonth() === b.getUTCMonth() ? `${a.getUTCDate()} to ${end}` : `${a.getUTCDate()} ${MONTHS[a.getUTCMonth()]} to ${end}`;
-}
-
-/** The Friday before plan week t: the day NTG fixes that week's plan. */
-export function fridayBefore(weekOne: Date, t: number): string {
-  const a = new Date(weekOne);
-  a.setUTCDate(a.getUTCDate() + 7 * (t - 1) - 3);
-  return `${a.getUTCDate()} ${MONTHS[a.getUTCMonth()]}`;
 }
 
 /** "weeks 3, 4 and 6" */
