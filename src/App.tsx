@@ -8,6 +8,7 @@ import { Stage, cameraApi, type Bounds, type View } from './scene/Stage';
 import { MachineScene } from './scene/MachineScene';
 import { HALL_OFFSET, PLAN_ROT } from './scene/layout';
 import { RawHall, HALL_SPAN, HALL_VIEW_CENTER } from './scene/raw/RawHall';
+import { Hall } from './scene/hall/Hall';
 import { stationPoint } from './scene/machine/Cues';
 import { ArmsPanel, BottomBar, KpiPanel, PanelSlot, TopBar, useUiState } from './ui/Chrome';
 import { Button } from './ui/kit';
@@ -126,15 +127,18 @@ export function App() {
             onMove={onMove}
             durationMs={M.cameraPreset}
             reduced={reduced}
-            shadowSpan={38}
-            shadowCenter={toWorld([-14, 0, 4])}
+            shadowSpan={42}
+            shadowCenter={toWorld([-11, 0, 1])}
+            keyScale={0.55}
+            ambientScale={0.5}
             effects={!simpleLight && q.get('fx') !== '0'}
             onMiss={() => select(null, false)}
             label="Machine 3700 and the powder hall, isometric view"
           >
             <PlantProvider result={result}>
-              <MachineScene />
+              <MachineScene inHall />
               <group rotation={[0, PLAN_ROT, 0]}>
+                <Hall />
                 <group position={HALL_OFFSET}>
                   <RawHall onSelect={() => setScene('raw')} />
                 </group>

@@ -257,7 +257,7 @@ function Probe() {
   return null;
 }
 
-function Lights({ shadowSpan, center }: { shadowSpan: number; center: [number, number, number] }) {
+function Lights({ shadowSpan, center, keyScale, ambientScale }: { shadowSpan: number; center: [number, number, number]; keyScale: number; ambientScale: number }) {
   const key = useRef<THREE.DirectionalLight>(null);
   const target = useMemo(() => new THREE.Object3D(), []);
   useEffect(() => {
@@ -271,9 +271,9 @@ function Lights({ shadowSpan, center }: { shadowSpan: number; center: [number, n
       <directionalLight
         ref={key}
         target={target}
-        position={[center[0] - 26, 34, center[2] + 6]}
+        position={[center[0] - 20, 40, center[2] + 8]}
         color={light.key.color}
-        intensity={light.key.intensity * 1.5}
+        intensity={light.key.intensity * 1.5 * keyScale}
         castShadow
         shadow-mapSize={[4096, 4096]}
         shadow-bias={-0.0004}
@@ -282,8 +282,8 @@ function Lights({ shadowSpan, center }: { shadowSpan: number; center: [number, n
       >
         <orthographicCamera attach="shadow-camera" args={[-shadowSpan, shadowSpan, shadowSpan, -shadowSpan, 1, 110]} />
       </directionalLight>
-      <directionalLight position={[center[0] + 18, 14, center[2] + 24]} color={light.fill.color} intensity={light.fill.intensity} />
-      <hemisphereLight args={['#C9D6E2', '#1B2420', light.ambient.intensity * 2.4]} />
+      <directionalLight position={[center[0] + 18, 14, center[2] + 24]} color={light.fill.color} intensity={light.fill.intensity * ambientScale} />
+      <hemisphereLight args={['#C9D6E2', '#1B2420', light.ambient.intensity * 2.4 * ambientScale]} />
     </>
   );
 }
@@ -306,6 +306,8 @@ export function Stage({
   durationMs = motion.cameraPreset,
   shadowSpan = 24,
   shadowCenter = [0, 0, 0],
+  keyScale = 1,
+  ambientScale = 1,
   reduced = false,
   effects = true,
   interactive = false,
@@ -320,6 +322,10 @@ export function Stage({
   durationMs?: number;
   shadowSpan?: number;
   shadowCenter?: [number, number, number];
+  /** Strength of the shadow-casting key light. Lower it where the scene brings its own lamps. */
+  keyScale?: number;
+  /** Strength of the fill and sky light. */
+  ambientScale?: number;
   reduced?: boolean;
   effects?: boolean;
   /** true: drag to move, scroll or pinch to zoom, arrow keys and + / - from the keyboard. */
@@ -343,7 +349,7 @@ export function Stage({
     >
       <color attach="background" args={[palette.canvas]} />
       <CameraRig view={view} flyKey={flyKey} durationMs={durationMs} reduced={reduced} interactive={interactive} bounds={bounds} onMove={onMove} />
-      <Lights shadowSpan={shadowSpan} center={shadowCenter} />
+      <Lights shadowSpan={shadowSpan} center={shadowCenter} keyScale={keyScale} ambientScale={ambientScale} />
       <Studio />
       <Probe />
       {children}

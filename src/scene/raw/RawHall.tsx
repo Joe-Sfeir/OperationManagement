@@ -8,7 +8,6 @@
  * dosing platform. Everything that moves reads the simulator (see each part).
  */
 import { useMemo } from 'react';
-import * as THREE from 'three';
 import { mats } from '../materials';
 import { Boxes, type BoxItem } from './bits';
 import { Extruder } from './Extruder';
@@ -16,43 +15,18 @@ import { Forklift } from './Forklift';
 import { Pulveriser } from './Pulveriser';
 import { Sacks } from './Sacks';
 import { Silos } from './Silos';
-import { BIN_Z, DECK_EDGE_X, LANE_HALF, LANE_Z, SILO_X, SLAB, TURN_R } from './layout';
+import { BIN_Z, DECK_EDGE_X, LANE_HALF, LANE_Z, SILO_X, TURN_R } from './layout';
 
 /** Hall-local point the camera should look at, and the metres (wide, high) that must fit on screen. */
 export const HALL_VIEW_CENTER: [number, number, number] = [0, 2.6, -2.4];
 export const HALL_SPAN: [number, number] = [26, 16];
 
 const LINE = 0.1;
-/** Half width of the lane strip that carries on to the dosing platform. */
-const STRIP_HALF = LANE_HALF + 0.45;
 const STRIP_END = DECK_EDGE_X - 0.25;
 
-/** Hall slab with the lane strip to the platform, as one outline in plan (x, -z). */
-function outline(): THREE.Shape {
-  const { x0, x1 } = SLAB;
-  const y0 = -SLAB.z1;
-  const y1 = -SLAB.z0;
-  const r = 1.2;
-  const rs = 0.5;
-  const ya = Math.max(y0 + r, -(LANE_Z + STRIP_HALF));
-  const yb = Math.min(y1 - r, -(LANE_Z - STRIP_HALF));
-  const s = new THREE.Shape();
-  s.moveTo(x0 + r, y0);
-  s.absarc(x1 - r, y0 + r, r, -Math.PI / 2, 0, false);
-  s.lineTo(x1, ya);
-  s.absarc(STRIP_END - rs, ya + rs, rs, -Math.PI / 2, 0, false);
-  s.absarc(STRIP_END - rs, yb - rs, rs, 0, Math.PI / 2, false);
-  s.lineTo(x1, yb);
-  s.absarc(x1 - r, y1 - r, r, 0, Math.PI / 2, false);
-  s.absarc(x0 + r, y1 - r, r, Math.PI / 2, Math.PI, false);
-  s.absarc(x0 + r, y0 + r, r, Math.PI, Math.PI * 1.5, false);
-  return s;
-}
-
-/** Green epoxy on a dark plinth, like the machine floor, with the painted forklift lane. */
+/** The painted forklift lane and silo bays. The epoxy floor itself belongs to the hall (src/scene/hall/Hall.tsx). */
 function Floor() {
   const M = mats();
-  const slab = useMemo(outline, []);
   const lines = useMemo<BoxItem[]>(() => {
     const it: BoxItem[] = [];
     const y = 0.014;
@@ -78,13 +52,6 @@ function Floor() {
   }, []);
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.6, 0]} material={M.plinth} receiveShadow>
-        <extrudeGeometry args={[slab, { depth: 0.5, bevelEnabled: true, bevelSize: 0.06, bevelThickness: 0.06, bevelSegments: 2, curveSegments: 10 }]} />
-      </mesh>
-      {/* A hair below the machine floor, so the two slabs do not fight where they overlap. */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.001, 0]} material={M.epoxy} receiveShadow>
-        <shapeGeometry args={[slab, 10]} />
-      </mesh>
       <Boxes items={lines} material={M.yellow} shadow={false} />
     </group>
   );

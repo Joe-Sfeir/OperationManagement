@@ -46,3 +46,20 @@ export function sweep(fromDeg: number, toDeg: number, forward: boolean): number 
 
 /** Local position of the powder hall relative to the machine hub (world metres, before PLAN_ROT). */
 export const HALL_OFFSET: [number, number, number] = [-27, 0, 9];
+
+/**
+ * The building, in machine coordinates (metres): x from the powder-hall end to
+ * past the oven, z from the back wall to the open front. The two walls nearest
+ * the camera (front, and the oven end) are cut away.
+ */
+export const HALL = { x0: -41, x1: 19, z0: -18, z1: 20, wallH: 9.6 } as const;
+
+/** High-bay lamps: where the pools of light fall (x, z). Fixtures are drawn only for those near the back wall. */
+export const LAMPS: readonly [number, number][] = [
+  [-30, -9],
+  [-30, 6],
+  [-14, -9],
+  [-12, 7],
+  [2, -9],
+  [3, 6],
+];

@@ -1,7 +1,7 @@
 import { PLAN_ROT } from './layout';
 import { usePlant } from './plant';
 import { useTwin } from '../app/store';
-import { Floor } from './machine/Floor';
+import { Floor, MachineSlab } from './machine/Floor';
 import { Hub } from './machine/Hub';
 import { Arm } from './machine/Arm';
 import { Oven } from './machine/Oven';
@@ -12,11 +12,13 @@ import { Console, Operators } from './machine/Extras';
 import { StationLabels, WaitCues } from './machine/Cues';
 
 /** Machine 3700. Every part is its own component and reads the plant state. */
-export function MachineScene({ interactive = true }: { interactive?: boolean }) {
+/** `inHall`: the building supplies the floor. Otherwise the machine stands on its own slab. */
+export function MachineScene({ interactive = true, inHall = false }: { interactive?: boolean; inHall?: boolean }) {
   const plant = usePlant();
   const select = useTwin((s) => s.select);
   return (
     <group rotation={[0, PLAN_ROT, 0]}>
+      {!inHall && <MachineSlab />}
       <Floor />
       <Hub />
       {plant.result.config.arms.map((_, i) => (
