@@ -6,8 +6,6 @@ import { PlanPage } from './PlanPage';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <div className="h-full overflow-y-auto">
-      <PlanPage />
-    </div>
+    <PlanPage />
   </StrictMode>,
 );

@@ -27,6 +27,9 @@ function FloorLine({ points, width, material }: { points: [number, number][]; wi
   return <mesh geometry={geo} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.014, 0]} material={material} receiveShadow />;
 }
 
+/** Centre of the floor slab in machine coordinates (x, z): the buffer and hoist sit to the left of the hub. */
+const SLAB: [number, number] = [-3.6, -1.2];
+
 /**
  * Machine floor: green epoxy on a dark plinth, the yellow line the manual asks
  * operators to stay behind while arms move, and the red line round the hot side.
@@ -36,8 +39,8 @@ export function Floor() {
   const ring = usePlant().result.ring;
   const slab = useMemo(() => {
     const s = new THREE.Shape();
-    const w = 21;
-    const d = 17;
+    const w = 18.6;
+    const d = 13.6;
     const r = 1.2;
     s.absarc(w - r, d - r, r, 0, Math.PI / 2);
     s.absarc(-w + r, d - r, r, Math.PI / 2, Math.PI);
@@ -55,10 +58,10 @@ export function Floor() {
   }, []);
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.6, 0]} material={M.plinth} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[SLAB[0], -0.6, SLAB[1]]} material={M.plinth} receiveShadow>
         <extrudeGeometry args={[slab, { depth: 0.5, bevelEnabled: true, bevelSize: 0.06, bevelThickness: 0.06, bevelSegments: 2 }]} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]} material={M.epoxy} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[SLAB[0], 0.001, SLAB[1]]} material={M.epoxy} receiveShadow>
         <shapeGeometry args={[slab, 24]} />
       </mesh>
       {/* Yellow line: from the cooling console round the front to the cooking console (manual plan view). */}

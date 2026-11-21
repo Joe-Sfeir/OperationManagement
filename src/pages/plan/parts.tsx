@@ -20,7 +20,7 @@ export function SectionHeader({ id, title, note, action }: { id: string; title: 
 /** A labelled row of the inputs panel. `htmlFor` ties the label to a single control; groups name themselves. */
 export function Field({ label, htmlFor, hint, children }: { label: string; htmlFor?: string; hint?: ReactNode; children: ReactNode }) {
   return (
-    <div className="grid gap-1.5 sm:grid-cols-[10.5rem_minmax(0,1fr)] sm:gap-4">
+    <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-[10.5rem_minmax(0,1fr)] sm:gap-4">
       {htmlFor ? (
         <label htmlFor={htmlFor} className="text-14 sm:pt-0.5">
           {label}
@@ -88,7 +88,7 @@ export function NumberField({
       className={[
         'num rounded-control border bg-canvas px-1.5 py-0.5 text-right text-14 text-text transition-colors duration-150 ease-machine',
         '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-        wide ? 'w-16' : 'w-12',
+        wide ? 'w-16' : 'w-10 sm:w-12',
         valid ? 'border-hairlineStrong hover:border-textMuted' : 'border-alertRed',
       ].join(' ')}
     />

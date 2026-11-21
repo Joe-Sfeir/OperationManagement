@@ -52,8 +52,8 @@ function Inputs({ settings, patch, reset }: { settings: PlanSettings; patch: (p:
         note="NTG's own numbers are filled in. Change any of them to try a different week. The plan below follows at once."
         action={<Button onClick={reset}>Reset to NTG's numbers</Button>}
       />
-      <div className="grid gap-x-10 gap-y-6 xl:grid-cols-[minmax(0,6fr)_minmax(0,6fr)]">
-        <div className="grid content-start gap-4">
+      <div className="grid grid-cols-1 gap-x-10 gap-y-6 xl:grid-cols-[minmax(0,6fr)_minmax(0,6fr)]">
+        <div className="grid grid-cols-1 content-start gap-4">
           <Field label="Weeks to plan" hint={`Week 1 is ${weekDates(weekOne, 1)}. The last week is ${weekDates(weekOne, settings.weeks)}.`}>
             <Segmented label="Weeks to plan" value={settings.weeks} onChange={(weeks) => patch({ weeks })} options={[4, 5, 6, 7, 8].map((n) => ({ value: n, label: String(n) }))} />
           </Field>
@@ -113,12 +113,12 @@ function Inputs({ settings, patch, reset }: { settings: PlanSettings; patch: (p:
                 That is
                 <Calc size="12" value={fmt(cycles)} unit="arm-cycles" title="Arm-days x cycles per mould per day" />
                 or
-                <Calc size="12" value={fmt(cycles * hoursPerArmCycle)} unit="arm-hours a week," title="Arm-cycles x 2 h per arm-cycle" />
+                <Calc size="12" value={fmt(cycles * hoursPerArmCycle)} unit="arm-hours a week" title="Arm-cycles x 2 h per arm-cycle" />
                 at
                 <Num size="12" value={P.cyclesPerMouldPerDay.value} unit="cycles a day" datum={P.cyclesPerMouldPerDay} />
                 and
-                <Num size="12" value={hoursPerArmCycle} unit="h per arm-cycle." title={sourceTitle(P.armCycleMin)} tag={P.armCycleMin.tag} />
-                Other products take the rest of the machine.
+                <Num size="12" value={hoursPerArmCycle} unit="h per arm-cycle" title={sourceTitle(P.armCycleMin)} tag={P.armCycleMin.tag} />
+                <span className="basis-full">Other products take the rest of the machine.</span>
               </span>
             }
           >
@@ -134,7 +134,7 @@ function Inputs({ settings, patch, reset }: { settings: PlanSettings; patch: (p:
               settings.floor === 'soft' ? (
                 <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
                   <label htmlFor={`${uid}-pen`}>NTG calls the minimum a flexible target. Each tank below it for a week counts as</label>
-                  <Num size="12" value={<NumberField id={`${uid}-pen`} label="Penalty per tank-week below the minimum, in arm-hours" value={settings.penaltyHours} min={0} max={1000} step={1} onCommit={(penaltyHours) => patch({ penaltyHours })} />} unit="arm-hours." tag={penBadge.tag} title={penBadge.title} />
+                  <Num size="12" value={<NumberField id={`${uid}-pen`} label="Penalty per tank-week below the minimum, in arm-hours" value={settings.penaltyHours} min={0} max={1000} step={1} onCommit={(penaltyHours) => patch({ penaltyHours })} />} unit="arm-hours" tag={penBadge.tag} title={penBadge.title} />
                 </span>
               ) : (
                 'Stock may never go below the minimum. If that cannot be done the page says why.'
@@ -172,12 +172,12 @@ function Inputs({ settings, patch, reset }: { settings: PlanSettings; patch: (p:
                   Per arm-cycle:
                   <Num size="12" value={fmt(P.dieselCostPerArmCycle.value, 2)} unit="USD diesel" datum={P.dieselCostPerArmCycle} />
                   and
-                  <Num size="12" value={fmt(P.electricityCostPerArmCycle.value, 2)} unit="USD electricity." datum={P.electricityCostPerArmCycle} />
-                  Holding cost is in the table.
+                  <Num size="12" value={fmt(P.electricityCostPerArmCycle.value, 2)} unit="USD electricity" datum={P.electricityCostPerArmCycle} />
+                  <span>Holding cost is in the table.</span>
                   {settings.floor === 'soft' && (
                     <>
                       The penalty in money is
-                      <Calc size="12" value={fmt((settings.penaltyHours * costPerArmCycle) / hoursPerArmCycle, 2)} unit="USD per tank-week." title="Penalty in arm-hours x (diesel + electricity per arm-cycle) / 2 h per arm-cycle" />
+                      <Calc size="12" value={fmt((settings.penaltyHours * costPerArmCycle) / hoursPerArmCycle, 2)} unit="USD per tank-week" title="Penalty in arm-hours x (diesel + electricity per arm-cycle) / 2 h per arm-cycle" />
                     </>
                   )}
                 </span>
@@ -206,11 +206,11 @@ function Inputs({ settings, patch, reset }: { settings: PlanSettings; patch: (p:
               <caption className="sr-only">Inputs for each tank</caption>
               <thead>
                 <tr>
-                  <th scope="col" className={`${th} px-1.5 text-left sm:px-2`}>
+                  <th scope="col" className={`${th} px-1 text-left sm:px-2`}>
                     Tanks
                   </th>
                   {SKUS.map((k) => (
-                    <th key={k} scope="col" className={`${th} px-1.5 text-right sm:px-2`}>
+                    <th key={k} scope="col" className={`${th} px-1 text-right sm:px-2`}>
                       {k}
                     </th>
                   ))}
@@ -218,98 +218,98 @@ function Inputs({ settings, patch, reset }: { settings: PlanSettings; patch: (p:
               </thead>
               <tbody>
                 <tr>
-                  <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2`}>
+                  <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2`}>
                     Stock at the start
                   </th>
                   {SKUS.map((k) => {
                     const b = openingBadge(settings, k);
                     return (
-                      <td key={k} className={`${td} px-1.5 text-right sm:px-2`}>
+                      <td key={k} className={`${td} px-1 text-right sm:px-2`}>
                         <Num value={<NumberField label={`Stock at the start, ${k}`} value={settings.openingStock[k]} max={9999} onCommit={(v) => setSku('openingStock', k, v)} />} tag={b.tag} title={b.title} />
                       </td>
                     );
                   })}
                 </tr>
                 <tr>
-                  <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2`}>
+                  <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2`}>
                     Already planned, in stock in week 1
                   </th>
                   {SKUS.map((k) => {
                     const b = pipelineBadge(settings, k);
                     return (
-                      <td key={k} className={`${td} px-1.5 text-right sm:px-2`}>
+                      <td key={k} className={`${td} px-1 text-right sm:px-2`}>
                         <Num value={<NumberField label={`Already planned for week 1, ${k}`} value={settings.pipeline[k]} max={9999} onCommit={(v) => setSku('pipeline', k, v)} />} tag={b.tag} title={b.title} />
                       </td>
                     );
                   })}
                 </tr>
                 <tr>
-                  <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2`}>
+                  <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2`}>
                     Sold each week
                   </th>
                   {SKUS.map((k) => (
-                    <td key={k} className={`${td} px-1.5 text-right sm:px-2`}>
+                    <td key={k} className={`${td} px-1 text-right sm:px-2`}>
                       <Num value={fmt((base[k] * settings.demandPct) / 100, 1)} tag={dBadge.tag} title={dBadge.title} />
                     </td>
                   ))}
                 </tr>
                 <tr>
-                  <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2`}>
+                  <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2`}>
                     Returned each week
                   </th>
                   {SKUS.map((k) => (
-                    <td key={k} className={`${td} px-1.5 text-right sm:px-2`}>
+                    <td key={k} className={`${td} px-1 text-right sm:px-2`}>
                       <Num value={fmt(meanWeeklyReturns.value[k], 2)} tag="C" title={`${meanWeeklyReturns.label}. ${meanWeeklyReturns.source}`} />
                     </td>
                   ))}
                 </tr>
                 <tr>
-                  <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2`}>
+                  <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2`}>
                     Minimum stock
                   </th>
                   {SKUS.map((k) => (
-                    <td key={k} className={`${td} px-1.5 text-right sm:px-2`}>
+                    <td key={k} className={`${td} px-1 text-right sm:px-2`}>
                       <Num value={P.minStock.value[k]} datum={P.minStock} />
                     </td>
                   ))}
                 </tr>
                 <tr className={settings.capOn ? '' : 'opacity-50'}>
-                  <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2`}>
+                  <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2`}>
                     Warehouse cap{settings.capOn ? '' : ' (off)'}
                   </th>
                   {SKUS.map((k) => (
-                    <td key={k} className={`${td} px-1.5 text-right sm:px-2`}>
+                    <td key={k} className={`${td} px-1 text-right sm:px-2`}>
                       <Num value={P.warehouseCap.value[k]} datum={P.warehouseCap} />
                     </td>
                   ))}
                 </tr>
                 <tr>
-                  <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2`}>
+                  <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2`}>
                     Tanks per arm-cycle
                   </th>
                   {SKUS.map((k) => (
-                    <td key={k} className={`${td} px-1.5 text-right sm:px-2`}>
+                    <td key={k} className={`${td} px-1 text-right sm:px-2`}>
                       <Num value={P.mouldsPerArm.value[k]} datum={P.mouldsPerArm} />
                     </td>
                   ))}
                 </tr>
                 <tr>
-                  <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2 ${settings.objective === 'cost' ? '' : 'border-b-0'}`}>
+                  <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2 ${settings.objective === 'cost' ? '' : 'border-b-0'}`}>
                     Arm-hours per tank
                   </th>
                   {SKUS.map((k) => (
-                    <td key={k} className={`${td} px-1.5 text-right sm:px-2 ${settings.objective === 'cost' ? '' : 'border-b-0'}`}>
+                    <td key={k} className={`${td} px-1 text-right sm:px-2 ${settings.objective === 'cost' ? '' : 'border-b-0'}`}>
                       <Calc value={fmt(hoursPerArmCycle / P.mouldsPerArm.value[k], 1)} title="2 h per arm-cycle divided by moulds per arm" />
                     </td>
                   ))}
                 </tr>
                 {settings.objective === 'cost' && (
                   <tr>
-                    <th scope="row" className={`${td} border-b-0 px-1.5 text-left font-normal sm:px-2`}>
+                    <th scope="row" className={`${td} border-b-0 px-1 text-left font-normal sm:px-2`}>
                       Holding cost, USD per tank a week
                     </th>
                     {SKUS.map((k) => (
-                      <td key={k} className={`${td} border-b-0 px-1.5 text-right sm:px-2`}>
+                      <td key={k} className={`${td} border-b-0 px-1 text-right sm:px-2`}>
                         <Num value={fmt(P.holdingPerTankWeek.value[k], 2)} datum={P.holdingPerTankWeek} />
                       </td>
                     ))}
@@ -346,15 +346,15 @@ export function PlanPage() {
         </p>
       </header>
 
-      <div className="grid gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <Inputs settings={settings} patch={patch} reset={() => setSettings(defaultSettings())} />
 
-        <div aria-busy={busy} className={`grid gap-4 transition-opacity duration-200 ease-machine ${busy && view ? 'opacity-70' : 'opacity-100'}`}>
+        <div aria-busy={busy} className={`grid grid-cols-1 gap-4 transition-opacity duration-200 ease-machine ${busy && view ? 'opacity-70' : 'opacity-100'}`}>
           <PlanSection view={view} phase={state.phase} error={state.error} onFix={patch} />
           {view && planned && (
             <>
               <ChartsSection view={view} />
-              <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+              <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
                 <CheckSection view={view} />
                 <SensitivitySection view={view} cells={state.cells} cellsPending={state.cellsPending} />
               </div>
@@ -362,7 +362,7 @@ export function PlanPage() {
           )}
         </div>
 
-        <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+        <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
           <ManualSection manual={state.manual} />
           <HowToSection />
         </div>

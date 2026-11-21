@@ -113,7 +113,7 @@ function build() {
     mould: std(palette.mouldBlack, 0.42, 0.55, { roughnessMap: g2 }),
     mouldTrim: std('#2E3033', 0.35, 0.7),
     // Floor
-    epoxy: new THREE.MeshPhysicalMaterial({ color: new THREE.Color(palette.floorEpoxy).multiplyScalar(0.62), roughness: 0.55, metalness: 0, roughnessMap: mot, clearcoat: 0.1, clearcoatRoughness: 0.8 }),
+    epoxy: new THREE.MeshPhysicalMaterial({ color: new THREE.Color(palette.floorEpoxy).multiplyScalar(0.62), roughness: 0.86, metalness: 0, roughnessMap: mot, clearcoat: 0.05, clearcoatRoughness: 0.9 }),
     plinth: std('#191D20', 0.9, 0),
     yellow: std(palette.safetyYellow, 0.7, 0),
     red: std(palette.alertRed, 0.7, 0),

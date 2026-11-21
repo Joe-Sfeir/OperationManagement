@@ -76,7 +76,7 @@ function NoPlan({ view, onFix }: { view: View; onFix: (patch: Partial<PlanSettin
         <StatusMark kind="fail" />
         No plan fits every rule with these inputs
       </p>
-      <ul className="mt-2 grid max-w-[80ch] gap-1 text-14">
+      <ul className="mt-2 grid grid-cols-1 max-w-[80ch] gap-1 text-14">
         {(d?.sentences ?? ['The solver found no plan that keeps every rule.']).map((s) => (
           <li key={s}>{s}</li>
         ))}
@@ -101,8 +101,8 @@ function CapacityBar({ used, available }: { used: number; available: number }) {
   );
 }
 
-const cell = `${td} px-1.5 text-right sm:px-2`;
-const head = `${th} px-1.5 text-right sm:px-2`;
+const cell = `${td} px-1 text-right sm:px-2`;
+const head = `${th} px-1 text-right sm:px-2`;
 
 function IntegerTable({ view }: { view: View }) {
   const { result, settings, weekOne } = view;
@@ -120,7 +120,7 @@ function IntegerTable({ view }: { view: View }) {
           <caption className="sr-only">Tanks to make per week and tank, arm-cycles and arm-hours against the arm-hours available</caption>
           <thead>
             <tr>
-              <th scope="col" className={`${th} px-1.5 text-left sm:px-2`}>
+              <th scope="col" className={`${th} px-1 text-left sm:px-2`}>
                 Week
               </th>
               {input.skus.map((k) => (
@@ -138,7 +138,7 @@ function IntegerTable({ view }: { view: View }) {
           </thead>
           <tbody>
             <tr>
-              <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2`}>
+              <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2`}>
                 Week 1<span className="block text-12 text-textMuted">{weekDates(weekOne, 1)}</span>
                 <span className="block text-12 text-textMuted">already planned</span>
               </th>
@@ -147,7 +147,7 @@ function IntegerTable({ view }: { view: View }) {
                 return (
                   <td key={k.id} className={cell}>
                     <Num value={whole(k.pipeline)} tag={b.tag} title={b.title} />
-                    <span className="block text-12 text-textMuted">{whole(k.pipeline / k.mouldsPerArm)} cycles</span>
+                    <span className="block whitespace-nowrap text-12 text-textMuted">{whole(k.pipeline / k.mouldsPerArm)} cycles</span>
                   </td>
                 );
               })}
@@ -163,14 +163,14 @@ function IntegerTable({ view }: { view: View }) {
               const available = input.armCycles[i]!;
               return (
                 <tr key={i}>
-                  <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2`}>
+                  <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2`}>
                     Week {i + 2}
                     <span className="block text-12 text-textMuted">{weekDates(weekOne, i + 2)}</span>
                   </th>
                   {input.skus.map((k, ki) => (
                     <td key={k.id} className={cell}>
                       <Calc value={fmt(sol.tanks[ki]![i]!)} title={`Whole-arm-cycle plan: ${fmt(sol.n[ki]![i]!)} arm-cycles x ${k.mouldsPerArm} moulds per arm`} />
-                      <span className="block text-12 text-textMuted">{fmt(sol.n[ki]![i]!)} cycles</span>
+                      <span className="block whitespace-nowrap text-12 text-textMuted">{fmt(sol.n[ki]![i]!)} cycles</span>
                     </td>
                   ))}
                   <td className={`${cell} hidden sm:table-cell`}>
@@ -188,7 +188,7 @@ function IntegerTable({ view }: { view: View }) {
           </tbody>
           <tfoot>
             <tr>
-              <th scope="row" className={`${td} border-b-0 px-1.5 text-left font-medium sm:px-2`}>
+              <th scope="row" className={`${td} border-b-0 px-1 text-left font-medium sm:px-2`}>
                 Total{T > 2 ? `, weeks 2 to ${T}` : ''}
               </th>
               {input.skus.map((k, ki) => (
@@ -225,7 +225,7 @@ function ContinuousTable({ view }: { view: View }) {
           <caption className="sr-only">Continuous LP: tanks per week and tank, and arm-hours</caption>
           <thead>
             <tr>
-              <th scope="col" className={`${th} px-1.5 text-left sm:px-2`}>
+              <th scope="col" className={`${th} px-1 text-left sm:px-2`}>
                 Week
               </th>
               {input.skus.map((k) => (
@@ -241,9 +241,9 @@ function ContinuousTable({ view }: { view: View }) {
           <tbody>
             {Array.from({ length: T - 1 }, (_, i) => (
               <tr key={i}>
-                <th scope="row" className={`${td} px-1.5 text-left font-normal sm:px-2`}>
+                <th scope="row" className={`${td} whitespace-nowrap px-1 text-left font-normal sm:px-2`}>
                   Week {i + 2}
-                  <span className="block text-12 text-textMuted">{weekDates(weekOne, i + 2)}</span>
+                  <span className="hidden text-12 text-textMuted sm:block">{weekDates(weekOne, i + 2)}</span>
                 </th>
                 {input.skus.map((k, ki) => (
                   <td key={k.id} className={cell}>
@@ -258,7 +258,7 @@ function ContinuousTable({ view }: { view: View }) {
           </tbody>
           <tfoot>
             <tr>
-              <th scope="row" className={`${td} border-b-0 px-1.5 text-left font-medium sm:px-2`}>
+              <th scope="row" className={`${td} border-b-0 px-1 text-left font-medium sm:px-2`}>
                 Total
               </th>
               {input.skus.map((k, ki) => (
@@ -274,10 +274,10 @@ function ContinuousTable({ view }: { view: View }) {
         </table>
       </div>
       <p className="mt-3 flex flex-wrap items-baseline gap-x-1.5 text-12 text-textMuted">
-        Whole arm-cycles take
+        Against this, whole arm-cycles take
         <Calc size="12" value={fmt(Math.max(0, extra), 1)} unit="arm-hours more" title="Arm-hours of the whole-arm-cycle plan minus arm-hours of the continuous LP" />
-        than this, and leave
-        <Calc size="12" value={fmt(Math.max(0, integer.totals.shortage - lp.totals.shortage), 1)} unit="more tank-weeks below the minimum" title="Shortage of the whole-arm-cycle plan minus shortage of the continuous LP" />.
+        and leave
+        <Calc size="12" value={fmt(Math.max(0, integer.totals.shortage - lp.totals.shortage), 1)} unit="more tank-weeks below the minimum" title="Shortage of the whole-arm-cycle plan minus shortage of the continuous LP" />
       </p>
     </div>
   );
@@ -308,16 +308,18 @@ export function PlanSection({ view, phase, error, onFix }: { view: View | null; 
     for (const r of result.capRelaxed) relaxed.set(r.sku, [...(relaxed.get(r.sku) ?? []), r.week]);
     body = (
       <>
-        <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-3">
+        <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
           <Kpi
             label={`Machine time on the three tanks${T > 2 ? `, weeks 2 to ${T}` : ''}`}
             value={<Calc size="28" value={fmt(sol.totals.hours)} unit="arm-hours" title="Whole-arm-cycle plan: arm-cycles x 2 h per arm-cycle" />}
             note={
               <span className="flex flex-wrap items-baseline gap-x-1.5">
-                <Calc size="12" value={fmt(sol.totals.armCycles)} unit="arm-cycles," title="Sum of arm-cycles in the plan" />
-                <Calc size="12" value={fmt(sol.totals.tanks)} unit="tanks." title="Sum of tanks in the plan" />
-                <span>Each week has</span>
-                <Calc size="12" value={fmt(capHours)} unit="arm-hours for the tanks." title="Arm-days x 4 cycles a day x 2 h per arm-cycle" />
+                <Calc size="12" value={fmt(sol.totals.armCycles)} unit="arm-cycles" title="Sum of arm-cycles in the plan" />
+                <span>making</span>
+                <Calc size="12" value={fmt(sol.totals.tanks)} unit="tanks" title="Sum of tanks in the plan" />
+                <span className="basis-full" />
+                <span>Available each week:</span>
+                <Calc size="12" value={fmt(capHours)} unit="arm-hours" title="Arm-days x 4 cycles a day x 2 h per arm-cycle" />
               </span>
             }
           />
@@ -336,16 +338,16 @@ export function PlanSection({ view, phase, error, onFix }: { view: View | null; 
             value={<Calc size="28" value={fmt(sol.totals.energyCost + sol.totals.holdingCost)} unit="USD" title="Arm-cycles x (diesel + electricity per arm-cycle) plus holding cost per tank-week x stock" />}
             note={
               <span className="flex flex-wrap items-baseline gap-x-1.5">
-                <Calc size="12" value={fmt(sol.totals.energyCost)} unit="USD energy," title={`Arm-cycles x (${P.dieselCostPerArmCycle.value} + ${P.electricityCostPerArmCycle.value}) USD, inventory rows 61 and 64`} />
-                <Calc size="12" value={fmt(sol.totals.holdingCost)} unit="USD holding." title="Stock at the end of each week x holding cost per tank-week, inventory row 94" />
-                <span>{settings.objective === 'cost' ? 'This is what the plan keeps low.' : 'For information: this plan keeps machine time low.'}</span>
+                <Calc size="12" value={fmt(sol.totals.energyCost)} unit="USD energy" title={`Arm-cycles x (${P.dieselCostPerArmCycle.value} + ${P.electricityCostPerArmCycle.value}) USD, inventory rows 61 and 64`} />
+                <Calc size="12" value={fmt(sol.totals.holdingCost)} unit="USD holding" title="Stock at the end of each week x holding cost per tank-week, inventory row 94" />
+                <span className="basis-full">{settings.objective === 'cost' ? 'This is what the plan keeps low.' : 'For information: this plan keeps machine time low.'}</span>
               </span>
             }
           />
         </dl>
 
         {(relaxed.size > 0 || sol.status === 'limit') && (
-          <ul className="mt-4 grid gap-1 text-12 text-textMuted">
+          <ul className="mt-4 grid grid-cols-1 gap-1 text-12 text-textMuted">
             {[...relaxed.entries()].map(([sku, ws]) => (
               <li key={sku} className="flex items-start gap-2">
                 <span className="mt-1">
@@ -360,7 +362,7 @@ export function PlanSection({ view, phase, error, onFix }: { view: View | null; 
           </ul>
         )}
 
-        <div className="mt-6 grid gap-x-8 gap-y-6 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+        <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-6 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
           <IntegerTable view={view} />
           {lp.status === 'optimal' && <ContinuousTable view={view} />}
         </div>
@@ -407,7 +409,7 @@ export function ChartsSection({ view }: { view: View }) {
         title="Stock the plan gives"
         note="Stock at the end of each week if the plan above is run. The line should stay in the pale band, between the minimum and the cap. Point at a week for the exact figures, or tab to a chart and use the arrow keys."
       />
-      <div className="grid gap-x-8 gap-y-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-x-8 gap-y-6 lg:grid-cols-3">
         {input.skus.map((k, ki) => {
           const sku = skuAt(ki);
           return (
@@ -578,18 +580,19 @@ function WhatIfTable({ view, cells, pending }: { view: View; cells: WhatIfCell[]
   const at = (a: number, d: number) => cells?.find((c) => c.armDays === a && c.demandPct === d);
   return (
     <div className="overflow-x-auto">
+      <p className="mb-2 text-12 text-textMuted">
+        Each cell is the whole-arm-cycle plan solved again. Top figure: arm-hours over the horizon. Bottom figure: tank-weeks below the minimum. Demand is a share of the chosen demand.
+        {pending && ' Solving.'}
+      </p>
       <table className="w-full border-collapse text-14">
-        <caption className="mb-2 text-left text-12 text-textMuted">
-          Each cell is the whole-arm-cycle plan solved again: arm-hours over the horizon, then tank-weeks below the minimum. Demand is a share of the chosen demand.
-          {pending && ' Solving.'}
-        </caption>
+        <caption className="sr-only">Arm-hours and tank-weeks below the minimum at other capacities and demand levels</caption>
         <thead>
           <tr>
-            <th scope="col" className={`${th} text-left`}>
+            <th scope="col" className={`${th} px-1 text-left sm:px-2`}>
               Arm-days a week
             </th>
             {WHAT_IF_DEMAND_PCT.map((d) => (
-              <th key={d} scope="col" className={`${th} text-right`}>
+              <th key={d} scope="col" className={`${th} px-1 text-right sm:px-2`}>
                 Demand {d} %{settings.demandPct === d ? ' (now)' : ''}
               </th>
             ))}
@@ -598,7 +601,7 @@ function WhatIfTable({ view, cells, pending }: { view: View; cells: WhatIfCell[]
         <tbody>
           {WHAT_IF_ARM_DAYS.map((a) => (
             <tr key={a}>
-              <th scope="row" className={`${td} text-left font-normal`}>
+              <th scope="row" className={`${td} px-1 text-left font-normal sm:px-2`}>
                 <span className="num">{a}</span>
                 {settings.armDays === a ? ' (now)' : ''}
               </th>
@@ -606,7 +609,7 @@ function WhatIfTable({ view, cells, pending }: { view: View; cells: WhatIfCell[]
                 const c = at(a, d);
                 const here = settings.armDays === a && settings.demandPct === d;
                 return (
-                  <td key={d} className={`${td} text-right ${here ? 'bg-canvas' : ''}`}>
+                  <td key={d} className={`${td} px-1 text-right sm:px-2 ${here ? 'bg-canvas' : ''}`}>
                     {!c ? (
                       <span className="text-12 text-textFaint">Solving</span>
                     ) : c.status === 'infeasible' ? (
@@ -620,7 +623,7 @@ function WhatIfTable({ view, cells, pending }: { view: View; cells: WhatIfCell[]
                         <Calc value={fmt(c.hours)} unit="h" title={`Whole-arm-cycle plan at ${a} arm-days and ${d} % demand. Continuous LP: ${fmt(c.lpHours, 1)} h`} />
                         <span className="mt-0.5 flex items-center justify-end gap-2 text-12 text-textMuted">
                           {c.shortage >= SHOWN_FROM && <StatusMark kind="allowed" />}
-                          <Calc size="12" value={fmt(c.shortage, 1)} unit="short" title={`Tank-weeks below the minimum. Continuous LP: ${fmt(c.lpShortage, 1)}`} />
+                          <Calc size="12" value={fmt(c.shortage, 1)} title={`Tank-weeks below the minimum. Continuous LP: ${fmt(c.lpShortage, 1)}`} />
                         </span>
                       </>
                     )}
@@ -670,8 +673,8 @@ export function SensitivitySection({ view, cells, cellsPending }: { view: View; 
                   <th scope="col" className={`${th} text-left`}>
                     Week
                   </th>
-                  <th scope="col" className={`${th} whitespace-nowrap text-right`}>
-                    Shadow price
+                  <th scope="col" className={`${th} text-right`}>
+                    Shadow price, {unit}
                   </th>
                   <th scope="col" className={`${th} text-left`}>
                     In words
@@ -686,9 +689,9 @@ export function SensitivitySection({ view, cells, cellsPending }: { view: View; 
                       <span className="block text-12 text-textMuted">{weekDates(weekOne, c.plan + 1)}</span>
                     </th>
                     <td className={`${td} text-right`}>
-                      <Calc value={fmt(Math.abs(c.dual) < DUAL_SHOWN_FROM ? 0 : c.dual, 1)} unit={unit} title="Dual value of this week's machine row in the continuous LP, per extra arm-cycle" />
+                      <Calc value={fmt(Math.abs(c.dual) < DUAL_SHOWN_FROM ? 0 : c.dual, 1)} title={`Dual value of this week's machine row in the continuous LP, in ${unit} per extra arm-cycle`} />
                     </td>
-                    <td className={`${td} min-w-[14rem] text-12 text-textMuted`}>{capacityWords(c, settings.objective)}</td>
+                    <td className={`${td} text-12 text-textMuted`}>{capacityWords(c, settings.objective)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -699,7 +702,7 @@ export function SensitivitySection({ view, cells, cellsPending }: { view: View; 
           {s.floor.length === 0 ? (
             <p className="mt-1 text-12 text-textMuted">Stock is above the minimum in every week, so the minimum does not shape this plan.</p>
           ) : (
-            <ul className="mt-2 grid gap-2 text-12 text-textMuted">
+            <ul className="mt-2 grid grid-cols-1 gap-2 text-12 text-textMuted">
               {short.map((f) => (
                 <li key={`${f.sku}${f.week}`} className="flex flex-wrap items-baseline gap-x-1.5">
                   <span className="text-text">
@@ -715,9 +718,9 @@ export function SensitivitySection({ view, cells, cellsPending }: { view: View; 
                   <span className="text-text">
                     {f.sku}, week {f.week}:
                   </span>
-                  stock sits on the minimum. A minimum one tank lower would save
+                  stock sits on the minimum. A minimum one tank lower would take
                   <Calc size="12" value={fmt(f.dual, 1)} unit={unit} title="Dual value of this floor row in the continuous LP, per tank of minimum stock" />
-                  (one tank higher would cost the same).
+                  off the total (one tank higher would add the same).
                 </li>
               ))}
               {free.size > 0 && (
@@ -787,7 +790,7 @@ export function ManualSection({ manual }: { manual: PlanResult | null }) {
         title="Manual check"
         note="A case small enough to solve on paper: one tank, three weeks. The same code that makes the plan above solves it, and the two answers are set side by side."
       />
-      <div className="grid gap-x-8 gap-y-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-8 gap-y-6 lg:grid-cols-2">
         <div className="min-w-0">
           <h3 className="text-14 font-semibold">The case</h3>
           <dl className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 text-12">
@@ -801,7 +804,7 @@ export function ManualSection({ manual }: { manual: PlanResult | null }) {
             ))}
           </dl>
           <h3 className="mt-4 text-14 font-semibold">By hand</h3>
-          <ol className="mt-2 grid list-decimal gap-2 pl-5 text-12 text-textMuted">
+          <ol className="mt-2 grid grid-cols-1 list-decimal gap-2 pl-5 text-12 text-textMuted">
             <li>Week 1 is fixed: 20 + 4 - 10 = 14 tanks. That is above 13, so nothing is short.</li>
             <li>
               Week 2: stock is 14 - 10 + 2 x arm-cycles. Reaching 13 needs 4.5 arm-cycles and only 3 are free. An arm-cycle costs 2 arm-hours and takes 2 tank-weeks off the shortage, worth 20, so all 3 are used. Stock is 10, which is 3 below the minimum.
@@ -890,7 +893,7 @@ export function HowToSection() {
   return (
     <Panel className="p-4" aria-labelledby="plan-howto">
       <SectionHeader id="plan-howto" title="How to use this page" />
-      <ol className="grid gap-3">
+      <ol className="grid grid-cols-1 gap-3">
         {steps.map(([lead, rest], i) => (
           <li key={lead} className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-2">
             <span className="num text-14 text-textMuted" aria-hidden="true">
@@ -934,7 +937,7 @@ export function ModelSection({ view }: { view: View }) {
         <summary className="cursor-pointer text-14 font-semibold" id="plan-model">
           The model behind the plan, and the file sent to the solver
         </summary>
-        <dl className="mt-4 grid max-w-[110ch] gap-x-4 gap-y-2 text-12 sm:grid-cols-[8rem_minmax(0,1fr)]">
+        <dl className="mt-4 grid grid-cols-1 max-w-[110ch] gap-x-4 gap-y-2 text-12 sm:grid-cols-[8rem_minmax(0,1fr)]">
           {lines.map(([name, text]) => (
             <div key={name} className="contents">
               <dt className="font-medium text-text">{name}</dt>

@@ -88,7 +88,7 @@ export function StationLabels({ onSelect }: { onSelect: (s: StationId) => void }
               onClick={() => onSelect(st)}
               aria-pressed={selected === st}
               className={[
-                'whitespace-nowrap rounded-control border px-2 py-0.5 text-12 transition-colors duration-150 ease-machine',
+                'hidden whitespace-nowrap rounded-control border px-2 py-0.5 text-12 transition-colors duration-150 ease-machine md:block',
                 selected === st ? 'border-text bg-text text-canvas' : 'border-hairline bg-panel text-textMuted hover:border-textMuted hover:text-text',
               ].join(' ')}
             >

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useClock, usePrefersReducedMotion } from './app/useClock';
 import { clock, useTwin, type SceneId } from './app/store';
 import { motion as M } from './design/tokens';
@@ -11,6 +11,11 @@ import { ArmsPanel, BottomBar, Breadcrumb, KpiPanel, PanelSlot, TopBar, useUiSta
 import { ConfigDrawer } from './ui/Drawer';
 import { StationCard } from './ui/StationCard';
 
+// Pages load on demand so the 3D scene does not wait for them.
+const PlanPage = lazy(() => import('./pages/plan/PlanPage').then((m) => ({ default: m.PlanPage })));
+const SourcingPage = lazy(() => import('./pages/sourcing/SourcingPage').then((m) => ({ default: m.SourcingPage })));
+const PAGES: Partial<Record<SceneId, React.LazyExoticComponent<() => JSX.Element>>> = { plan: PlanPage, sourcing: SourcingPage };
+
 // Repeatable screenshots: ?t=<minute> sets the clock, ?scene=, ?select=, ?play=1.
 const q = new URLSearchParams(location.search);
 if (q.has('t')) clock.t = Number(q.get('t'));
@@ -18,7 +23,12 @@ if (q.has('scene')) useTwin.setState({ scene: q.get('scene') as SceneId });
 if (q.has('select')) useTwin.setState({ selected: q.get('select') as never });
 if (q.has('panels')) useTwin.setState({ panelsOpen: q.get('panels') !== '0' });
 if (q.has('drawer')) useTwin.setState({ drawerOpen: true });
+if (q.has('cooling')) useTwin.getState().setConfig({ cooling: q.get('cooling') as never });
+if (q.has('layer')) useTwin.getState().setConfig({ layerMode: q.get('layer') as never });
+if (q.has('t')) clock.t = Number(q.get('t'));
 if (q.has('t')) useTwin.setState({ tUi: clock.t });
+if (q.has('speed')) useTwin.setState({ speed: Number(q.get('speed')) });
+if (q.get('play') === '1') useTwin.setState({ playing: true });
 
 /** Machine coordinates to world coordinates (the machine group is turned by PLAN_ROT). */
 function toWorld([x, y, z]: [number, number, number]): [number, number, number] {
@@ -27,7 +37,7 @@ function toWorld([x, y, z]: [number, number, number]): [number, number, number] 
   return [x * c + z * s, y, -x * s + z * c];
 }
 
-const MACHINE_TARGET: [number, number, number] = [-3.2, 1.5, -1.2];
+const MACHINE_TARGET: [number, number, number] = [-4.6, 1.8, -1.4];
 const OVERVIEW: View = { target: toWorld([-12, 1.5, 3]), span: [66, 38] };
 
 function useIsWide() {
@@ -55,10 +65,10 @@ export function App() {
 
   const view = useMemo<View>(() => {
     // Keep the subject clear of the panels: [left, right, top, bottom] in pixels.
-    const pad: [number, number, number, number] = wide ? (panelsOpen ? [300, 300, 60, 80] : [16, 16, 60, 80]) : panelsOpen ? [8, 8, 56, 330] : [8, 8, 56, 120];
+    const pad: [number, number, number, number] = wide ? (panelsOpen ? [170, 170, 52, 72] : [16, 16, 52, 72]) : panelsOpen ? [4, 4, 44, 330] : [4, 4, 44, 120];
     if (scene === 'raw') return { target: toWorld([HALL_OFFSET[0], 2, HALL_OFFSET[2]]), span: [26, 16], pad };
     if (selected) return { target: toWorld(stationPoint(selected)), span: [15, 10.5], pad };
-    return { target: toWorld(MACHINE_TARGET), span: [37, 23.5], pad };
+    return { target: toWorld(MACHINE_TARGET), span: wide ? [33, 20.5] : [30, 19], pad };
   }, [scene, selected, panelsOpen, wide]);
 
   return (
@@ -118,7 +128,12 @@ export function App() {
           </>
         ) : (
           <div className="pointer-events-auto relative min-h-0 flex-1 overflow-auto">
-            <div className="mx-auto max-w-[1520px] p-6 text-14 text-textMuted">This page is being built.</div>
+            <Suspense fallback={<div className="p-6 text-14 text-textMuted">Loading the page.</div>}>
+              {(() => {
+                const Page = PAGES[scene];
+                return Page ? <Page /> : <div className="mx-auto max-w-[1520px] p-6 text-14 text-textMuted">This page is being built.</div>;
+              })()}
+            </Suspense>
           </div>
         )}
       </div>

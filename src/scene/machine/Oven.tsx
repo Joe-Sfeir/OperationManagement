@@ -14,7 +14,7 @@ const HX = 2.55; // half length (radial)
 const HZ = 2.5; // half width
 const H = 5.0;
 const WALL = 0.22;
-const CUT = 0.95; // height the camera-side wall is cut at
+const CUT = 0.6; // height the camera-side wall is cut at (below the ring frame as it swings in)
 const SLOT = 0.55; // half height of the slot the arm beam sweeps through
 
 /**
@@ -106,7 +106,7 @@ export function Oven({ onSelect }: { onSelect?: () => void }) {
           <Box size={[2 * HX - 0.5, CUT - 0.08, 0.12]} position={[0, (CUT - 0.08) / 2 + 0.05, 0.2]} material={M.blue} radius={0.02} />
           <Box size={[2 * HX - 0.5, 0.03, 0.12]} position={[0, CUT - 0.01, 0.2]} material={M.section} radius={0.002} shadow={false} />
         </group>
-        <Box size={[4 * HX - 0.4, 0.07, 0.12]} position={[HX - 0.2, 0.035, 0.22]} material={M.steelDark} radius={0.02} />
+        <Box size={[4 * HX - 0.4, 0.03, 0.2]} position={[HX - 0.2, 0.02, 0.22]} material={M.steelDark} radius={0.01} shadow={false} />
       </group>
       {/* Cut edges of the end and hub walls */}
       <Box size={[WALL, H - CUT, 0.03]} position={[HX - WALL / 2, (H + CUT) / 2, HZ - 0.015]} material={M.section} radius={0.002} shadow={false} />

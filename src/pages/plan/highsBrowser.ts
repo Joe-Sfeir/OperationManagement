@@ -22,7 +22,7 @@ export function installInlinedHighs(): void {
   if (installed) return;
   installed = true;
   setHighsLoader(async () => {
-    const { default: wasm } = await import('highs/runtime?inline');
+    const { default: wasm } = await import('highs/runtime?url&inline');
     // Vite gives a data: URL. If a build ever hands back a plain URL, fetch it instead.
     const wasmBinary = wasm.startsWith('data:') ? decodeDataUrl(wasm) : new Uint8Array(await (await fetch(wasm)).arrayBuffer());
     return highsLoader({ wasmBinary });
