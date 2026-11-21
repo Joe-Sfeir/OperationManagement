@@ -126,7 +126,7 @@ function SummaryTable() {
                 </span>
                 <Rows rows={r.ntgRows} />
               </Td>
-              <Td label="Difference" className="num md:w-[9%]">
+              <Td label="Difference" className="num md:w-[9%]" inline>
                 {r.difference}
               </Td>
               <Td label="Verdict, in plain words">
@@ -236,19 +236,19 @@ function Identity() {
 function runCells(r: RunSummary) {
   return (
     <>
-      <Td label="Arm cycle" className="md:text-right">
+      <Td label="Arm cycle" className="md:text-right" inline>
         <C value={fmt(r.cycleMin, 1)} unit="min" />
       </Td>
-      <Td label="Wait before the oven" className="md:text-right">
+      <Td label="Wait before the oven" className="md:text-right" inline>
         <C value={fmt(r.waitOvenMin, 1)} unit="min" />
       </Td>
-      <Td label="Held after the oven, per visit" className="md:text-right">
+      <Td label="Held after the oven, per visit" className="md:text-right" inline>
         <C value={fmt(r.blockedMin, 1)} unit="min" title={`${C_SIM}: minutes an arm has finished its work but the next position is still occupied, per oven visit`} />
       </Td>
-      <Td label="Tanks from the shift" className="md:text-right">
+      <Td label="Tanks from the shift" className="md:text-right" inline>
         <C value={`${triple(r.tanksTotal)} (${r.total})`} />
       </Td>
-      <Td label="Run-out after the mark" className="md:text-right">
+      <Td label="Run-out after the mark" className="md:text-right" inline>
         <C value={fmt(r.runOutMin, 1)} unit="min" />
       </Td>
     </>
@@ -335,25 +335,25 @@ function ErpChecks() {
                 <th scope="row" className={`${T.td} text-left font-medium`}>
                   {k}
                 </th>
-                <Td label="ERP, tanks by day" className="md:text-right">
+                <Td label="ERP, tanks by day" className="md:text-right" inline>
                   <Num value={w.days.map((d) => d.erp[k]).join(' / ')} tag="N" title="NTG ERP stock cards, daily production" />
                 </Td>
-                <Td label="ERP week" className="md:text-right">
+                <Td label="ERP week" className="md:text-right" inline>
                   <Num value={w.erp[k]} datum={P.productionWeek2Nov} />
                 </Td>
-                <Td label="Production days" className="md:text-right">
+                <Td label="Production days" className="md:text-right" inline>
                   <Num value={w.productionDays[k]} tag="N" title="Days with production booked in the ERP that week" />
                 </Td>
-                <Td label="Moulds on (assumed)" className="md:text-right">
+                <Td label="Moulds on (assumed)" className="md:text-right" inline>
                   <Num value={w.moulds[k]} tag="S" title="Assumed set-up: the ERP does not record moulds" />
                 </Td>
-                <Td label={`Mould-days x ${P.cyclesPerMouldPerDay.value}`} className="md:text-right">
+                <Td label={`Mould-days x ${P.cyclesPerMouldPerDay.value}`} className="md:text-right" inline>
                   <C value={w.rule[k]} title={`${w.moulds[k]} moulds x ${w.productionDays[k]} days x ${P.cyclesPerMouldPerDay.value} cycles (row ${P.cyclesPerMouldPerDay.row})`} />
                 </Td>
-                <Td label="Twin, same days" className="md:text-right">
+                <Td label="Twin, same days" className="md:text-right" inline>
                   <C value={w.twin[k]} title={`${C_SIM}: ${w.twinPerDay[k]} a day for this set-up x ${w.productionDays[k]} days`} />
                 </Td>
-                <Td label="Twin less ERP" className="num md:text-right">
+                <Td label="Twin less ERP" className="num md:text-right" inline>
                   {w.diff[k] > 0 ? '+' : ''}
                   {w.diff[k]}
                 </Td>
@@ -395,13 +395,13 @@ function Rejected() {
                 The twin's default
                 <span className="mt-1 block text-12 text-textMuted">One oven visit per arm, pauses inside it, air cooling at the open position</span>
               </th>
-              <Td label="Arm cycle" className="md:text-right">
+              <Td label="Arm cycle" className="md:text-right" inline>
                 <C value={fmt(v.base.cycleMin, 1)} unit="min" />
               </Td>
-              <Td label="Oven visits per arm" className="md:text-right">
+              <Td label="Oven visits per arm" className="md:text-right" inline>
                 <C value={fmt(v.base.cyclesPerArm, 2)} />
               </Td>
-              <Td label="Tanks from the shift" className="md:text-right">
+              <Td label="Tanks from the shift" className="md:text-right" inline>
                 <C value={`${triple(v.base.tanksTotal)} (${v.base.total})`} />
               </Td>
               <Td label="Why" className="text-12 text-textMuted">
@@ -414,13 +414,13 @@ function Rejected() {
                   {r.reading}
                   <span className="num mt-1 block text-12 text-textMuted">{r.setting}</span>
                 </th>
-                <Td label="Arm cycle" className="md:text-right">
+                <Td label="Arm cycle" className="md:text-right" inline>
                   <C value={fmt(r.run.cycleMin, 1)} unit="min" />
                 </Td>
-                <Td label="Oven visits per arm" className="md:text-right">
+                <Td label="Oven visits per arm" className="md:text-right" inline>
                   <C value={fmt(r.run.cyclesPerArm, 2)} />
                 </Td>
-                <Td label="Tanks from the shift" className="md:text-right">
+                <Td label="Tanks from the shift" className="md:text-right" inline>
                   <C value={`${triple(r.run.tanksTotal)} (${r.run.total})`} />
                 </Td>
                 <Td label="Why it contradicts NTG" className="text-12 text-textMuted">

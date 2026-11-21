@@ -25,7 +25,7 @@ function Row({ label, help, children }: { label: string; help?: string; children
 }
 
 export function ConfigDrawer() {
-  const { drawerOpen, config, result, setConfig, resetConfig, set } = useTwin();
+  const { drawerOpen, config, result, setConfig, resetConfig, set, reduced, simpleLight } = useTwin();
   const k = result.kpis;
   return (
     <AnimatePresence>
@@ -164,6 +164,29 @@ export function ConfigDrawer() {
                   { value: 0.1, label: '10 %' },
                 ]}
               />
+            </Row>
+
+            <Row label="Display" help="Reduced motion: arms and the hoist jump between positions instead of gliding. Simple lighting: turns off soft contact shadows and glow, for slower laptops. Neither changes any result.">
+              <div className="flex flex-wrap gap-2">
+                <Segmented
+                  label="Motion"
+                  value={reduced ? 'steps' : 'smooth'}
+                  onChange={(v) => set({ reduced: v === 'steps' })}
+                  options={[
+                    { value: 'smooth', label: 'Smooth motion' },
+                    { value: 'steps', label: 'Reduced motion' },
+                  ]}
+                />
+                <Segmented
+                  label="Lighting"
+                  value={simpleLight ? 'simple' : 'full'}
+                  onChange={(v) => set({ simpleLight: v === 'simple' })}
+                  options={[
+                    { value: 'full', label: 'Full lighting' },
+                    { value: 'simple', label: 'Simple lighting' },
+                  ]}
+                />
+              </div>
             </Row>
 
             <Row label="This set-up gives">

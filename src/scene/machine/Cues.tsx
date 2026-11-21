@@ -34,7 +34,7 @@ export function WaitCues() {
       const label = labels.current[i];
       if (ring) {
         ring.visible = waiting;
-        if (waiting) ring.position.set(...polar(R_ARM, armAngleDeg(a, plant.result.ring), 0.02));
+        if (waiting) ring.position.set(...polar(R_ARM, armAngleDeg(a, plant.result.ring, useTwin.getState().reduced), 0.02));
       }
       if (label) {
         label.style.display = waiting ? 'flex' : 'none';

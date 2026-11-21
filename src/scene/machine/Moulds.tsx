@@ -185,7 +185,7 @@ export const Tank = forwardRef<THREE.Group, { kind: MouldKind } & JSX.IntrinsicE
   return (
     <group ref={ref} {...rest}>
       <mesh material={M.tank} castShadow receiveShadow>
-        <latheGeometry args={[profile, 40]} />
+        <latheGeometry args={[profile, 28]} />
       </mesh>
       {/* Black conical top with ribs and a lid, as in the photo */}
       <group position={[0, bodyH, 0]}>

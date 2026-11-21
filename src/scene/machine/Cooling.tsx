@@ -31,9 +31,9 @@ export function CoolingChamber({ onSelect }: { onSelect?: () => void }) {
     const arm = s.cooling.chamberArm !== null ? s.arms[s.cooling.chamberArm] : undefined;
     if (fan.current) {
       // The fan runs through the water phase. Its on-screen rate is scaled to stay readable (see docs/MODEL.md).
-      const { speed } = useTwin.getState();
+      const { speed, reduced } = useTwin.getState();
       const turns = arm && s.cooling.fanOn ? Math.max(1, Math.round(((arm.stageDurMin * 60) / Math.max(1, speed)) * 1.4)) : 0;
-      fan.current.rotation.x = arm && s.cooling.fanOn ? Math.PI * 2 * turns * arm.stageProgress : 0;
+      fan.current.rotation.x = arm && s.cooling.fanOn && !reduced ? Math.PI * 2 * turns * arm.stageProgress : 0;
     }
     if (mist.current) {
       const on = s.cooling.mistOn && arm ? Math.min(1, arm.stageProgress * 12, (1 - arm.stageProgress) * 12) : 0;

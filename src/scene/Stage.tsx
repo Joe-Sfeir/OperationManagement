@@ -91,6 +91,17 @@ function CameraRig({ view, via, durationMs, reduced }: { view: View; via?: View;
   return null;
 }
 
+/** Exposes the renderer for the triangle and draw-call check (tools/ and the M7 budget). */
+function Probe() {
+  const gl = useThree((s) => s.gl);
+  useEffect(() => {
+    gl.info.autoReset = false;
+    (window as unknown as { __gl?: THREE.WebGLRenderer }).__gl = gl;
+  }, [gl]);
+  useFrame(() => gl.info.reset(), -100);
+  return null;
+}
+
 function Lights({ shadowSpan, center }: { shadowSpan: number; center: [number, number, number] }) {
   const key = useRef<THREE.DirectionalLight>(null);
   const target = useMemo(() => new THREE.Object3D(), []);
@@ -173,6 +184,7 @@ export function Stage({
       <CameraRig view={view} via={via} durationMs={durationMs} reduced={reduced} />
       <Lights shadowSpan={shadowSpan} center={shadowCenter} />
       <Studio />
+      <Probe />
       {children}
       {effects && (
         <EffectComposer multisampling={0} enableNormalPass={false}>

@@ -22,6 +22,10 @@ interface Twin {
   selected: StationId | null;
   drawerOpen: boolean;
   panelsOpen: boolean;
+  /** Scenes update in steps instead of tweening (follows the system setting; can be switched in Set-up). */
+  reduced: boolean;
+  /** Skip ambient occlusion and bloom, for slower laptops. */
+  simpleLight: boolean;
   /** The clock, copied a few times a second for the panels. */
   tUi: number;
   setConfig: (patch: Partial<SimConfig>) => void;
@@ -31,7 +35,7 @@ interface Twin {
   setScene: (s: SceneId) => void;
   select: (s: StationId | null) => void;
   seek: (t: number) => void;
-  set: (p: Partial<Pick<Twin, 'drawerOpen' | 'panelsOpen' | 'tUi'>>) => void;
+  set: (p: Partial<Pick<Twin, 'drawerOpen' | 'panelsOpen' | 'tUi' | 'reduced' | 'simpleLight'>>) => void;
 }
 
 const first = defaultConfig();
@@ -46,6 +50,8 @@ export const useTwin = create<Twin>((set, get) => ({
   selected: null,
   drawerOpen: false,
   panelsOpen: true,
+  reduced: typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+  simpleLight: false,
   tUi: 0,
   setConfig: (patch) => {
     const config = { ...get().config, ...patch };

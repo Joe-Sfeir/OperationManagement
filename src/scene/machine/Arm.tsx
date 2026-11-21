@@ -70,8 +70,8 @@ export function Arm({ id }: { id: number }) {
   useFrame(() => {
     const s = plant.get();
     const a = s.arms[id]!;
-    const { speed } = useTwin.getState();
-    if (root.current) root.current.rotation.y = armAngleDeg(a, plant.result.ring) * DEG;
+    const { speed, reduced } = useTwin.getState();
+    if (root.current) root.current.rotation.y = armAngleDeg(a, plant.result.ring, reduced) * DEG;
     let maj = 0;
     let min = 0;
     if (a.rotating) {
@@ -81,6 +81,12 @@ export function Arm({ id }: { id: number }) {
       const k = Math.min(1, Math.max(0, e / 0.96 - 0.0));
       maj = Math.PI * 2 * turns(a.stageDurMin, speed, 0.5) * k;
       min = Math.PI * 2 * turns(a.stageDurMin, speed, 0.19) * k;
+      if (reduced) {
+        // Reduced motion: the mould still shows that it is turning, in quarter-turn steps.
+        const q = Math.PI / 2;
+        maj = Math.round((Math.PI * 2 * Math.max(1, Math.round(a.stageDurMin / 4)) * a.stageProgress) / q) * q;
+        min = 0;
+      }
     }
     if (major.current) major.current.rotation.x = maj;
     if (minor.current) minor.current.rotation.y = min;

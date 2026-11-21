@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
-import { useClock, usePrefersReducedMotion } from './app/useClock';
+import { useClock } from './app/useClock';
 import { clock, useTwin, type SceneId } from './app/store';
 import { motion as M } from './design/tokens';
 import { PlantProvider } from './scene/plant';
@@ -53,9 +53,8 @@ function useIsWide() {
 
 export function App() {
   useClock();
-  const { result, scene, selected, panelsOpen, select } = useTwin();
+  const { result, scene, selected, panelsOpen, select, reduced, simpleLight } = useTwin();
   const state = useUiState();
-  const reduced = usePrefersReducedMotion();
   const wide = useIsWide();
   const is3d = scene === 'machine' || scene === 'raw';
 
@@ -82,7 +81,7 @@ export function App() {
             reduced={reduced}
             shadowSpan={30}
             shadowCenter={toWorld([-8, 0, 2])}
-            effects={q.get('fx') !== '0'}
+            effects={!simpleLight && q.get('fx') !== '0'}
             onMiss={() => select(null)}
             label={scene === 'raw' ? 'Raw-material hall, isometric view' : 'Machine 3700, isometric view'}
           >

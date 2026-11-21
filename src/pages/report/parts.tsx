@@ -40,14 +40,15 @@ export function RowRef({ row, children }: { row: number; children?: ReactNode })
 
 /** Text with every "row 47" or "rows 43 and 44" turned into row references. */
 export function Rich({ text }: { text: string }) {
-  const parts = text.split(/(\brows?\s+\d+(?:(?:,\s*|\s+and\s+|\s+to\s+)\d+)*)/gi);
+  // Trailing punctuation stays with the reference, so a line never starts with ")" or ".".
+  const parts = text.split(/(\brows?\s+\d+(?:(?:,\s*|\s+and\s+|\s+to\s+)\d+)*[),.;:]*)/gi);
   return (
     <>
       {parts.map((p, i) => {
         if (!/^rows?\s+\d/i.test(p)) return <span key={i}>{p}</span>;
         const bits = p.split(/(\d+)/);
         return (
-          <span key={i}>
+          <span key={i} className={bits.length <= 3 ? 'whitespace-nowrap' : undefined}>
             {bits.map((b, j) => (/^\d+$/.test(b) ? <RowRef key={j} row={Number(b)} /> : <span key={j}>{b}</span>))}
           </span>
         );
@@ -93,11 +94,12 @@ export const T = {
   td: 'block py-1 align-top text-14 md:table-cell md:px-3 md:py-2.5',
 } as const;
 
-export function Td({ label, children, className = '' }: { label: string; children: ReactNode; className?: string }) {
+/** `inline`: on a phone the label sits left and the figure right, on one line. Use for short figures. */
+export function Td({ label, children, className = '', inline = false }: { label: string; children: ReactNode; className?: string; inline?: boolean }) {
   return (
-    <td className={`${T.td} ${className}`}>
-      <span className="block text-12 text-textMuted md:hidden">{label}</span>
-      {children}
+    <td className={`${T.td} ${inline ? 'flex items-baseline justify-between gap-3 md:table-cell' : ''} ${className}`}>
+      <span className={`${inline ? '' : 'block'} font-sans text-12 font-normal text-textMuted md:hidden`}>{label}</span>
+      {inline ? <span className="text-right">{children}</span> : children}
     </td>
   );
 }
@@ -153,9 +155,9 @@ export function DailyOutputChart({ check }: { check: ErpCheck }) {
   const id = useId();
   const sku: Sku = check.sku;
   const W = 320;
-  const H = 168;
+  const H = 182;
   const top = 18;
-  const base = 124;
+  const base = 122;
   const left = 4;
   const band = (W - left * 2) / check.hist.length;
   const barW = Math.min(22, band - 8);
@@ -193,18 +195,19 @@ export function DailyOutputChart({ check }: { check: ErpCheck }) {
                   {h.qty}
                 </text>
                 {(h.kind === 'four' || h.kind === 'three') && (
-                  <text x={cx} y={base + 32} textAnchor="middle" fontSize={12} className="rp-ink">
-                    {h.kind === 'four' ? `${P.arms.value} arms` : `${P.arms.value - 1} arms`}
-                  </text>
+                  <>
+                    <line x1={cx} x2={cx} y1={base + 21} y2={base + (h.kind === 'four' ? 25 : 41)} className="rp-axis" />
+                    <text x={cx} y={base + (h.kind === 'four' ? 37 : 53)} textAnchor="middle" fontSize={12} className="rp-ink">
+                      {h.kind === 'four' ? `twin, ${P.arms.value} arms` : `twin, ${P.arms.value - 1} arms`}
+                    </text>
+                  </>
                 )}
               </g>
             );
           })}
-          <text x={W - left} y={H - 2} textAnchor="end" fontSize={12} className="rp-ink-muted">
-            tanks a day; number above each bar = days
-          </text>
         </svg>
       </div>
+      <p className="text-12 text-textMuted">Across: tanks made in a day. Number above a bar: days it happened.</p>
       <p className="mt-2 text-12 text-textMuted">
         <span className="num text-text">{check.daysFour}</span> of <span className="num text-text">{check.days}</span> days ({share(check.daysFour)}) equal the twin's typical shift (
         <span className="num text-text">{check.fourArm}</span>). <span className="num text-text">{check.daysThree}</span> ({share(check.daysThree)}) equal the twin with one arm empty (

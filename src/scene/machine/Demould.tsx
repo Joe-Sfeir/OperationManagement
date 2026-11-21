@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { easeInOutCubic } from '../../design/tokens';
+import { useTwin } from '../../app/store';
 import { usePlant } from '../plant';
 import { mats } from '../materials';
 import { Bar, Box, Cyl, Railing, Stairs } from '../parts';
@@ -62,7 +63,7 @@ export function DemouldStation({ onSelect }: { onSelect?: () => void }) {
       const seat = H_ARM + mouldSeatY(d.kind) - (d.kind === 'HTT2' ? 0.7 : d.kind === 'OTHER' ? 0.75 : d.kind === 'CTT4' ? 1.175 : 0.86);
       const tankH = TANK_DIM[d.kind].h + (d.kind === 'HTT2' ? 0.3 : 0.15);
       const high = BEAM_Y - 1.15 - tankH;
-      const e = easeInOutCubic(d.hoistProgress);
+      const e = useTwin.getState().reduced ? (d.hoistProgress < 0.5 ? 0 : 1) : easeInOutCubic(d.hoistProgress);
       switch (d.hoist) {
         case 'hookDown':
           pos = over.clone().setY(BEAM_Y - 1.4 + (seat + tankH - (BEAM_Y - 1.4)) * e);
@@ -103,7 +104,7 @@ export function DemouldStation({ onSelect }: { onSelect?: () => void }) {
       g.visible = tankBaseY !== null && d.kind === k;
       if (g.visible) {
         g.position.set(pos.x, tankBaseY!, pos.z);
-        g.rotation.z = swing;
+        g.rotation.z = useTwin.getState().reduced ? 0 : swing;
       }
     });
     // Tanks on the floor being finished, then the buffer rows.

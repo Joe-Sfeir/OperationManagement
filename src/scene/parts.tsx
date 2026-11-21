@@ -29,7 +29,7 @@ export function Box({
 }) {
   const r = Math.min(radius, Math.min(...size) / 2 - 0.001);
   return (
-    <RoundedBox args={size} radius={Math.max(0.002, r)} smoothness={2} position={position} rotation={rotation} material={material} castShadow={shadow} receiveShadow>
+    <RoundedBox args={size} radius={Math.max(0.002, r)} smoothness={Math.min(...size) < 0.3 ? 1 : 2} position={position} rotation={rotation} material={material} castShadow={shadow} receiveShadow>
       {children}
     </RoundedBox>
   );
@@ -41,7 +41,7 @@ export function Cyl({
   position,
   rotation,
   material,
-  segments = 28,
+  segments,
   rTop,
   open = false,
   shadow = true,
@@ -58,13 +58,13 @@ export function Cyl({
 }) {
   return (
     <mesh position={position} rotation={rotation} material={material} castShadow={shadow} receiveShadow>
-      <cylinderGeometry args={[rTop ?? r, r, h, segments, 1, open]} />
+      <cylinderGeometry args={[rTop ?? r, r, h, segments ?? (r < 0.12 ? 10 : r < 0.5 ? 18 : 28), 1, open]} />
     </mesh>
   );
 }
 
 /** A straight round bar between two points. */
-export function Bar({ from, to, r = 0.03, material, segments = 8 }: { from: V3; to: V3; r?: number; material: THREE.Material; segments?: number }) {
+export function Bar({ from, to, r = 0.03, material, segments = 6 }: { from: V3; to: V3; r?: number; material: THREE.Material; segments?: number }) {
   const { pos, quat, len } = useMemo(() => {
     const a = new THREE.Vector3(...from);
     const b = new THREE.Vector3(...to);

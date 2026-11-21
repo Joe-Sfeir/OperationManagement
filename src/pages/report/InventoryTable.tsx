@@ -142,7 +142,7 @@ export function InventoryTable({ focus }: { focus: { row: number; n: number } | 
                   {r.parameter}
                 </Td>
                 <Td label="Value" className="md:w-[24%]">
-                  <span className="num">{String(r.value)}</span>
+                  <span className={typeof r.value === 'number' || /^[\d~≈+-]/.test(String(r.value)) ? 'num' : undefined}>{String(r.value)}</span>
                   {r.unit && r.unit !== '—' ? <span className="text-12 text-textMuted"> {r.unit}</span> : null}
                   {r.notes && <span className="mt-1 block text-12 text-textMuted">Note: {r.notes}</span>}
                 </Td>
