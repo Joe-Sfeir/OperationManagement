@@ -417,7 +417,7 @@ export function RedesignPage() {
         <BottomBar result={base.runs[d]!} />
         <p className="text-12 text-textMuted">
           The timeline shows the oven on the baseline day. A red ring on the floor marks an arm that is waiting; the amber outline marks the oven while arms queue for it.
-          {EFFECTS ? '' : ' Two 3D views run at once here, so the soft-shadow and glow effects of the Machine page are switched off.'}
+          {EFFECTS ? '' : ' Two 3D views run at once here, so the contact-shading, glow and edge-smoothing effects of the Machine page are switched off.'}
         </p>
       </section>
 
