@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { easeInOutCubic } from '../../design/tokens';
+import { useTwin } from '../../app/store';
 import { usePlant } from '../plant';
 import { mats } from '../materials';
 import { Box, Cyl } from '../parts';
@@ -48,22 +49,62 @@ export function Console() {
   );
 }
 
-function Figure({ cloth }: { cloth: THREE.Material }) {
+/** Limbs of one figure that the walk cycle swings. */
+interface Limbs {
+  legs: [THREE.Group | null, THREE.Group | null];
+  arms: [THREE.Group | null, THREE.Group | null];
+}
+
+/**
+ * A simple worker for scale: no face, work clothes, safety boots. Legs and
+ * arms hang from hip and shoulder pivots so they can swing when the simulator
+ * moves the figure.
+ */
+function Figure({ cloth, limbs }: { cloth: THREE.Material; limbs: Limbs }) {
   const M = mats();
   return (
     <group>
-      {[-0.11, 0.11].map((x) => (
-        <Cyl key={x} r={0.085} h={0.85} position={[x, 0.425, 0]} material={M.rubber} segments={10} />
+      {[-1, 1].map((side, k) => (
+        <group key={`l${side}`} position={[side * 0.1, 0.9, 0]} ref={(el) => void (limbs.legs[k] = el)}>
+          <mesh position={[0, -0.24, 0]} material={M.rubber} castShadow>
+            <capsuleGeometry args={[0.078, 0.34, 3, 8]} />
+          </mesh>
+          <mesh position={[0, -0.64, 0]} material={M.rubber} castShadow>
+            <capsuleGeometry args={[0.066, 0.3, 3, 8]} />
+          </mesh>
+          {/* Boot */}
+          <mesh position={[0, -0.86, 0.045]} material={M.steelDark} castShadow>
+            <boxGeometry args={[0.13, 0.09, 0.26]} />
+          </mesh>
+        </group>
       ))}
-      <mesh position={[0, 1.18, 0]} material={cloth} castShadow>
-        <capsuleGeometry args={[0.2, 0.42, 4, 12]} />
+      {/* Hips and torso */}
+      <mesh position={[0, 0.96, 0]} material={M.rubber} castShadow>
+        <capsuleGeometry args={[0.15, 0.08, 3, 10]} />
       </mesh>
-      {[-0.27, 0.27].map((x) => (
-        <Cyl key={x} r={0.06} h={0.62} position={[x, 1.12, 0]} material={cloth} segments={8} />
+      <mesh position={[0, 1.27, 0]} scale={[1, 1, 0.72]} material={cloth} castShadow>
+        <capsuleGeometry args={[0.19, 0.3, 4, 12]} />
+      </mesh>
+      {[-1, 1].map((side, k) => (
+        <group key={`a${side}`} position={[side * 0.25, 1.47, 0]} ref={(el) => void (limbs.arms[k] = el)}>
+          <mesh position={[0, -0.16, 0]} material={cloth} castShadow>
+            <capsuleGeometry args={[0.055, 0.22, 3, 8]} />
+          </mesh>
+          <mesh position={[0, -0.44, 0]} material={M.skin} castShadow>
+            <capsuleGeometry args={[0.045, 0.22, 3, 8]} />
+          </mesh>
+        </group>
       ))}
-      {/* Faceless head: scale only */}
-      <mesh position={[0, 1.68, 0]} material={M.skin} castShadow>
-        <sphereGeometry args={[0.14, 14, 12]} />
+      {/* Neck and head: no face, for scale only */}
+      <mesh position={[0, 1.56, 0]} material={M.skin}>
+        <cylinderGeometry args={[0.05, 0.06, 0.08, 8]} />
+      </mesh>
+      <mesh position={[0, 1.7, 0]} scale={[0.92, 1.08, 1]} material={M.skin} castShadow>
+        <sphereGeometry args={[0.12, 14, 12]} />
+      </mesh>
+      {/* Cap */}
+      <mesh position={[0, 1.77, 0]} material={M.steelDark}>
+        <sphereGeometry args={[0.125, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2.2]} />
       </mesh>
     </group>
   );
@@ -120,22 +161,38 @@ export function Operators() {
   const M = mats();
   const refs = useRef<(THREE.Group | null)[]>([]);
   const last = useRef<P2[]>([]);
+  const limbs = useRef<Limbs[]>([0, 1, 2].map(() => ({ legs: [null, null], arms: [null, null] })));
+  const stride = useRef<number[]>([0, 0, 0]);
+  const swing = useRef<number[]>([0, 0, 0]);
   useFrame(() => {
+    const reduced = useTwin.getState().reduced;
     const spots = operatorSpots(plant.get());
     spots.forEach((p, i) => {
       const g = refs.current[i];
       if (!g) return;
       const prev = last.current[i];
-      if (prev && (Math.abs(prev[0] - p[0]) > 1e-4 || Math.abs(prev[1] - p[1]) > 1e-4)) g.rotation.y = Math.atan2(p[0] - prev[0], p[1] - prev[1]);
+      const dist = prev ? Math.hypot(p[0] - prev[0], p[1] - prev[1]) : 0;
+      if (prev && dist > 1e-4) g.rotation.y = Math.atan2(p[0] - prev[0], p[1] - prev[1]);
       g.position.set(p[0], 0, p[1]);
       last.current[i] = p;
+      // Walk cycle driven by distance covered: no movement in the simulator, no steps on screen.
+      // A scrub can jump a figure a long way, so one frame never counts for more than a pace.
+      const moving = dist > 1e-4 && dist < 1.2 && !reduced;
+      if (moving) stride.current[i]! += dist * 4.4;
+      swing.current[i]! += ((moving ? 1 : 0) - swing.current[i]!) * 0.2;
+      const a = Math.sin(stride.current[i]!) * 0.6 * swing.current[i]!;
+      const L = limbs.current[i]!;
+      if (L.legs[0]) L.legs[0].rotation.x = a;
+      if (L.legs[1]) L.legs[1].rotation.x = -a;
+      if (L.arms[0]) L.arms[0].rotation.x = -a * 0.7;
+      if (L.arms[1]) L.arms[1].rotation.x = a * 0.7;
     });
   });
   return (
     <group>
       {[M.cloth, M.clothAlt, M.cloth].map((c, i) => (
         <group key={i} ref={(el) => void (refs.current[i] = el)}>
-          <Figure cloth={c} />
+          <Figure cloth={c} limbs={limbs.current[i]!} />
         </group>
       ))}
     </group>

@@ -10,6 +10,8 @@ import { LoadingStation } from './machine/Loading';
 import { DemouldStation } from './machine/Demould';
 import { Console, Operators } from './machine/Extras';
 import { StationLabels, WaitCues } from './machine/Cues';
+import { CoolingDetails, HubDetails, OvenDetails } from './machine/Details';
+import { R_ARM } from './layout';
 
 /** Machine 3700. Every part is its own component and reads the plant state. */
 /** `inHall`: the building supplies the floor. Otherwise the machine stands on its own slab. */
@@ -21,6 +23,9 @@ export function MachineScene({ interactive = true, inHall = false }: { interacti
       {!inHall && <MachineSlab />}
       <Floor />
       <Hub />
+      <HubDetails />
+      <OvenDetails cx={R_ARM + 0.15} hx={2.55} />
+      <CoolingDetails />
       {plant.result.config.arms.map((_, i) => (
         <Arm key={i} id={i} />
       ))}

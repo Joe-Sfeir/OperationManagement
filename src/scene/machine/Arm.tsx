@@ -8,6 +8,8 @@ import { mats } from '../materials';
 import { Bar, Box, Cyl } from '../parts';
 import { DEG, H_ARM, R_ARM, R_RING, STATION_DEG, sweep } from '../layout';
 import { Mould, mouldSlots } from './Moulds';
+import { BoltCircle, Plate } from './Details';
+import type { SignSpec } from '../hall/signs';
 import type { ArmState, StationId } from '../../sim/types';
 
 /** Plan angle of an arm, in degrees, from its state. Indexing is eased: heavy steel, no overshoot. */
@@ -104,12 +106,27 @@ export function Arm({ id }: { id: number }) {
   });
 
   const beamEnd = R_ARM - R_RING - 0.28;
+  const numberPlate = useMemo<SignSpec>(() => ({ lines: [String(id + 1)], size: [0.6, 0.46], bg: '#1F4A86', fg: '#EFE8D6' }), [id]);
+  const sidePlate = useMemo<SignSpec>(() => ({ lines: [`Arm ${id + 1}`], size: [0.7, 0.24], bg: '#1F4A86', fg: '#EFE8D6' }), [id]);
   return (
     <group ref={root}>
       {/* Beam from the hub to the drive head */}
       <Box size={[beamEnd - 1.3, 0.34, 0.3]} position={[(beamEnd + 1.3) / 2, H_ARM, 0]} material={M.steel} radius={0.04} />
       <Box size={[beamEnd - 1.9, 0.08, 0.38]} position={[(beamEnd + 1.5) / 2, H_ARM + 0.19, 0]} material={M.steelDark} radius={0.02} />
       <Box size={[0.5, 0.6, 0.56]} position={[1.55, H_ARM, 0]} material={M.steelDark} radius={0.05} />
+      {/* Arm number, painted on a plate on top of the beam and on both sides */}
+      <Plate spec={numberPlate} position={[2.55, H_ARM + 0.236, 0]} rotation={[-Math.PI / 2, 0, -Math.PI / 2]} />
+      <Box size={[0.52, 0.02, 0.66]} position={[2.55, H_ARM + 0.224, 0]} material={M.steelDark} radius={0.004} shadow={false} />
+      {[1, -1].map((side) => (
+        <Plate key={side} spec={sidePlate} position={[3.25, H_ARM, side * 0.153]} rotation={[0, side > 0 ? 0 : Math.PI, 0]} />
+      ))}
+      {/* Bolted flange where the beam meets the turret, and gussets */}
+      <group position={[1.82, H_ARM, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <BoltCircle r={0.3} count={8} y={0} size={0.035} />
+      </group>
+      {[1, -1].map((side) => (
+        <Box key={`g${side}`} size={[0.5, 0.34, 0.03]} position={[2.05, H_ARM - 0.02, side * 0.17]} material={M.steelDark} radius={0.006} />
+      ))}
       {/* Drive head and its motor */}
       <Box size={[0.5, 0.62, 0.6]} position={[beamEnd - 0.1, H_ARM, 0]} material={M.steelDark} radius={0.06} />
       <group position={[beamEnd - 0.55, H_ARM + 0.42, 0]}>
