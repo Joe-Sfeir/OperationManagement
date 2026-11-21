@@ -218,7 +218,7 @@ export function DailyOutputChart({ check }: { check: ErpCheck }) {
           <SourceBadge tag="C" title="Counted from the ERP daily production (tag N) against simulator runs" />
         </span>
       </p>
-      <details className="mt-1 text-12 text-textMuted">
+      <details className="rp-noprint mt-1 text-12 text-textMuted">
         <summary className="cursor-pointer rounded-control">Same data as a table</summary>
         <table className="mt-1 border-collapse">
           <caption className="sr-only">{sku}: ERP production days by daily quantity</caption>

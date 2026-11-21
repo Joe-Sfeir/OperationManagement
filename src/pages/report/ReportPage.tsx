@@ -5,7 +5,7 @@
  * Every figure is computed in ./validation.ts or read from the inventory.
  * Gaps are shown as gaps. The page prints black on white (see PRINT_CSS).
  */
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { SPEEDS } from '../../app/store';
 import { P, SKUS, inventoryRows, type Tag } from '../../data/params';
 import { neutral } from '../../design/tokens';
@@ -30,7 +30,8 @@ const PAGE_CSS = `
 .rp-ink-muted { fill: ${neutral.textMuted}; }
 .rp-axis { stroke: ${neutral.hairlineStrong}; stroke-width: 1; }
 @media print {
-  @page { size: A4; margin: 12mm; }
+  /* Landscape: the page is then wide enough for the tables to print as tables, not as stacked blocks. */
+  @page { size: A4 landscape; margin: 10mm; }
   html, body, #root { height: auto !important; overflow: visible !important; background: #fff !important; }
   *:has(.rp-root) { position: static !important; overflow: visible !important; height: auto !important; max-height: none !important; inset: auto !important; background: #fff !important; }
   body *:not(:has(.rp-root)):not(.rp-root):not(.rp-root *) { display: none !important; }
@@ -38,7 +39,8 @@ const PAGE_CSS = `
   .rp-root, .rp-root * { color: #000 !important; background: transparent !important; border-color: #888 !important; }
   .rp-root .rp-noprint, .rp-root .rp-controls { display: none !important; }
   .rp-root .rp-scroll { max-height: none !important; overflow: visible !important; }
-  .rp-root thead { position: static !important; }
+  .rp-root .rp-scroll thead { position: static !important; }
+  .rp-root tr { break-inside: avoid; }
   .rp-root .rp-row, .rp-root .rp-figure, .rp-root .rp-conflict { break-inside: avoid; }
   .rp-root h3, .rp-root h4, .rp-root h5 { break-after: avoid; }
   .rp-root .rp-link { text-decoration: none !important; }
@@ -586,6 +588,25 @@ export function ReportPage() {
   const [focus, setFocus] = useState<{ row: number; n: number } | null>(null);
   const jump = useCallback((row: number) => setFocus((f) => ({ row, n: (f?.n ?? 0) + 1 })), []);
   const count = (x: Verdict) => v.rows.filter((r) => r.verdict === x).length;
+
+  // Printing: open the folded source list so it is on paper, and fold it again afterwards.
+  useEffect(() => {
+    let opened: HTMLDetailsElement[] = [];
+    const before = () => {
+      opened = [...document.querySelectorAll<HTMLDetailsElement>('.rp-root details.rp-print-open:not([open])')];
+      for (const d of opened) d.open = true;
+    };
+    const after = () => {
+      for (const d of opened) d.open = false;
+      opened = [];
+    };
+    window.addEventListener('beforeprint', before);
+    window.addEventListener('afterprint', after);
+    return () => {
+      window.removeEventListener('beforeprint', before);
+      window.removeEventListener('afterprint', after);
+    };
+  }, []);
   const tags = (['N', 'V', 'C', 'S'] as Tag[]).map((t) => `${rows.filter((r) => r.tag === t).length} ${t}`).join(', ');
 
   return (

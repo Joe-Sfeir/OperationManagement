@@ -6,10 +6,12 @@ import { PlantProvider } from './scene/plant';
 import { Stage, type View } from './scene/Stage';
 import { MachineScene } from './scene/MachineScene';
 import { HALL_OFFSET, PLAN_ROT } from './scene/layout';
+import { RawHall, HALL_SPAN, HALL_VIEW_CENTER } from './scene/raw/RawHall';
 import { stationPoint } from './scene/machine/Cues';
 import { ArmsPanel, BottomBar, Breadcrumb, KpiPanel, PanelSlot, TopBar, useUiState } from './ui/Chrome';
 import { ConfigDrawer } from './ui/Drawer';
 import { StationCard } from './ui/StationCard';
+import { RawPanel } from './ui/RawPanel';
 
 // Pages load on demand so the 3D scene does not wait for them.
 const PlanPage = lazy(() => import('./pages/plan/PlanPage').then((m) => ({ default: m.PlanPage })));
@@ -55,7 +57,7 @@ function useIsWide() {
 
 export function App() {
   useClock();
-  const { result, scene, selected, panelsOpen, select, reduced, simpleLight } = useTwin();
+  const { result, scene, selected, panelsOpen, select, reduced, simpleLight, setScene } = useTwin();
   const state = useUiState();
   const wide = useIsWide();
   const is3d = scene === 'machine' || scene === 'raw';
@@ -67,7 +69,8 @@ export function App() {
   const view = useMemo<View>(() => {
     // Keep the subject clear of the panels: [left, right, top, bottom] in pixels.
     const pad: [number, number, number, number] = wide ? (panelsOpen ? [170, 170, 52, 72] : [16, 16, 52, 72]) : panelsOpen ? [4, 4, 44, 330] : [4, 4, 44, 120];
-    if (scene === 'raw') return { target: toWorld([HALL_OFFSET[0], 2, HALL_OFFSET[2]]), span: [26, 16], pad };
+    if (scene === 'raw')
+      return { target: toWorld([HALL_OFFSET[0] + HALL_VIEW_CENTER[0], HALL_VIEW_CENTER[1], HALL_OFFSET[2] + HALL_VIEW_CENTER[2]]), span: HALL_SPAN, pad };
     if (selected) return { target: toWorld(stationPoint(selected)), span: [15, 10.5], pad };
     return { target: toWorld(MACHINE_TARGET), span: wide ? [33, 20.5] : [30, 19], pad };
   }, [scene, selected, panelsOpen, wide]);
@@ -81,14 +84,19 @@ export function App() {
             via={sceneChanged ? OVERVIEW : undefined}
             durationMs={sceneChanged ? M.sceneTransition : M.cameraPreset}
             reduced={reduced}
-            shadowSpan={30}
-            shadowCenter={toWorld([-8, 0, 2])}
+            shadowSpan={38}
+            shadowCenter={toWorld([-14, 0, 4])}
             effects={!simpleLight && q.get('fx') !== '0'}
             onMiss={() => select(null)}
             label={scene === 'raw' ? 'Raw-material hall, isometric view' : 'Machine 3700, isometric view'}
           >
             <PlantProvider result={result}>
               <MachineScene />
+              <group rotation={[0, PLAN_ROT, 0]}>
+                <group position={HALL_OFFSET}>
+                  <RawHall onSelect={() => setScene('raw')} />
+                </group>
+              </group>
             </PlantProvider>
           </Stage>
         </div>
@@ -103,7 +111,7 @@ export function App() {
               <div className="flex flex-col gap-3">
                 <Breadcrumb />
                 <PanelSlot show={panelsOpen} from="left">
-                  <ArmsPanel state={state} result={result} />
+                  {scene === 'raw' ? <RawPanel state={state} result={result} /> : <ArmsPanel state={state} result={result} />}
                 </PanelSlot>
               </div>
               <PanelSlot show={panelsOpen} from="right">
@@ -119,8 +127,9 @@ export function App() {
               {panelsOpen && (
                 <div className="pointer-events-auto mt-auto flex max-h-[38vh] flex-col gap-2 overflow-y-auto">
                   <StationCard state={state} result={result} />
+                  {scene === 'raw' && <RawPanel state={state} result={result} />}
                   <KpiPanel state={state} result={result} />
-                  <ArmsPanel state={state} result={result} />
+                  {scene !== 'raw' && <ArmsPanel state={state} result={result} />}
                 </div>
               )}
             </div>

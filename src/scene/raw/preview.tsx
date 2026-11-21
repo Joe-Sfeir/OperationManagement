@@ -48,13 +48,21 @@ function Hall() {
   const ref = useRef<THREE.Group>(null);
   useEffect(() => {
     let tris = 0;
+    const byPart: Record<string, number> = {};
+    const hall = ref.current?.children[0];
     ref.current?.traverse((o) => {
       const m = o as THREE.Mesh;
       if (!m.isMesh) return;
       const g = m.geometry;
-      const n = (g.index ? g.index.count : (g.attributes.position?.count ?? 0)) / 3;
-      tris += n * ((o as THREE.InstancedMesh).isInstancedMesh ? (o as THREE.InstancedMesh).instanceMatrix.count : 1);
+      const n = ((g.index ? g.index.count : (g.attributes.position?.count ?? 0)) / 3) * ((o as THREE.InstancedMesh).isInstancedMesh ? (o as THREE.InstancedMesh).instanceMatrix.count : 1);
+      tris += n;
+      // Which top-level part of the hall this mesh belongs to, and what kind of geometry it is.
+      let top: THREE.Object3D = o;
+      while (top.parent && top.parent !== hall) top = top.parent;
+      const key = `${hall?.children.indexOf(top)}:${g.type}`;
+      byPart[key] = (byPart[key] ?? 0) + n;
     });
+    (window as unknown as { __parts: Record<string, number> }).__parts = byPart;
     (window as unknown as { __tris: number }).__tris = Math.round(tris);
     document.title = `Raw hall preview: ${Math.round(tris)} triangles`;
   }, []);

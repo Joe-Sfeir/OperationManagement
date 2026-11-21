@@ -165,7 +165,7 @@ export function InventoryTable({ focus }: { focus: { row: number; n: number } | 
         </table>
       </div>
 
-      <details className="mt-3 text-12 text-textMuted">
+      <details className="rp-print-open mt-3 text-12 text-textMuted">
         <summary className="cursor-pointer rounded-control text-text">Research sources cited in the inventory (R1 to R{inventorySources.length})</summary>
         <ul className="mt-2 grid gap-1">
           {inventorySources.map((s) => (
