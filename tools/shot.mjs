@@ -10,10 +10,10 @@ const page = await browser.newPage({ viewport: { width: +w, height: +h }, device
 const errors = [];
 page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
 page.on('pageerror', (e) => errors.push(e.message));
-await page.goto(url, { waitUntil: 'load' });
+await page.goto(url, { waitUntil: 'load', timeout: 120000 });
 await page.evaluate(() => document.fonts.ready);
 await page.waitForTimeout(+wait);
-await page.screenshot({ path: out });
+await page.screenshot({ path: out, timeout: 120000 });
 await browser.close();
 console.log('saved', out);
 if (errors.length) {

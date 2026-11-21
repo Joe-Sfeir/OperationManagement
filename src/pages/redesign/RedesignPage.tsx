@@ -46,7 +46,7 @@ function ViewPanel({ result, run, day, role, recommended, tUi, reduced }: { resu
   const label = `${result.scenario.name}, day ${day + 1}: Machine 3700, isometric view`;
   return (
     <Panel aria-label={`${role}: ${result.scenario.name}`} className="flex min-w-0 flex-col overflow-hidden">
-      <header className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-hairline px-3 py-2">
+      <header className="flex min-h-[44px] flex-wrap items-center gap-x-2 gap-y-1 border-b border-hairline px-3 py-2">
         <span className="text-12 text-textMuted">{role}</span>
         <h3 className="text-14 font-semibold">{result.scenario.name}</h3>
         {recommended && <Tagline>Recommended</Tagline>}
@@ -112,7 +112,7 @@ function BandMark({ sku, closing, band }: { sku: Sku; closing: number; band: Wee
     <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-12 text-textMuted" title={`Minimum ${min}, cap ${cap}, closing stock ${fmt(closing, 1)}`}>
       <svg width={w} height={10} viewBox={`0 0 ${w} 10`} aria-hidden="true" className="shrink-0">
         <rect x={0} y={4} width={w} height={2} fill={neutral.hairline} />
-        <rect x={x(min)} y={2} width={x(cap) - x(min)} height={6} fill={neutral.hairlineStrong} />
+        <rect x={x(min)} y={2} width={x(cap) - x(min)} height={6} fill={neutral.textFaint} />
         <rect x={x(closing) - 1.5} y={0} width={3} height={10} fill={out ? palette.alertRed : neutral.text} />
       </svg>
       <span className={out ? 'text-text' : undefined}>{BAND_WORD[band]}</span>
@@ -430,6 +430,12 @@ export function RedesignPage() {
             {base.runs.length} running days of one {fmt(P.shiftHours.value, 1)} h shift. Figures marked C are computed by the simulator. Stock figures start from NTG's count of 6 Nov and take away an average week of sales.
           </p>
           <CompareTable results={results} recId={rec.id} />
+          {armDaysNtg && Number(armDaysNtg[1]) !== base.tankArmDays && (
+            <p className="mt-3 max-w-[980px] text-12 text-textMuted">
+              The scenario names count arm-days from NTG's sheet, which lists <span className="num text-text">{armDaysNtg[1]}</span> for the planned week (row 40). The twin can place NTG's quantities on{' '}
+              <span className="num text-text">{base.tankArmDays}</span>, and the table counts what is placed. So "one arm-day fewer" is level with the baseline here, and "same arm-days" is one more.
+            </p>
+          )}
           <div className="mt-4 max-w-[760px]">
             <BandInputs />
           </div>

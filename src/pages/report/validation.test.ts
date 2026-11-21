@@ -5,6 +5,7 @@ import { dailyProduction, week } from '../../data/history';
 import { defaultConfig } from '../../sim/config';
 import { runSimulation } from '../../sim/engine';
 import { SCENARIOS, evaluateWeek, recommend } from '../../sim/scenarios';
+import { BASELINE_ID, mouldChanges, ruleChecks, rulePick } from '../redesign/rule';
 import { GROUPS, assumptions, assumptionsMarkdown } from './assumptions';
 import { modelMarkdown } from './modelDoc';
 import { FIELD_TIMING, rangeIn, signed, sumSku, threeArmQuantities, validation } from './validation';
@@ -208,5 +209,18 @@ describe('redesign figures the pages rely on', () => {
   });
   it('recommends a scenario that is in the list', () => {
     expect(SCENARIOS.map((s) => s.id)).toContain(recommend(results).id);
+  });
+  it('states the same rule on the page as recommend() applies', () => {
+    expect(rulePick(results)).toBe(recommend(results).id);
+    expect(ruleChecks(results).find((c) => c.id === BASELINE_ID)!.armDaysOk).toBe(true);
+    // Drop each scenario in turn: the restated rule must still agree with the code.
+    for (const r of results) {
+      const rest = results.filter((x) => x !== r);
+      expect(rulePick(rest)).toBe(recommend(rest).id);
+    }
+  });
+  it('counts mould changes between days', () => {
+    for (const s of SCENARIOS) expect(mouldChanges(s)).toBeGreaterThanOrEqual(0);
+    expect(mouldChanges({ ...SCENARIOS[0]!, days: [SCENARIOS[0]!.days[0]!, SCENARIOS[0]!.days[0]!] })).toBe(0);
   });
 });

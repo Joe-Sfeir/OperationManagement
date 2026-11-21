@@ -38,7 +38,7 @@ Because every arm must take its turn, the arm cycle is an **output**: 4 arms x (
 
 **Inputs.** The moulds on each arm; the shift length; the task times in the table; the index time; powder per layer per
 product; four switches (layers in one visit or with a return to loading, pauses inside or on top of the visit, cooling
-layout, end-of-shift rule); an optional +/-10 % variation with a seed. Inputs come from `P` (inventory, with its N/V/C/S tag)
+layout, end-of-shift rule); an optional +/-${f(v.variation.jitter * 100)} % variation with a seed. Inputs come from `P` (inventory, with its N/V/C/S tag)
 or from `assumed` (tag S). The wait for the crew and the demould time are inputs, so the twin cannot explain them.
 
 **Outputs.** Arm cycle; oven visits; tanks per product, by the mark and in total; share of the shift the oven is in use;
@@ -49,7 +49,7 @@ position arms wait for most (the bottleneck); powder dosed per layer, pigment an
 
 With the default settings one shift gives a 120.0 min cycle (NTG 120, row 47), 16 oven visits,
 4 / 8 / 8 tanks (NTG 4 / 8 / 8, row 49) and 4 cycles per mould (NTG 4, row 57).
-Four choices were made so that this comes out. Each alternative is still in the code and is run live on the Report page:
+These choices were made so that this comes out. Each alternative is still in the code and is run live on the Report page:
 
 | Choice | Used | Alternative | Alternative gives |
 | --- | --- | --- | --- |
