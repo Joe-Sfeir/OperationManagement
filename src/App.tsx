@@ -14,7 +14,9 @@ import { StationCard } from './ui/StationCard';
 // Pages load on demand so the 3D scene does not wait for them.
 const PlanPage = lazy(() => import('./pages/plan/PlanPage').then((m) => ({ default: m.PlanPage })));
 const SourcingPage = lazy(() => import('./pages/sourcing/SourcingPage').then((m) => ({ default: m.SourcingPage })));
-const PAGES: Partial<Record<SceneId, React.LazyExoticComponent<() => JSX.Element>>> = { plan: PlanPage, sourcing: SourcingPage };
+const RedesignPage = lazy(() => import('./pages/redesign/RedesignPage').then((m) => ({ default: m.RedesignPage })));
+const ReportPage = lazy(() => import('./pages/report/ReportPage').then((m) => ({ default: m.ReportPage })));
+const PAGES: Partial<Record<SceneId, React.LazyExoticComponent<() => JSX.Element>>> = { plan: PlanPage, sourcing: SourcingPage, redesign: RedesignPage, report: ReportPage };
 
 // Repeatable screenshots: ?t=<minute> sets the clock, ?scene=, ?select=, ?play=1.
 const q = new URLSearchParams(location.search);
