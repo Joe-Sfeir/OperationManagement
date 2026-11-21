@@ -12,7 +12,7 @@ import { stateAt } from '../sim/state';
 import { STATION_LABEL } from '../sim/config';
 import type { PlantState, SimResult } from '../sim/types';
 import { Button, Num, Panel, clock as hmm, minSec, sourceTitle } from './kit';
-import { BackIcon, PanelsIcon, PauseIcon, PlayIcon, RestartIcon, SlidersIcon } from './icons';
+import { PanelsIcon, PauseIcon, PlayIcon, RestartIcon, SlidersIcon } from './icons';
 import { mouldsLabel, stageView } from './stage';
 
 const SCENES: { id: SceneId; label: string }[] = [
@@ -287,22 +287,6 @@ export function BottomBar({ result }: { result: SimResult }) {
         </ul>
       </div>
     </Panel>
-  );
-}
-
-/** Breadcrumb and Back key for the raw-material scene. */
-export function Breadcrumb() {
-  const { scene, setScene } = useTwin();
-  if (scene !== 'raw') return null;
-  return (
-    <div className="pointer-events-auto flex items-center gap-2">
-      <Button onClick={() => setScene('machine')} className="flex items-center gap-1">
-        <BackIcon /> Back
-      </Button>
-      <span className="rounded-control border border-hairline bg-panel px-2 py-1 text-12 text-textMuted">
-        Machine 3700 / <span className="text-text">Raw material</span>
-      </span>
-    </div>
   );
 }
 

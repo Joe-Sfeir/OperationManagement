@@ -128,7 +128,7 @@ export function DemouldStation({ onSelect }: { onSelect?: () => void }) {
   });
 
   return (
-    <group onClick={(e) => (e.stopPropagation(), onSelect?.())}>
+    <group onClick={(e) => e.delta < 6 && (e.stopPropagation(), onSelect?.())}>
       {/* Beam on two portal frames */}
       <group position={[demouldPos.x, 0, demouldPos.z]} rotation={[0, beamYaw, 0]}>
         <Box size={[beamLen, 0.36, 0.22]} position={[beamLen / 2 - 1.4, BEAM_Y + 0.4, 0]} material={M.cream} radius={0.02} />

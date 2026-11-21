@@ -60,7 +60,7 @@ export function Oven({ onSelect }: { onSelect?: () => void }) {
   });
 
   return (
-    <group position={[CX, 0, 0]} onClick={(e) => (e.stopPropagation(), onSelect?.())}>
+    <group position={[CX, 0, 0]} onClick={(e) => e.delta < 6 && (e.stopPropagation(), onSelect?.())}>
       {/* Hearth */}
       <Box size={[2 * HX, 0.12, 2 * HZ]} position={[0, 0.06, 0]} material={lining} radius={0.01} />
 

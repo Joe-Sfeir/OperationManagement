@@ -39,3 +39,25 @@ export const BackIcon = () => (
     <path d="M9.5 3.5L5 8l4.5 4.5" />
   </svg>
 );
+export const PlusIcon = () => (
+  <svg {...base}>
+    <path d="M8 3.5v9M3.5 8h9" />
+  </svg>
+);
+export const MinusIcon = () => (
+  <svg {...base}>
+    <path d="M3.5 8h9" />
+  </svg>
+);
+export const TargetIcon = () => (
+  <svg {...base}>
+    <circle cx="8" cy="8" r="4.5" />
+    <path d="M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3" />
+  </svg>
+);
+export const HelpIcon = () => (
+  <svg {...base}>
+    <circle cx="8" cy="8" r="6" />
+    <path d="M6.3 6.2a1.8 1.8 0 1 1 2.6 1.6c-.6.3-.9.7-.9 1.4M8 11.4v.2" />
+  </svg>
+);

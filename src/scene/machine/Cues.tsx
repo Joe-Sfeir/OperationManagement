@@ -96,7 +96,7 @@ export function StationLabels({ onSelect }: { onSelect: (s: StationId) => void }
             </button>
           </Html>
           {/* Invisible disc on the floor so the position itself can be clicked */}
-          <mesh position={polar(R_ARM, STATION_DEG[st], 0.03)} rotation={[-Math.PI / 2, 0, 0]} onClick={(e) => (e.stopPropagation(), onSelect(st))} visible={false}>
+          <mesh position={polar(R_ARM, STATION_DEG[st], 0.03)} rotation={[-Math.PI / 2, 0, 0]} onClick={(e) => e.delta < 6 && (e.stopPropagation(), onSelect(st))} visible={false}>
             <circleGeometry args={[2.3, 24]} />
           </mesh>
         </group>

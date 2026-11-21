@@ -48,7 +48,7 @@ export function CoolingChamber({ onSelect }: { onSelect?: () => void }) {
   });
 
   return (
-    <group position={polar(R_ARM, STATION_DEG.chamber)} rotation={[0, STATION_DEG.chamber * DEG, 0]} onClick={(e) => (e.stopPropagation(), onSelect?.())}>
+    <group position={polar(R_ARM, STATION_DEG.chamber)} rotation={[0, STATION_DEG.chamber * DEG, 0]} onClick={(e) => e.delta < 6 && (e.stopPropagation(), onSelect?.())}>
       {/* Base ring and yellow floor */}
       <Cyl r={R + 0.1} h={0.16} position={[0, 0.08, 0]} material={M.blueDark} segments={56} />
       <Cyl r={R - 0.08} h={0.04} position={[0, 0.17, 0]} material={M.yellowInner} segments={56} />

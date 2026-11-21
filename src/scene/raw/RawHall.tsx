@@ -92,7 +92,7 @@ function Floor() {
 
 export function RawHall({ onSelect }: { onSelect?: () => void }) {
   return (
-    <group onClick={(e) => (e.stopPropagation(), onSelect?.())}>
+    <group onClick={(e) => e.delta < 6 && (e.stopPropagation(), onSelect?.())}>
       <Floor />
       <Sacks />
       <Extruder />

@@ -34,8 +34,13 @@ interface Twin {
   resetConfig: () => void;
   setPlaying: (p: boolean) => void;
   setSpeed: (s: number) => void;
+  /** Goes up each time the camera should fly to the current view (tab, station click, Reset view). Dragging never changes it. */
+  viewNonce: number;
   setScene: (s: SceneId) => void;
-  select: (s: StationId | null) => void;
+  /** Dragging across the plant changes which area the panels describe, without moving the camera. */
+  setArea: (s: 'machine' | 'raw') => void;
+  select: (s: StationId | null, fly?: boolean) => void;
+  resetView: () => void;
   seek: (t: number) => void;
   set: (p: Partial<Pick<Twin, 'drawerOpen' | 'panelsOpen' | 'tUi' | 'reduced' | 'simpleLight' | 'showSources'>>) => void;
 }
@@ -72,8 +77,11 @@ export const useTwin = create<Twin>((set, get) => ({
     set({ playing, tUi: clock.t });
   },
   setSpeed: (speed) => set({ speed }),
-  setScene: (scene) => set({ scene, selected: null }),
-  select: (selected) => set({ selected }),
+  viewNonce: 0,
+  setScene: (scene) => set({ scene, selected: null, viewNonce: get().viewNonce + 1 }),
+  setArea: (scene) => get().scene !== scene && set({ scene }),
+  select: (selected, fly = true) => set({ selected, viewNonce: get().viewNonce + (fly && selected ? 1 : 0) }),
+  resetView: () => set({ selected: null, viewNonce: get().viewNonce + 1 }),
   seek: (t) => {
     clock.t = Math.min(Math.max(0, t), get().result.endMin);
     set({ tUi: clock.t });

@@ -1,14 +1,17 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
+import type * as THREE from 'three';
 import { useClock } from './app/useClock';
 import { clock, useTwin, type SceneId } from './app/store';
 import { motion as M } from './design/tokens';
 import { PlantProvider } from './scene/plant';
-import { Stage, type View } from './scene/Stage';
+import { Stage, cameraApi, type Bounds, type View } from './scene/Stage';
 import { MachineScene } from './scene/MachineScene';
 import { HALL_OFFSET, PLAN_ROT } from './scene/layout';
 import { RawHall, HALL_SPAN, HALL_VIEW_CENTER } from './scene/raw/RawHall';
 import { stationPoint } from './scene/machine/Cues';
-import { ArmsPanel, BottomBar, Breadcrumb, KpiPanel, PanelSlot, TopBar, useUiState } from './ui/Chrome';
+import { ArmsPanel, BottomBar, KpiPanel, PanelSlot, TopBar, useUiState } from './ui/Chrome';
+import { Button } from './ui/kit';
+import { MinusIcon, PlusIcon, TargetIcon } from './ui/icons';
 import { ConfigDrawer } from './ui/Drawer';
 import { StationCard } from './ui/StationCard';
 import { RawPanel } from './ui/RawPanel';
@@ -43,7 +46,36 @@ function toWorld([x, y, z]: [number, number, number]): [number, number, number] 
 }
 
 const MACHINE_TARGET: [number, number, number] = [-4.6, 1.8, -1.4];
-const OVERVIEW: View = { target: toWorld([-12, 1.5, 3]), span: [66, 38] };
+/** Machine x (metres) where the floor passes from the machine to the powder hall. */
+const AREA_SPLIT_X = (HALL_OFFSET[0] + 9 - 21) / 2;
+
+/** How far the look-at point may be dragged, and how far in and out the view may zoom. */
+const BOUNDS: Bounds = (() => {
+  const corners = ([[-39, -15], [16, -15], [16, 17], [-39, 17]] as const).map(([x, z]) => toWorld([x, 0, z]));
+  const xs = corners.map((c) => c[0]);
+  const zs = corners.map((c) => c[2]);
+  return { x: [Math.min(...xs), Math.max(...xs)], z: [Math.min(...zs), Math.max(...zs)], visible: [7, 62] };
+})();
+
+/** Zoom and reset buttons. Dragging and the scroll wheel do the same from the scene itself. */
+function ViewControls() {
+  const resetView = useTwin((s) => s.resetView);
+  return (
+    <div className="pointer-events-auto flex items-center gap-1.5 rounded-panel border border-hairline bg-panel p-1.5">
+      <span className="hidden px-1.5 text-12 text-textMuted lg:inline">Drag to move, scroll to zoom</span>
+      <Button aria-label="Zoom in" title="Zoom in" onClick={() => cameraApi.zoomBy(0.75)} className="!px-1.5">
+        <PlusIcon />
+      </Button>
+      <Button aria-label="Zoom out" title="Zoom out" onClick={() => cameraApi.zoomBy(1.33)} className="!px-1.5">
+        <MinusIcon />
+      </Button>
+      <Button title="Fly back to the whole view" onClick={resetView} className="flex items-center gap-1.5">
+        <TargetIcon />
+        Reset view
+      </Button>
+    </div>
+  );
+}
 
 function useIsWide() {
   const [wide, setWide] = useState(() => window.matchMedia('(min-width: 768px)').matches);
@@ -58,21 +90,20 @@ function useIsWide() {
 
 export function App() {
   useClock();
-  const { result, scene, selected, panelsOpen, select, reduced, simpleLight, setScene } = useTwin();
+  const { result, scene, selected, panelsOpen, select, reduced, simpleLight, setScene, setArea, viewNonce } = useTwin();
   const state = useUiState();
   const wide = useIsWide();
   const is3d = scene === 'machine' || scene === 'raw';
 
-  // While the camera travels between the machine and the hall it pulls back to the plant overview.
-  // The flag must outlive the render that changed the scene, or the pull-back would stop after one frame.
-  const prevScene = useRef(scene);
-  const [glideUntil, setGlideUntil] = useState(0);
-  if (prevScene.current !== scene) {
-    const between3d = (prevScene.current === 'machine' || prevScene.current === 'raw') && is3d;
-    prevScene.current = scene;
-    if (between3d) setGlideUntil(performance.now() + M.sceneTransition + 200);
-  }
-  const sceneChanged = performance.now() < glideUntil;
+  // Machine and powder hall are one floor. The panels describe whichever one the camera is over.
+  const onMove = useCallback(
+    (target: THREE.Vector3, flying: boolean) => {
+      if (flying) return;
+      const machineX = target.x * Math.cos(PLAN_ROT) - target.z * Math.sin(PLAN_ROT);
+      setArea(machineX < AREA_SPLIT_X ? 'raw' : 'machine');
+    },
+    [setArea],
+  );
 
   const view = useMemo<View>(() => {
     // Keep the subject clear of the panels: [left, right, top, bottom] in pixels.
@@ -89,14 +120,17 @@ export function App() {
         <div className="absolute inset-0">
           <Stage
             view={view}
-            via={sceneChanged ? OVERVIEW : undefined}
-            durationMs={sceneChanged ? M.sceneTransition : M.cameraPreset}
+            flyKey={viewNonce}
+            interactive
+            bounds={BOUNDS}
+            onMove={onMove}
+            durationMs={M.cameraPreset}
             reduced={reduced}
             shadowSpan={38}
             shadowCenter={toWorld([-14, 0, 4])}
             effects={!simpleLight && q.get('fx') !== '0'}
-            onMiss={() => select(null)}
-            label={scene === 'raw' ? 'Raw-material hall, isometric view' : 'Machine 3700, isometric view'}
+            onMiss={() => select(null, false)}
+            label="Machine 3700 and the powder hall, isometric view"
           >
             <PlantProvider result={result}>
               <MachineScene />
@@ -115,9 +149,11 @@ export function App() {
         <TopBar />
         {is3d ? (
           <>
-            <div className="hidden min-h-0 flex-1 items-start justify-between gap-3 p-3 md:flex">
+            <div className="relative hidden min-h-0 flex-1 items-start justify-between gap-3 p-3 md:flex">
+              <div className="absolute bottom-3 right-3">
+                <ViewControls />
+              </div>
               <div className="flex flex-col gap-3">
-                <Breadcrumb />
                 <PanelSlot show={panelsOpen} from="left">
                   {scene === 'raw' ? <RawPanel state={state} result={result} /> : <ArmsPanel state={state} result={result} />}
                 </PanelSlot>
@@ -131,7 +167,9 @@ export function App() {
             </div>
             {/* Phone: the scene keeps the top; panels scroll in a strip above the playback bar. */}
             <div className="flex min-h-0 flex-1 flex-col justify-between p-2 md:hidden">
-              <Breadcrumb />
+              <div className="self-end">
+                <ViewControls />
+              </div>
               {panelsOpen && (
                 <div className="pointer-events-auto mt-auto flex max-h-[38vh] flex-col gap-2 overflow-y-auto">
                   <StationCard state={state} result={result} />

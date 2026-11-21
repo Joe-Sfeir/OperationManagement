@@ -82,7 +82,7 @@ export function LoadingStation({ onSelect }: { onSelect?: () => void }) {
   });
 
   return (
-    <group onClick={(e) => (e.stopPropagation(), onSelect?.())}>
+    <group onClick={(e) => e.delta < 6 && (e.stopPropagation(), onSelect?.())}>
       <group position={[PLATFORM[0], 0, PLATFORM[2]]}>
         {/* Frame */}
         {[-1, 1].flatMap((sx) =>
