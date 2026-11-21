@@ -74,7 +74,8 @@ export function Bar({ from, to, r = 0.03, material, segments = 6 }: { from: V3; 
     return { pos: a.add(b).multiplyScalar(0.5), quat, len };
   }, [from, to]);
   return (
-    <mesh position={pos} quaternion={quat} material={material} castShadow receiveShadow>
+    // Thin bars (railings, rungs, conduits) do not cast shadows: there are hundreds and their shadows are a pixel wide.
+    <mesh position={pos} quaternion={quat} material={material} castShadow={r >= 0.045} receiveShadow>
       <cylinderGeometry args={[r, r, len, segments]} />
     </mesh>
   );

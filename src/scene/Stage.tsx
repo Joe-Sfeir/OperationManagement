@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Environment, Lightformer } from '@react-three/drei';
+import { Environment, Lightformer, PerformanceMonitor } from '@react-three/drei';
 import { EffectComposer, N8AO, Bloom, ToneMapping, SMAA } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import { budget, easeInOutCubic, light, motion, palette } from '../design/tokens';
@@ -313,6 +313,7 @@ export function Stage({
   interactive = false,
   bounds,
   onMove,
+  onSlow,
   children,
   onMiss,
   label,
@@ -332,6 +333,8 @@ export function Stage({
   interactive?: boolean;
   bounds?: Bounds;
   onMove?: (target: THREE.Vector3, flying: boolean) => void;
+  /** Called when the frame rate stays low. */
+  onSlow?: () => void;
   children: ReactNode;
   onMiss?: () => void;
   label: string;
@@ -352,6 +355,8 @@ export function Stage({
       <Lights shadowSpan={shadowSpan} center={shadowCenter} keyScale={keyScale} ambientScale={ambientScale} />
       <Studio />
       <Probe />
+      {/* On a slow graphics card, ask the app to drop reflections and post effects. Not under test automation. */}
+      {onSlow && !(typeof navigator !== 'undefined' && navigator.webdriver) && <PerformanceMonitor bounds={() => [26, 48]} flipflops={2} onDecline={onSlow} />}
       {children}
       {effects && (
         <EffectComposer multisampling={0} enableNormalPass={false}>

@@ -125,6 +125,7 @@ export function App() {
             interactive
             bounds={BOUNDS}
             onMove={onMove}
+            onSlow={() => useTwin.setState({ simpleLight: true })}
             durationMs={M.cameraPreset}
             reduced={reduced}
             shadowSpan={42}

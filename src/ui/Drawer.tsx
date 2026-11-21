@@ -177,7 +177,7 @@ export function ConfigDrawer() {
               />
             </Row>
 
-            <Row label="Display" help="Reduced motion: arms and the hoist jump between positions instead of gliding. Simple lighting: turns off soft contact shadows and glow, for slower laptops. Neither changes any result.">
+            <Row label="Display" help="Reduced motion: arms and the hoist jump between positions instead of gliding. Simple lighting: turns off floor reflections, soft contact shadows and glow. It switches on by itself if the picture runs slowly. Neither changes any result.">
               <div className="flex flex-wrap gap-2">
                 <Segmented
                   label="Motion"
