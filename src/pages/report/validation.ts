@@ -95,7 +95,7 @@ export function summarise(r: SimResult): RunSummary {
 export function simulate(patch: Partial<SimConfig> = {}, seed = 1): RunSummary {
   return summarise(runSimulation({ ...defaultConfig(), ...patch }, seed));
 }
-const withTimes = (t: Partial<SimConfig['times']>): Partial<SimConfig> => ({ times: { ...defaultConfig().times, ...t } });
+export const withTimes = (t: Partial<SimConfig['times']>): Partial<SimConfig> => ({ times: { ...defaultConfig().times, ...t } });
 
 // ------------------------------------------------------------ the summary table
 

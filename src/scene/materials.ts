@@ -25,7 +25,10 @@ function lcg(seed: number) {
   return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
 }
 
-/** Fine grey grain around mid-grey: used as a roughness and bump map. */
+/**
+ * Fine grey grain around mid-grey, used as a roughness map only. Do NOT use it as a bump map:
+ * three's bump shading can return NaN on some pixels, and the bloom pass then blacks out the frame.
+ */
 function grain(seed: number, lo = 150, hi = 230, size = 256, repeat = 2) {
   return canvasTexture(
     size,
@@ -101,9 +104,9 @@ function build() {
   const mot = mottled(3);
   return {
     // Matte painted steel (cabinets, platforms, hub)
-    cream: std(palette.machineCream, 0.72, 0.08, { roughnessMap: g1, bumpMap: g1, bumpScale: 0.25 }),
+    cream: std(palette.machineCream, 0.72, 0.08, { roughnessMap: g1 }),
     creamDark: std('#B9AE96', 0.78, 0.06, { roughnessMap: g1 }),
-    blue: std(palette.ntgBlue, 0.6, 0.15, { roughnessMap: g1, bumpMap: g1, bumpScale: 0.2 }),
+    blue: std(palette.ntgBlue, 0.6, 0.15, { roughnessMap: g1 }),
     blueDark: std('#234F8F', 0.65, 0.15, { roughnessMap: g1 }),
     // Brushed steel (arms, frames)
     steel: std('#A7AEB3', 0.38, 0.85, { roughnessMap: br }),

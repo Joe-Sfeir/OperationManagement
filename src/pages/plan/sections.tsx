@@ -103,6 +103,9 @@ function CapacityBar({ used, available }: { used: number; available: number }) {
 
 const cell = `${td} px-1 text-right sm:px-2`;
 const head = `${th} px-1 text-right sm:px-2`;
+/** The comparison table is secondary: smaller figures and tighter cells, so it fits a phone. */
+const tight = `${td} px-0.5 text-right sm:px-2`;
+const tightHead = `${th} px-0.5 text-right sm:px-2`;
 
 function IntegerTable({ view }: { view: View }) {
   const { result, settings, weekOne } = view;
@@ -225,15 +228,15 @@ function ContinuousTable({ view }: { view: View }) {
           <caption className="sr-only">Continuous LP: tanks per week and tank, and arm-hours</caption>
           <thead>
             <tr>
-              <th scope="col" className={`${th} px-1 text-left sm:px-2`}>
+              <th scope="col" className={`${th} px-0.5 text-left sm:px-2`}>
                 Week
               </th>
               {input.skus.map((k) => (
-                <th key={k.id} scope="col" className={head}>
+                <th key={k.id} scope="col" className={tightHead}>
                   {k.id}
                 </th>
               ))}
-              <th scope="col" className={head}>
+              <th scope="col" className={tightHead}>
                 Arm-hours
               </th>
             </tr>
@@ -241,33 +244,33 @@ function ContinuousTable({ view }: { view: View }) {
           <tbody>
             {Array.from({ length: T - 1 }, (_, i) => (
               <tr key={i}>
-                <th scope="row" className={`${td} whitespace-nowrap px-1 text-left font-normal sm:px-2`}>
+                <th scope="row" className={`${td} whitespace-nowrap px-0.5 text-left font-normal sm:px-2`}>
                   Week {i + 2}
                   <span className="hidden text-12 text-textMuted sm:block">{weekDates(weekOne, i + 2)}</span>
                 </th>
                 {input.skus.map((k, ki) => (
-                  <td key={k.id} className={cell}>
-                    <Calc value={fmt(lp.tanks[ki]![i]!, 1)} title={`Continuous LP: ${fmt(lp.n[ki]![i]!, 2)} arm-cycles x ${k.mouldsPerArm} moulds per arm`} />
+                  <td key={k.id} className={tight}>
+                    <Calc size="12" value={fmt(lp.tanks[ki]![i]!, 1)} title={`Continuous LP: ${fmt(lp.n[ki]![i]!, 2)} arm-cycles x ${k.mouldsPerArm} moulds per arm`} />
                   </td>
                 ))}
-                <td className={cell}>
-                  <Calc value={fmt(lp.armCyclesByPlan[i]! * h, 1)} title="Arm-cycles x 2 h" />
+                <td className={tight}>
+                  <Calc size="12" value={fmt(lp.armCyclesByPlan[i]! * h, 1)} title="Arm-cycles x 2 h" />
                 </td>
               </tr>
             ))}
           </tbody>
           <tfoot>
             <tr>
-              <th scope="row" className={`${td} border-b-0 px-1 text-left font-medium sm:px-2`}>
+              <th scope="row" className={`${td} border-b-0 px-0.5 text-left font-medium sm:px-2`}>
                 Total
               </th>
               {input.skus.map((k, ki) => (
-                <td key={k.id} className={`${cell} border-b-0`}>
-                  <Calc value={fmt(lp.tanks[ki]!.reduce((a, b) => a + b, 0), 1)} title="Sum of the continuous plan" />
+                <td key={k.id} className={`${tight} border-b-0`}>
+                  <Calc size="12" value={fmt(lp.tanks[ki]!.reduce((a, b) => a + b, 0), 1)} title="Sum of the continuous plan" />
                 </td>
               ))}
-              <td className={`${cell} border-b-0`}>
-                <Calc value={fmt(lp.totals.hours, 1)} title="Sum of the continuous plan" />
+              <td className={`${tight} border-b-0`}>
+                <Calc size="12" value={fmt(lp.totals.hours, 1)} title="Sum of the continuous plan" />
               </td>
             </tr>
           </tfoot>

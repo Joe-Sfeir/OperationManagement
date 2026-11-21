@@ -85,7 +85,7 @@ export function Oven({ onSelect }: { onSelect?: () => void }) {
         <Box size={[0.3, H, WALL]} position={[HX - 0.15, H / 2, 0]} material={M.cream} radius={0.02} />
         <group ref={doorOut}>
           <Box size={[2 * HX - 0.5, H - 0.6, 0.12]} position={[0, (H - 0.6) / 2 + 0.05, -0.2]} material={M.blue} radius={0.02} />
-          <Box size={[2 * HX - 0.6, H - 0.7, 0.03]} position={[0, (H - 0.6) / 2 + 0.05, -0.125]} material={lining} radius={0.005} shadow={false} />
+          <Box size={[2 * HX - 0.6, H - 0.7, 0.03]} position={[0, (H - 0.6) / 2 + 0.05, -0.125]} material={M.steelDark} radius={0.005} shadow={false} />
           {[-1.1, 0, 1.1].map((x) => (
             <Box key={x} size={[0.08, H - 0.7, 0.05]} position={[x, (H - 0.6) / 2 + 0.05, -0.12]} material={M.blueDark} radius={0.01} />
           ))}

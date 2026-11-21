@@ -177,6 +177,7 @@ export function Stage({
       {effects && (
         <EffectComposer multisampling={0} enableNormalPass={false}>
           <N8AO aoRadius={1.6} intensity={2.4} distanceFalloff={1.2} quality="medium" halfRes />
+          {/* Bloom spreads any NaN pixel over the whole frame, so materials must not use bump maps (see materials.ts). */}
           <Bloom mipmapBlur luminanceThreshold={1.6} luminanceSmoothing={0.2} intensity={0.35} radius={0.6} />
           <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
           <SMAA />

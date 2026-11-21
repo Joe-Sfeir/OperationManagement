@@ -82,6 +82,7 @@ export function App() {
             reduced={reduced}
             shadowSpan={30}
             shadowCenter={toWorld([-8, 0, 2])}
+            effects={q.get('fx') !== '0'}
             onMiss={() => select(null)}
             label={scene === 'raw' ? 'Raw-material hall, isometric view' : 'Machine 3700, isometric view'}
           >
