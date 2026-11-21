@@ -6,6 +6,7 @@
 import { useMemo, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { RoundedBox } from '@react-three/drei';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { mats } from './materials';
 
 type V3 = [number, number, number];
@@ -81,27 +82,49 @@ export function Bar({ from, to, r = 0.03, material, segments = 6 }: { from: V3; 
   );
 }
 
-/** Handrail along a polyline on a deck: posts, top rail, mid rail, kick plate. */
+/** One geometry made of many straight round bars: a railing or a ladder is a single draw call instead of dozens. */
+function barsGeometry(bars: { from: V3; to: V3; r: number; segments?: number }[]): THREE.BufferGeometry {
+  const up = new THREE.Vector3(0, 1, 0);
+  const parts = bars.map((b) => {
+    const a = new THREE.Vector3(...b.from);
+    const d = new THREE.Vector3(...b.to).sub(a);
+    const len = d.length();
+    const g = new THREE.CylinderGeometry(b.r, b.r, len, b.segments ?? 6);
+    const q = new THREE.Quaternion().setFromUnitVectors(up, d.clone().normalize());
+    g.applyMatrix4(new THREE.Matrix4().compose(a.addScaledVector(d, 0.5), q, new THREE.Vector3(1, 1, 1)));
+    return g;
+  });
+  const merged = mergeGeometries(parts, false) ?? new THREE.BufferGeometry();
+  parts.forEach((g) => g.dispose());
+  return merged;
+}
+
+/** Handrail along a polyline on a deck: posts, top rail, mid rail. Drawn as one mesh. */
 export function Railing({ points, height = 1.05, material, spacing = 1.1 }: { points: V3[]; height?: number; material?: THREE.Material; spacing?: number }) {
   const m = material ?? mats().cream;
-  const parts: ReactNode[] = [];
-  for (let i = 0; i < points.length - 1; i++) {
-    const a = points[i]!;
-    const b = points[i + 1]!;
-    const len = Math.hypot(b[0] - a[0], b[2] - a[2]);
-    const n = Math.max(1, Math.round(len / spacing));
-    for (let k = 0; k <= n; k++) {
-      if (k === 0 && i > 0) continue;
-      const f = k / n;
-      const x = a[0] + (b[0] - a[0]) * f;
-      const y = a[1] + (b[1] - a[1]) * f;
-      const z = a[2] + (b[2] - a[2]) * f;
-      parts.push(<Bar key={`p${i}-${k}`} from={[x, y, z]} to={[x, y + height, z]} r={0.028} material={m} />);
+  const geo = useMemo(() => {
+    const bars: { from: V3; to: V3; r: number }[] = [];
+    for (let i = 0; i < points.length - 1; i++) {
+      const a = points[i]!;
+      const b = points[i + 1]!;
+      const len = Math.hypot(b[0] - a[0], b[2] - a[2]);
+      const n = Math.max(1, Math.round(len / spacing));
+      for (let k = 0; k <= n; k++) {
+        if (k === 0 && i > 0) continue;
+        const f = k / n;
+        const x = a[0] + (b[0] - a[0]) * f;
+        const y = a[1] + (b[1] - a[1]) * f;
+        const z = a[2] + (b[2] - a[2]) * f;
+        bars.push({ from: [x, y, z], to: [x, y + height, z], r: 0.028 });
+      }
+      bars.push({ from: [a[0], a[1] + height, a[2]], to: [b[0], b[1] + height, b[2]], r: 0.032 });
+      bars.push({ from: [a[0], a[1] + height * 0.52, a[2]], to: [b[0], b[1] + height * 0.52, b[2]], r: 0.022 });
     }
-    parts.push(<Bar key={`t${i}`} from={[a[0], a[1] + height, a[2]]} to={[b[0], b[1] + height, b[2]]} r={0.032} material={m} />);
-    parts.push(<Bar key={`m${i}`} from={[a[0], a[1] + height * 0.52, a[2]]} to={[b[0], b[1] + height * 0.52, b[2]]} r={0.022} material={m} />);
-  }
-  return <group>{parts}</group>;
+    return barsGeometry(bars);
+    // The points arrays are written inline by callers, so compare by value.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(points), height, spacing]);
+  return <mesh geometry={geo} material={m} receiveShadow />;
 }
 
 /** Straight stair rising along +x from the origin. */
@@ -128,20 +151,23 @@ export function Stairs({ width = 0.9, rise, run, material, rails = true }: { wid
   );
 }
 
-/** Vertical ladder with a safety cage, as on the chamber drawings. */
+/** Vertical ladder with a safety cage, as on the chamber drawings. Rails and rungs are one mesh. */
 export function Ladder({ height, cage = true, material }: { height: number; cage?: boolean; material?: THREE.Material }) {
   const m = material ?? mats().blue;
-  const rungs = Math.round(height / 0.3);
+  const geo = useMemo(() => {
+    const bars: { from: V3; to: V3; r: number }[] = [
+      { from: [-0.22, 0, 0], to: [-0.22, height + 1, 0], r: 0.025 },
+      { from: [0.22, 0, 0], to: [0.22, height + 1, 0], r: 0.025 },
+    ];
+    for (let i = 0; i < Math.round(height / 0.3); i++) bars.push({ from: [-0.22, 0.3 * (i + 1), 0], to: [0.22, 0.3 * (i + 1), 0], r: 0.015 });
+    return barsGeometry(bars);
+  }, [height]);
   return (
     <group>
-      <Bar from={[-0.22, 0, 0]} to={[-0.22, height + 1, 0]} r={0.025} material={m} />
-      <Bar from={[0.22, 0, 0]} to={[0.22, height + 1, 0]} r={0.025} material={m} />
-      {Array.from({ length: rungs }, (_, i) => (
-        <Bar key={i} from={[-0.22, 0.3 * (i + 1), 0]} to={[0.22, 0.3 * (i + 1), 0]} r={0.015} material={m} segments={6} />
-      ))}
+      <mesh geometry={geo} material={m} receiveShadow />
       {cage &&
         Array.from({ length: Math.max(1, Math.floor((height - 2) / 0.9)) }, (_, i) => (
-          <mesh key={`c${i}`} position={[0, 2.2 + i * 0.9, 0.34]} rotation={[Math.PI / 2, 0, 0]} material={m} castShadow>
+          <mesh key={`c${i}`} position={[0, 2.2 + i * 0.9, 0.34]} rotation={[Math.PI / 2, 0, 0]} material={m}>
             <torusGeometry args={[0.36, 0.015, 6, 20, Math.PI * 1.25]} />
           </mesh>
         ))}
