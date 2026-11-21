@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { useClock } from './app/useClock';
 import { clock, useTwin, type SceneId } from './app/store';
 import { motion as M } from './design/tokens';
@@ -62,9 +62,16 @@ export function App() {
   const wide = useIsWide();
   const is3d = scene === 'machine' || scene === 'raw';
 
-  const [lastScene, setLastScene] = useState(scene);
-  const sceneChanged = lastScene !== scene;
-  useEffect(() => setLastScene(scene), [scene]);
+  // While the camera travels between the machine and the hall it pulls back to the plant overview.
+  // The flag must outlive the render that changed the scene, or the pull-back would stop after one frame.
+  const prevScene = useRef(scene);
+  const [glideUntil, setGlideUntil] = useState(0);
+  if (prevScene.current !== scene) {
+    const between3d = (prevScene.current === 'machine' || prevScene.current === 'raw') && is3d;
+    prevScene.current = scene;
+    if (between3d) setGlideUntil(performance.now() + M.sceneTransition + 200);
+  }
+  const sceneChanged = performance.now() < glideUntil;
 
   const view = useMemo<View>(() => {
     // Keep the subject clear of the panels: [left, right, top, bottom] in pixels.

@@ -185,6 +185,7 @@ export function Forklift() {
         const reach = BIN_BODY_H * Math.sin(g.tip);
         const lipY = hingeY + BIN_BODY_H * Math.cos(g.tip);
         pour.current.position.set(hingeX + reach * cos, lipY, hingeZ - reach * sin);
+        pour.current.rotation.y = g.yaw;
         const drop = Math.max(0.1, lipY - (HOPPER_TOP - 0.02));
         const jet = pour.current.children[0]!;
         jet.scale.y = drop;
@@ -320,12 +321,13 @@ export function Forklift() {
 
       {/* Powder pouring from the tipped bin: only while the simulator is filling the hopper */}
       <group ref={pour} visible={false}>
+        {/* A sheet of powder off the lip of the bin, as wide as the pour */}
         <mesh material={M.powder}>
-          <cylinderGeometry args={[0.07, 0.05, 1, 8]} />
+          <boxGeometry args={[0.07, 1, 0.56]} />
         </mesh>
         <group ref={pourGrains}>
           {Array.from({ length: 6 }, (_, j) => (
-            <mesh key={j} position={[((j % 3) - 1) * 0.05, 0, ((j % 2) - 0.5) * 0.3]} material={M.powder}>
+            <mesh key={j} position={[((j % 3) - 1) * 0.06, 0, ((j % 2) - 0.5) * 0.5]} material={M.powder}>
               <icosahedronGeometry args={[0.05, 0]} />
             </mesh>
           ))}

@@ -167,7 +167,7 @@ export function Silos() {
     const raw = plant.result.config.raw;
     const lg = logistics(clock.t, plant.result.bins, raw.binKg);
     for (let i = 0; i < 3; i++) {
-      const level = Math.min(1, Math.max(0, s.siloKg[i as 0 | 1 | 2] / cap));
+      const level = cap > 0 ? Math.min(1, Math.max(0, s.siloKg[i as 0 | 1 | 2] / cap)) : 0;
       const col = columns.current[i];
       if (col) {
         col.visible = level > 0.002;
@@ -216,14 +216,14 @@ export function Silos() {
           <mesh ref={(el) => void (sights.current[i] = el)} position={[0, HEADER_Y - 0.42, 0]} material={M.steelDark}>
             <cylinderGeometry args={[0.115, 0.115, 0.26, 14]} />
           </mesh>
-          <group ref={(el) => void (levers.current[i] = el)} position={[0, HEADER_Y, 0.16]} rotation={[-1.1, 0, 0]}>
+          <group ref={(el) => void (levers.current[i] = el)} position={[0.17, HEADER_Y, 0.1]} rotation={[-1.1, 0, 0]}>
             <Bar from={[0, 0, 0]} to={[0, -0.34, 0.04]} r={0.018} material={M.steelDark} segments={6} />
             <Cyl r={0.035} h={0.1} position={[0, -0.36, 0.04]} material={M.rubber} segments={8} />
           </group>
           {/* Powder stream at the feeder spout: only while this bin is filling */}
           <group ref={(el) => void (streams.current[i] = el)} position={[0, SPOUT_Y, REACH]} visible={false}>
             <mesh material={M.powder}>
-              <cylinderGeometry args={[0.04, 0.05, 1, 8]} />
+              <cylinderGeometry args={[0.05, 0.065, 1, 8]} />
             </mesh>
             <group ref={(el) => void (grains.current[i] = el)}>
               {Array.from({ length: 6 }, (_, j) => (

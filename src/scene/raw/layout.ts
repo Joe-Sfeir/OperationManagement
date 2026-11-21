@@ -24,8 +24,14 @@ export const DECK_EDGE_X = PLATFORM_X - 1.8;
 export const HOPPER_TOP = PLATFORM[1] + 0.5 + 1.66;
 
 // ---- Hall ---------------------------------------------------------------------
-/** Floor slab outline. */
-export const SLAB = { x0: -10.5, x1: 9.0, z0: -6.9, z1: 2.8 };
+/**
+ * Floor slab outline. The hall slab runs under the machine slab on the +x side
+ * (the machine slab starts at hall x = 4.8) and its front edge is in line with
+ * the machine slab's front edge, so the two read as one floor. That edge is
+ * copied from machine/Floor.tsx (slab centre z -1.2 plus half depth 13.6, less
+ * HALL_OFFSET z 9): Floor.tsx does not export it.
+ */
+export const SLAB = { x0: -10.5, x1: 9.0, z0: -6.9, z1: 3.4 };
 /** Centre line of the forklift lane: in line with the row of hoppers on the platform. */
 export const LANE_Z = PLATFORM_Z - 0.3;
 export const LANE_HALF = 1.7;
@@ -204,7 +210,7 @@ export function logistics(t: number, trips: BinTrip[], binKg: number): Logistics
 
   const layer = trip.layer;
   const p = (t - trip.t0) / (trip.t1 - trip.t0);
-  const full = Math.min(1, trip.kg / binKg);
+  const full = binKg > 0 ? Math.min(1, trip.kg / binKg) : 0;
   const jx = junction(layer);
   if (p < APPROACH) {
     const prev = trips[k - 1];

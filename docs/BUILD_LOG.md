@@ -48,7 +48,17 @@ The M0 and M2 approval gates were skipped on H's instruction ("my main goal is t
 - No bump maps. They produced NaN pixels in some close-ups, and the bloom pass then blacked out the whole frame.
 - The arm cooling in air sits at 78 degrees, not 60, so the oven does not hide it.
 
-**Not done yet**
-- Raw-material hall, Redesign page, Report page (agents working).
-- Accessibility pass, reduced-motion check, frame-rate check on a real laptop.
-- Field timing: no timed shift log was supplied.
+**Added after the usage limit reset (21 Nov)**
+- **Raw-material hall.** Sacks, extruder, pulveriser, three silos with level gauges, forklift and bins, mounted beside the machine on one floor. The camera pulls back and glides between the two. The left panel shows silo and hopper levels there.
+- **Redesign page.** Two machines play side by side on one clock, with the week comparison and the recommendation rule.
+- **Report page.** Validation with the gaps stated, a 34-row assumptions register (each with an alternative), the data inventory, the owner guide, print styles. `docs/ASSUMPTIONS.md` and `docs/MODEL.md` are generated from the code; `UPDATE_DOCS=1 npx vitest run src/pages/report` refreshes them and a test fails if they drift.
+- **Baseline week corrected.** It now uses NTG's 8 tank arm-days (row 40). The recommendation rule allows no more arm-days than the baseline.
+- **Reduced motion, simple lighting, debug page.** Switches in the Set-up drawer; `?debug` prints the event log.
+- **Budget.** Machine scene about 170k triangles, hall about 49k.
+
+**Open**
+- Sourcing default route: the page defaults to road to Jeddah then sea, because its research (search summaries only, pages not opened) says Gulf container lines were not sailing through Hormuz. The style bible draws the sea route round Arabia. H to choose.
+- Silo gauge colour: the bible asks for amber below the reorder level and also says amber means heat only. The gauge stays neutral with a text note and a link to Sourcing.
+- Not checked: frame rate on a real GPU, screen readers, reduced-motion mode on screen, the camera glide mid-move.
+- No timed shift log, so the twin is calibrated, not validated.
+- Copied numbers: `src/scene/raw/layout.ts` copies the machine slab's front edge and the hopper offsets from `machine/Floor.tsx` and `machine/Loading.tsx`. Change them together.

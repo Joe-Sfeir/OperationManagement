@@ -1,6 +1,5 @@
 /** Left panel for the raw-material scene: silo and hopper levels, grinding and the forklift bin, from the simulator. */
 import { useTwin } from '../app/store';
-import { palette } from '../design/tokens';
 import { LAYERS, P, assumed } from '../data/params';
 import type { PlantState, SimResult } from '../sim/types';
 import { Button, Num, Panel, fmt, sourceTitle } from './kit';
@@ -24,7 +23,7 @@ export function RawPanel({ state, result }: { state: PlantState; result: SimResu
             <li key={name} className="grid gap-1">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-14 font-medium">Silo {i + 1}</span>
-                <span className="truncate text-12 text-textMuted">{name}</span>
+                <span className="truncate text-12 text-textMuted">{isLow ? `${name}, below reorder level` : name}</span>
               </div>
               <div className="flex items-center justify-between gap-2 text-12">
                 <Num size="12" value={fmt(state.siloKg[i]!)} unit="kg" tag="C" title="Simulated stock: start level, less bins taken, plus powder ground" />
@@ -33,8 +32,8 @@ export function RawPanel({ state, result }: { state: PlantState; result: SimResu
                 </span>
               </div>
               <div className="relative h-1.5 rounded-full bg-hairline" role="progressbar" aria-label={`Silo ${i + 1} level`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(fill * 100)}>
-                {/* The style bible asks for an amber gauge below the reorder level. */}
-                <div className="h-full rounded-full" style={{ width: `${Math.min(1, fill) * 100}%`, background: isLow ? palette.heatAmber : '#C3C9CD' }} />
+                {/* Neutral on purpose: amber means heat only (style bible rule 3). Below the mark, the text and the link say so. */}
+                <div className="h-full rounded-full bg-steelLight" style={{ width: `${Math.min(1, fill) * 100}%` }} />
                 <span className="absolute -top-0.5 h-2.5 w-px bg-textMuted" style={{ left: `${reorder * 100}%` }} title={sourceTitle(assumed.siloReorderFill)} aria-hidden="true" />
               </div>
               <div className="flex items-center justify-between text-12 text-textMuted">

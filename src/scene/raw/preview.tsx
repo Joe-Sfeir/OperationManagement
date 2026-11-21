@@ -3,6 +3,7 @@
  *   ?t=<minute>        simulated minute to show
  *   ?view=platform     look at the dosing platform end of the lane (to check the tipping)
  *   ?machine=1         also mount the machine floor and loading station, to check the hall joins them
+ *   ?machine=2         mount the whole machine scene instead (what the app shows)
  *   ?cx=&cy=&cz=&w=&h= hall-local look-at point and span, for close-ups
  * The triangle count of the hall is written to window.__tris and to the page title.
  */
@@ -18,13 +19,19 @@ import { PlantProvider } from '../plant';
 import { Stage, type View } from '../Stage';
 import { Floor } from '../machine/Floor';
 import { LoadingStation } from '../machine/Loading';
+import { MachineScene } from '../MachineScene';
 import { HALL_SPAN, HALL_VIEW_CENTER, RawHall } from './RawHall';
-import { PLATFORM_X, PLATFORM_Z } from './layout';
+import { PLATFORM_X, PLATFORM_Z, logistics } from './layout';
 
 const q = new URLSearchParams(location.search);
 const num = (k: string, d: number) => (q.has(k) ? Number(q.get(k)) : d);
 clock.t = num('t', 0);
 const result = runSimulation(defaultConfig());
+// For checking the choreography from the console: the forklift and bins at any minute.
+(window as unknown as { __logistics: (t: number) => unknown }).__logistics = (t: number) => {
+  const g = logistics(t, result.bins, result.config.raw.binKg);
+  return { ...g, fill: [...g.fill] };
+};
 
 /** Hall-local point to world (the machine group is turned by PLAN_ROT). */
 function toWorld(p: [number, number, number]): [number, number, number] {
@@ -78,8 +85,9 @@ createRoot(document.getElementById('root')!).render(
     <div style={{ position: 'fixed', inset: 0 }}>
       <Stage view={view} label="Raw-material hall, isometric view" shadowSpan={platform || q.has('machine') ? 30 : 18} shadowCenter={world}>
         <PlantProvider result={result}>
+          {q.get('machine') === '2' && <MachineScene interactive={false} />}
           <group rotation={[0, PLAN_ROT, 0]}>
-            {q.has('machine') && (
+            {q.get('machine') === '1' && (
               <>
                 <Floor />
                 <LoadingStation />

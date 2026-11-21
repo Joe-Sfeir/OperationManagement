@@ -122,7 +122,10 @@ export function Sacks() {
   useFrame(() => {
     // Resin used = what the simulator has ground by now.
     let kg = 0;
-    for (const g of plant.result.grinds) kg += g.kg * Math.min(1, Math.max(0, (clock.t - g.t0) / (g.t1 - g.t0)));
+    for (const g of plant.result.grinds) {
+      const dur = g.t1 - g.t0;
+      kg += g.kg * (dur > 0 ? Math.min(1, Math.max(0, (clock.t - g.t0) / dur)) : clock.t >= g.t0 ? 1 : 0);
+    }
     const left = Math.max(0, places.length - Math.floor(kg / SACK_KG + 1e-9));
     if (left !== shown.current) {
       shown.current = left;
