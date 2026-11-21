@@ -1,14 +1,15 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { P, SKUS, inventoryRows } from '../../data/params';
-import { dailyProduction, week } from '../../data/history';
+import { P, SKUS, inventoryRows, numbers } from '../../data/params';
+import { dailyProduction, fullWeeks, week, weekly } from '../../data/history';
 import { defaultConfig } from '../../sim/config';
 import { runSimulation } from '../../sim/engine';
 import { SCENARIOS, evaluateWeek, recommend } from '../../sim/scenarios';
 import { BASELINE_ID, mouldChanges, ruleChecks, rulePick } from '../redesign/rule';
-import { GROUPS, assumptions, assumptionsMarkdown } from './assumptions';
+import { GROUPS, MAIN_ASSUMPTIONS, assumptions, assumptionsMarkdown } from './assumptions';
 import { modelMarkdown } from './modelDoc';
-import { FIELD_TIMING, rangeIn, signed, sumSku, threeArmQuantities, validation } from './validation';
+import { FIELD_TIMING, PAGE_ROWS, rangeIn, signed, sumSku, threeArmQuantities, validation } from './validation';
+import { validationMarkdown } from './validationDoc';
 
 const v = validation();
 const row = (id: string) => v.rows.find((r) => r.id === id)!;
@@ -35,21 +36,46 @@ describe('validation summary', () => {
     expect(v.base.cyclesPerArm).toBe(P.cyclesPerMouldPerDay.value);
   });
 
-  it('reports the gaps as gaps, with their size', () => {
+  it('reports the gap as a gap, with its size', () => {
     expect(row('tanksInShift').verdict).toBe('gap');
     expect(v.base.inShift).toBeLessThan(sumSku(P.tanksPerShift.value));
     expect(v.base.lateArms).toBe(2);
     expect(row('tanksInShift').words).toContain(`${v.base.runOutMin.toFixed(1)} min`);
-    expect(row('waitOven').verdict).toBe('gap');
-    expect(v.base.waitOvenMin).toBeGreaterThan(P.waitBeforeOvenMin.value * 2);
-    expect(row('waitOven').difference).toBe(`${signed(v.base.waitOvenMin - P.waitBeforeOvenMin.value, 1)} min`);
+    expect(row('tanksInShift').note).toContain(`${v.base.runOutMin.toFixed(1)} min`);
+  });
+
+  it('calls the loaded wait before the oven close to NTG, and says it is not proof', () => {
+    const gap = v.base.waitOvenMin - P.waitBeforeOvenMin.value;
+    expect(Math.abs(gap)).toBeLessThanOrEqual(1);
+    expect(row('waitOven').verdict).toBe('match');
+    expect(row('waitOven').difference).toBe(`${signed(gap, 1)} min`);
+    expect(row('waitOven').words).toMatch(/not proof/);
+    expect(row('waitOven').words).toMatch(/21 Nov 2026/);
+    // The other reading of the layer step gives the same output and a much longer loaded wait.
+    expect(v.alternative.run.total).toBe(v.base.total);
+    expect(v.alternative.run.cycleMin).toBeCloseTo(v.base.cycleMin, 6);
+    expect(v.alternative.run.waitOvenMin).toBeGreaterThan(v.base.waitOvenMin * 2);
   });
 
   it('does not present inputs or missing data as checks', () => {
     expect(row('waitDemould').verdict).toBe('input');
     expect(v.base.waitDemouldMin).toBe(P.demouldWaitMin.value);
-    expect(row('ovenUse').verdict).toBe('no-data');
-    expect(row('ovenUse').ntgTag).toBeNull();
+    for (const id of ['ovenUse', 'waitLoad']) {
+      expect(row(id).verdict).toBe('no-data');
+      expect(row(id).ntgTag).toBeNull();
+    }
+    expect(v.base.waitLoadMin).toBe(runSimulation(defaultConfig()).kpis.meanWaitLoadMin);
+    expect(v.base.waitLoadMin).toBeGreaterThan(0);
+  });
+
+  it('gives the page seven short rows', () => {
+    expect(PAGE_ROWS.length).toBe(7);
+    for (const id of PAGE_ROWS) {
+      const r = row(id);
+      expect(r, id).toBeDefined();
+      expect(r.note.split(/\s+/).length, id).toBeLessThanOrEqual(12);
+      expect(r.note).not.toMatch(/undefined|NaN/);
+    }
   });
 
   it('cites an inventory row for every NTG figure', () => {
@@ -65,8 +91,17 @@ describe('validation summary', () => {
     expect(v.identity.sumMin).toBe(sum);
     expect(v.identity.unexplainedMin).toBe(P.armCycleMin.value - sum);
     expect(v.identity.unexplainedMin).toBeGreaterThan(0);
-    // In the twin those minutes show up as extra waiting before the oven.
-    expect(v.base.waitOvenMin - P.waitBeforeOvenMin.value).toBeCloseTo(v.identity.unexplainedMin, 0);
+  });
+
+  it('splits a mid-shift arm cycle so that it adds up to the cycle', () => {
+    const st = v.identity.steady;
+    expect(st.cycles).toBeGreaterThan(0);
+    expect(st.total).toBeCloseTo(v.base.cycleMin, 6);
+    expect(st.crewWait).toBeCloseTo(P.demouldWaitMin.value, 6);
+    expect(st.moves).toBeCloseTo(v.identity.indexMoves * v.identity.indexMin, 6);
+    // In the twin the minutes no estimate covers are the empty wait for loading and full arms held after cooling.
+    expect(st.waitLoad).toBeGreaterThan(0);
+    expect(st.waitLoad + st.held + (st.waitOven - P.waitBeforeOvenMin.value)).toBeCloseTo(v.identity.unexplainedMin, 6);
   });
 });
 
@@ -88,10 +123,10 @@ describe('demould placeholder and index time', () => {
       expect(ok[i]!.run.waitOvenMin).toBeLessThan(ok[i - 1]!.run.waitOvenMin);
       expect(ok[i]!.run.total).toBe(v.base.total);
     }
-    // Even at the limit the twin's wait stays above NTG's estimate: the gap cannot be closed by this input alone.
-    expect(v.demould.waitAtLimit).toBeGreaterThan(P.waitBeforeOvenMin.value);
+    // Across that range the loaded wait stays within a few minutes of NTG's estimate.
+    for (const s of ok) expect(Math.abs(s.run.waitOvenMin - P.waitBeforeOvenMin.value)).toBeLessThan(3);
     expect(v.demould.firstBroken).not.toBeNull();
-    expect(v.demould.firstBroken!.run.blockedMin).toBeGreaterThan(0);
+    expect(v.demould.firstBroken!.run.cycleMin).toBeGreaterThan(v.base.cycleMin);
   });
 
   it('moves the cycle by under 2 % across the index range and no tank count', () => {
@@ -137,7 +172,7 @@ describe('ERP checks', () => {
 
 describe('rejected readings and conflicts', () => {
   it('runs each rejected reading and finds fewer tanks than NTG reports', () => {
-    expect(v.rejected.map((r) => r.id)).toEqual(['pausesOnTop', 'bothInChamber', 'returnToLoad', 'perLayer']);
+    expect(v.rejected.map((r) => r.id)).toEqual(['tripsOnTop', 'pausesOnTop', 'bothInChamber', 'perLayer']);
     for (const r of v.rejected) {
       expect(r.run.total).toBeLessThan(sumSku(P.tanksPerShift.value));
       expect(r.run.cycleMin).toBeGreaterThan(P.armCycleMin.value * 1.05);
@@ -162,6 +197,28 @@ describe('rejected readings and conflicts', () => {
   });
 });
 
+describe('weekly stock against the band', () => {
+  it('uses every week of the ERP history and NTG\'s own minimum and cap', () => {
+    for (const k of SKUS) {
+      const s = v.stock[k];
+      expect(s.weeks.length).toBe(weekly[k].length);
+      expect([s.min, s.cap]).toEqual([P.minStock.value[k], P.warehouseCap.value[k]]);
+      expect(s.below + s.above + s.weeks.filter((w) => w.state === 'in').length).toBe(s.weeks.length);
+      expect(s.below + s.above).toBeGreaterThan(0);
+    }
+  });
+
+  it('reproduces the inventory count of weeks above the cap (row 105)', () => {
+    const row105 = numbers(inventoryRows.find((r) => r.row === 105)!.value);
+    SKUS.forEach((k, i) => {
+      const full = new Set(fullWeeks(k).map((w) => w.week));
+      expect(v.stock[k].weeks.filter((w) => full.has(w.week) && w.state === 'above').length).toBe(row105[3 + i]);
+      // Row 105 counts a week as below the minimum if stock dipped under it on any day.
+      expect(fullWeeks(k).filter((w) => w.lowest < w.min).length).toBe(row105[i]);
+    });
+  });
+});
+
 describe('assumptions register', () => {
   const rows = assumptions();
   it('gives every entry an alternative, a reason, a use and a way to replace it', () => {
@@ -176,6 +233,23 @@ describe('assumptions register', () => {
       expect(GROUPS).toContain(r.group);
       for (const n of r.rows) expect(inventoryRows.some((x) => x.row === n), `${r.id} row ${n}`).toBe(true);
       expect(`${r.value}${r.alternative}${r.why}`, r.id).not.toMatch(/undefined|NaN/);
+    }
+  });
+
+  it('tags the two decisions the team settled on 21 Nov as visit facts', () => {
+    for (const id of ['A2', 'A14']) {
+      const r = rows.find((x) => x.id === id)!;
+      expect(r.tag).toBe('V');
+      expect(r.source).toBe('team (H), 21 Nov 2026');
+    }
+  });
+
+  it('has a one-line form of the five main assumptions', () => {
+    expect(MAIN_ASSUMPTIONS.length).toBe(5);
+    for (const id of MAIN_ASSUMPTIONS) {
+      const r = rows.find((x) => x.id === id)!;
+      expect(r.brief, id).toBeTruthy();
+      expect(r.brief!.length, id).toBeLessThan(130);
     }
   });
 
@@ -199,6 +273,26 @@ describe('assumptions register', () => {
     expect(existsSync(path)).toBe(true);
     expect(readFileSync(path, 'utf8')).toBe(md);
     expect(md).not.toMatch(/undefined|NaN/);
+  });
+
+  it('matches docs/VALIDATION.md', () => {
+    const path = 'docs/VALIDATION.md';
+    const md = validationMarkdown();
+    if (process.env.UPDATE_DOCS) writeFileSync(path, md);
+    expect(existsSync(path)).toBe(true);
+    expect(readFileSync(path, 'utf8')).toBe(md);
+    expect(md).not.toMatch(/undefined|NaN/);
+    for (const c of v.conflicts) expect(md).toContain(c.title);
+    for (const r of v.rejected) expect(md).toContain(r.setting);
+    expect(md).toContain('Field timing: PENDING');
+  });
+
+  it('has an owner guide that covers moving around the plant and the Sources switch', () => {
+    const guide = readFileSync('docs/OWNER_GUIDE.md', 'utf8');
+    expect(guide).toMatch(/drag/i);
+    expect(guide).toMatch(/Reset view/);
+    expect(guide).toMatch(/Sources/);
+    expect(guide).toMatch(/AI assistance/);
   });
 });
 

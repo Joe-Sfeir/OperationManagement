@@ -331,7 +331,7 @@ export function Hall() {
       <Lamps />
 
       {/* Standing signs, facing the open side of the hall */}
-      <PostSign spec={SIGNS.line} position={[-9.6, 0, 8.4]} rotation={[0, 0.25, 0]} />
+      <PostSign spec={SIGNS.line} position={[-3.6, 0, 10.6]} rotation={[0, 0.25, 0]} />
       <PostSign spec={SIGNS.hot} position={[12.2, 0, 6.6]} rotation={[0, 0.2, 0]} />
       <PostSign spec={SIGNS.forklift} position={[-20.4, 0, 12.9]} rotation={[0, 0.1, 0]} />
 

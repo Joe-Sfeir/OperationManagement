@@ -12,7 +12,7 @@ import { stateAt } from '../sim/state';
 import { STATION_LABEL } from '../sim/config';
 import type { PlantState, SimResult } from '../sim/types';
 import { Button, Num, Panel, clock as hmm, minSec, sourceTitle } from './kit';
-import { PanelsIcon, PauseIcon, PlayIcon, RestartIcon, SlidersIcon } from './icons';
+import { HelpIcon, PanelsIcon, PauseIcon, PlayIcon, RestartIcon, SlidersIcon } from './icons';
 import { mouldsLabel, stageView } from './stage';
 
 const SCENES: { id: SceneId; label: string }[] = [
@@ -69,6 +69,9 @@ export function TopBar() {
       <div className="flex items-center gap-1 border-l border-hairline pl-2">
         <Button aria-pressed={showSources} active={showSources} title="Show where each number comes from: N from NTG, V seen on the visit, C calculated, S an estimate" onClick={() => set({ showSources: !showSources })} className="hidden sm:block">
           Sources
+        </Button>
+        <Button aria-label="How to use the twin" title="How to use the twin" onClick={() => set({ helpOpen: true })} className="!px-1.5">
+          <HelpIcon />
         </Button>
         <Button aria-label={panelsOpen ? 'Hide panels' : 'Show panels'} aria-pressed={!panelsOpen} title={panelsOpen ? 'Hide panels' : 'Show panels'} onClick={() => set({ panelsOpen: !panelsOpen })} className="!px-1.5">
           <PanelsIcon />

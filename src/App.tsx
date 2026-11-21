@@ -16,6 +16,7 @@ import { MinusIcon, PlusIcon, TargetIcon } from './ui/icons';
 import { ConfigDrawer } from './ui/Drawer';
 import { StationCard } from './ui/StationCard';
 import { RawPanel } from './ui/RawPanel';
+import { HelpOverlay } from './ui/Help';
 
 // Pages load on demand so the 3D scene does not wait for them.
 const PlanPage = lazy(() => import('./pages/plan/PlanPage').then((m) => ({ default: m.PlanPage })));
@@ -32,6 +33,7 @@ if (q.has('select')) useTwin.setState({ selected: q.get('select') as never });
 if (q.has('panels')) useTwin.setState({ panelsOpen: q.get('panels') !== '0' });
 if (q.has('drawer')) useTwin.setState({ drawerOpen: true });
 if (q.has('sources')) useTwin.setState({ showSources: true });
+if (q.has('help')) useTwin.setState({ helpOpen: true });
 if (q.has('cooling')) useTwin.getState().setConfig({ cooling: q.get('cooling') as never });
 if (q.has('layer')) useTwin.getState().setConfig({ layerMode: q.get('layer') as never });
 if (q.has('t')) clock.t = Number(q.get('t'));
@@ -200,6 +202,7 @@ export function App() {
         )}
       </div>
       <ConfigDrawer />
+      <HelpOverlay />
     </div>
   );
 }

@@ -10,11 +10,15 @@
  * The twin is CALIBRATED against NTG's reported figures (cycle, shift output).
  * It is not validated against a timed shift, because no timed shift log was
  * supplied. The page says so.
+ *
+ * The Report page shows a short table (PAGE_ROWS) and two charts. The full
+ * material, with the explanations, is written to docs/VALIDATION.md by
+ * validationDoc.ts.
  */
 import { P, SKUS, assumed, inventoryRows, numbers, type InventoryRow, type PerSku, type Sku, type Tag } from '../../data/params';
-import { dailyOutputHistogram, dailyProduction, week } from '../../data/history';
+import { dailyOutputHistogram, dailyProduction, week, weekly } from '../../data/history';
 import { defaultConfig, typicalArms } from '../../sim/config';
-import { runSimulation } from '../../sim/engine';
+import { ovenSplit, runSimulation } from '../../sim/engine';
 import { SCENARIOS } from '../../sim/scenarios';
 import type { ArmSetup, MouldKind, SimConfig, SimResult } from '../../sim/types';
 
@@ -58,8 +62,12 @@ export interface RunSummary {
   /** Oven visits divided by the arms that carry a mould. */
   cyclesPerArm: number;
   ovenUtilisation: number;
+  /** Loaded arm waiting for its oven turn, per oven visit. */
   waitOvenMin: number;
+  /** Empty arm held until the loading position is free, per oven visit. */
+  waitLoadMin: number;
   waitDemouldMin: number;
+  /** Full arm held because the next position is occupied, per oven visit. */
   blockedMin: number;
   runOutMin: number;
   bottleneck: string;
@@ -83,6 +91,7 @@ export function summarise(r: SimResult): RunSummary {
     cyclesPerArm: working > 0 ? k.ovenVisits / working : 0,
     ovenUtilisation: k.ovenUtilisation,
     waitOvenMin: k.meanWaitOvenMin,
+    waitLoadMin: k.meanWaitLoadMin,
     waitDemouldMin: k.meanWaitDemouldMin,
     blockedMin: k.meanBlockedMin,
     runOutMin: k.runOutMin,
@@ -103,8 +112,8 @@ export type Verdict = 'match' | 'gap' | 'input' | 'no-data';
 export const VERDICT_LABEL: Record<Verdict, string> = {
   match: 'Matches',
   gap: 'Gap',
-  input: 'Input, not a result',
-  'no-data': 'Nothing to check against',
+  input: 'Input',
+  'no-data': 'Twin only',
 };
 
 export interface ValidationRow {
@@ -119,9 +128,14 @@ export interface ValidationRow {
   ntgTitle: string;
   difference: string;
   verdict: Verdict;
-  /** Plain words: what the comparison shows and why. */
+  /** A few words for the page. */
+  note: string;
+  /** Plain words for the written report: what the comparison shows and why. */
   words: string;
 }
+
+/** The rows the Report page shows, in order. The rest are in docs/VALIDATION.md. */
+export const PAGE_ROWS = ['cycle', 'tanksTotal', 'tanksInShift', 'cyclesPerMould', 'waitOven', 'waitLoad', 'ovenUse'] as const;
 
 const rowTitle = (...rows: number[]) =>
   rows.map((n) => `Inventory row ${n}: ${invRow(n).parameter} = ${invRow(n).value} ${invRow(n).unit}. Source: ${invRow(n).source}. Confidence: ${invRow(n).confidence}`).join(' | ');
@@ -131,20 +145,81 @@ export interface Sweep<T> {
   run: RunSummary;
 }
 
+/** One mid-shift arm cycle, in minutes, averaged over the arms. Adds up to the cycle. */
+export interface SteadyCycle {
+  cycles: number;
+  work: number;
+  moves: number;
+  crewWait: number;
+  waitOven: number;
+  waitLoad: number;
+  held: number;
+  total: number;
+}
+
+export interface StockHistory {
+  sku: Sku;
+  min: number;
+  cap: number;
+  weeks: { week: string; closing: number; state: 'below' | 'in' | 'above' }[];
+  below: number;
+  above: number;
+}
+
 export interface Validation {
   base: RunSummary;
   rows: ValidationRow[];
-  identity: { parts: { label: string; min: number; tag: Tag; row: number }[]; indexMoves: number; indexMin: number; sumMin: number; cycleMin: number; unexplainedMin: number };
+  /** How one oven visit of a tank arm divides. */
+  visit: { layers: number; heatEach: number; pauses: number; trips: number; tripCount: number };
+  identity: { parts: { label: string; min: number; tag: Tag; row: number }[]; indexMoves: number; indexMin: number; sumMin: number; cycleMin: number; unexplainedMin: number; steady: SteadyCycle };
   demould: { range: [number, number]; sweep: Sweep<number>[]; holdsCycleUpTo: number; waitAtLimit: number; firstBroken: Sweep<number> | null };
   index: { range: [number, number]; sweep: Sweep<number>[] };
   crewWaitZero: RunSummary;
   variation: { jitter: number; seeds: number; cycleMin: [number, number]; total: [number, number]; waitOvenMin: [number, number]; runOutMin: [number, number] };
   hardStop: RunSummary;
   erp: PerSku<ErpCheck>;
+  stock: PerSku<StockHistory>;
   weekNov2: WeekCheck;
   weekNov9: { monday: string; plan: PerSku<number>; erp: PerSku<number>; diff: PerSku<number>; productionDays: PerSku<number> };
   rejected: Rejected[];
+  /** The other reading of the layer step: same output, contradicted by what the team saw. */
+  alternative: Rejected;
   conflicts: Conflict[];
+}
+
+/** Arm cycles that are neither the first nor the last of the shift, split by what the arm is doing. */
+export function steadyCycle(r: SimResult): SteadyCycle {
+  const o = { cycles: 0, work: 0, moves: 0, crewWait: 0, waitOven: 0, waitLoad: 0, held: 0 };
+  r.segments.forEach((segs, arm) => {
+    const done = r.tanks.filter((t) => t.arm === arm).map((t) => t.cycle);
+    const last = done.length ? Math.max(...done) : 0;
+    for (let c = 2; c < last; c++) {
+      o.cycles += 1;
+      for (const s of segs) {
+        if (s.cycle !== c) continue;
+        const d = s.t1 - s.t0;
+        if (s.stage === 'moving') s.layer > 0 ? (o.work += d) : (o.moves += d);
+        else if (s.stage === 'waitDemould') o.crewWait += d;
+        else if (s.stage === 'waitOven') o.waitOven += d;
+        else if (s.stage === 'blocked' || s.stage === 'idle') s.content === 'empty' ? (o.waitLoad += d) : (o.held += d);
+        else o.work += d;
+      }
+    }
+  });
+  const n = Math.max(1, o.cycles);
+  const per = { work: o.work / n, moves: o.moves / n, crewWait: o.crewWait / n, waitOven: o.waitOven / n, waitLoad: o.waitLoad / n, held: o.held / n };
+  return { cycles: o.cycles, ...per, total: per.work + per.moves + per.crewWait + per.waitOven + per.waitLoad + per.held };
+}
+
+/** Stock at the end of every week in the ERP history, against NTG's minimum and cap. */
+export function stockHistory(): PerSku<StockHistory> {
+  const one = (k: Sku): StockHistory => {
+    const min = P.minStock.value[k];
+    const cap = P.warehouseCap.value[k];
+    const weeks = weekly[k].map((w) => ({ week: w.week, closing: w.closing, state: w.closing < min ? ('below' as const) : w.closing > cap ? ('above' as const) : ('in' as const) }));
+    return { sku: k, min, cap, weeks, below: weeks.filter((w) => w.state === 'below').length, above: weeks.filter((w) => w.state === 'above').length };
+  };
+  return { CTT4: one('CTT4'), CTT2: one('CTT2'), HTT2: one('HTT2') };
 }
 
 // ------------------------------------------------------------------- ERP checks
@@ -276,7 +351,10 @@ export interface Rejected {
   why: string;
 }
 
-function rejectedReadings(base: RunSummary): Rejected[] {
+function rejectedReadings(base: RunSummary): { rejected: Rejected[]; alternative: Rejected } {
+  const cfg = defaultConfig();
+  const T = cfg.times;
+  const split = ovenSplit(cfg, typicalArms().find((a) => !a.moulds.includes('OTHER'))!.moulds);
   const target = `${triple(P.tanksPerShift.value)} tanks from a shift (row ${P.tanksPerShift.row}) and ${P.cyclesPerMouldPerDay.value} cycles per mould a day (row ${P.cyclesPerMouldPerDay.row})`;
   const mk = (id: string, reading: string, setting: string, patch: Partial<SimConfig>, extra: string): Rejected => {
     const run = simulate(patch);
@@ -290,14 +368,20 @@ function rejectedReadings(base: RunSummary): Rejected[] {
         `(${run.total} against ${base.total}). NTG reports ${target}. ${extra}`,
     };
   };
-  const T = defaultConfig().times;
-  return [
+  const rejected = [
+    mk(
+      'tripsOnTop',
+      `The ${f(T.ovenVisit, 1)} min is heating only, and the swings out to loading and back come on top`,
+      'tripsInsideVisit: false',
+      { tripsInsideVisit: false },
+      `The oven's turn would last ${f(T.ovenVisit + split.trips, 1)} min per tank arm, and four arms no longer fit four turns each into the shift. The team says the swings are inside the time it measured.`,
+    ),
     mk(
       'pausesOnTop',
-      `The ${f(T.layerPause, 1)} min layer pauses are added on top of the ${f(T.ovenVisit, 1)} min oven visit`,
+      `The ${f(T.layerPause, 1)} min dosing pauses are added on top of the ${f(T.ovenVisit, 1)} min oven visit`,
       'pausesInsideVisit: false',
       { pausesInsideVisit: false },
-      `The oven would hold each tank arm ${f(T.ovenVisit + (defaultConfig().layers - 1) * T.layerPause, 1)} min, and four arms no longer fit four turns each into the shift.`,
+      `The oven's turn would last ${f(T.ovenVisit + split.pauses, 1)} min per tank arm.`,
     ),
     mk(
       'bothInChamber',
@@ -307,20 +391,25 @@ function rejectedReadings(base: RunSummary): Rejected[] {
       `One position would then hold every arm for ${f(T.air + T.water)} min, longer than the oven visit, so cooling, not the oven, would set the pace.`,
     ),
     mk(
-      'returnToLoad',
-      'The arm swings back to the loading side for each new layer',
-      "layerMode: 'returnToLoad'",
-      { layerMode: 'returnToLoad' },
-      `Each tank arm would hold the oven and the position before it for ${(defaultConfig().layers - 1) * 2} extra index moves per visit.`,
-    ),
-    mk(
       'perLayer',
       `The ${f(T.ovenVisit, 1)} min oven time is per layer, not per visit (rows ${P.ovenVisitMin.row} and 44)`,
-      `times.ovenVisit: ${f(T.ovenVisit, 1)} x ${defaultConfig().layers} layers, pauses on top`,
-      { ...withTimes({ ovenVisit: T.ovenVisit * defaultConfig().layers }), pausesInsideVisit: false },
+      `times.ovenVisit: ${f(T.ovenVisit, 1)} x ${cfg.layers} layers of heating, pauses and swings on top`,
+      { ...withTimes({ ovenVisit: T.ovenVisit * cfg.layers }), pausesInsideVisit: false, tripsInsideVisit: false },
       'This is the reading the inventory calls H2.',
     ),
   ];
+  const alt = simulate({ layerMode: 'singleVisit' });
+  const alternative: Rejected = {
+    id: 'singleVisit',
+    reading: 'The arm stays in the oven for all layers and pauses there while the next layer goes in',
+    setting: "layerMode: 'singleVisit'",
+    run: alt,
+    why:
+      `Gives the same ${f(alt.cycleMin, 1)} min cycle and ${triple(alt.tanksTotal)} tanks (${alt.total}), so output cannot tell the two readings apart. ` +
+      `It is not used because the team saw the arm leave the oven for layers 2 and 3 (H, 21 Nov 2026). ` +
+      `Where arms wait is different: with a pause in the oven the loaded wait before the oven would be ${f(alt.waitOvenMin, 1)} min, against ${f(base.waitOvenMin, 1)} min with the return to loading and NTG's estimate of ${P.waitBeforeOvenMin.value} min (row ${P.waitBeforeOvenMin.row}).`,
+  };
+  return { rejected, alternative };
 }
 
 // ------------------------------------------------------------------- conflicts
@@ -386,7 +475,7 @@ function conflicts(v: Pick<Validation, 'base' | 'weekNov2' | 'weekNov9' | 'rejec
       statement:
         `The visit notes give ${f(P.ovenVisitMin.value, 1)} min of oven time (row 43) without saying whether it covers one layer or all ${defaultConfig().layers}. ` +
         `Per layer, the twin gives a ${f(perLayer.cycleMin, 1)} min arm cycle and ${perLayer.total} tanks a shift; per visit, ${f(v.base.cycleMin, 1)} min and ${v.base.total} tanks.`,
-      handling: `The twin uses one ${f(P.ovenVisitMin.value, 1)} min visit for all layers, because only that reading reproduces NTG's output. It is a deduction, not something NTG said. A timed shift would settle it.`,
+      handling: `The twin uses one ${f(P.ovenVisitMin.value, 1)} min visit for all layers, swings to the loading position included. Only that reading reproduces NTG's output, and the team confirmed on 21 Nov 2026 that the swings are inside the time it measured. A timed shift would still be the proof.`,
       quotes: [quote(43), quote(44, 'source')],
     },
     {
@@ -431,7 +520,7 @@ function conflicts(v: Pick<Validation, 'base' | 'weekNov2' | 'weekNov9' | 'rejec
       handling: `The twin does not use the ${P.otherProductsHWeek.value} h figure. Each scenario states its own arm-days, and the comparison table shows them.`,
       quotes: [quote(52, 'value'), quote(53, 'value'), quote(40)],
     },
-    {
+    ...(placed === tankArmDays ? [] : [{
       id: 'placement',
       title: 'Arm-days in the baseline week',
       rows: [40, 86],
@@ -440,7 +529,7 @@ function conflicts(v: Pick<Validation, 'base' | 'weekNov2' | 'weekNov9' | 'rejec
         `${P.cyclesPerMouldPerDay.value} cycles per mould a day, and that is how the twin's baseline places them.`,
       handling: `The twin's baseline uses ${placed} tank arm-days, ${tankArmDays - placed} fewer than NTG's sheet. The eighth arm-day probably carried a studied mould beside another product, or ran short; the sheet does not say. Scenarios are compared with the ${placed} the twin can account for.`,
       quotes: [quote(40, 'value'), quote(31)],
-    },
+    }]),
     {
       id: 'planVsErp',
       title: 'Plan for 9 to 13 Nov against what the ERP recorded',
@@ -471,13 +560,16 @@ export function validation(): Validation {
   if (cached) return cached;
   const cfg = defaultConfig();
   const T = cfg.times;
-  const base = simulate();
+  const baseRun = runSimulation(cfg);
+  const base = summarise(baseRun);
+  const split = ovenSplit(cfg, typicalArms().find((a) => !a.moulds.includes('OTHER'))!.moulds);
+  const visit = { layers: split.layers, heatEach: split.heatTotal / split.layers, pauses: split.pauses, trips: split.trips, tripCount: T.index > 0 ? Math.round(split.trips / T.index) : 0 };
 
   // Arm-cycle identity: the task times NTG and the team give, added up.
   const parts = [
     { label: 'Loading', min: T.load, tag: P.loadMin.tag, row: P.loadMin.row },
     { label: 'Wait before the oven (NTG estimate)', min: P.waitBeforeOvenMin.value, tag: P.waitBeforeOvenMin.tag, row: P.waitBeforeOvenMin.row },
-    { label: 'Oven visit', min: T.ovenVisit, tag: P.ovenVisitMin.tag, row: P.ovenVisitMin.row },
+    { label: 'Oven visit, swings to loading included', min: T.ovenVisit, tag: P.ovenVisitMin.tag, row: P.ovenVisitMin.row },
     { label: 'Air cooling', min: T.air, tag: P.airCoolMin.tag, row: P.airCoolMin.row },
     { label: 'Fan and water cooling', min: T.water, tag: P.waterCoolMin.tag, row: P.waterCoolMin.row },
     { label: 'Wait for demould', min: T.demouldWait, tag: P.demouldWaitMin.tag, row: P.demouldWaitMin.row },
@@ -485,7 +577,8 @@ export function validation(): Validation {
   ];
   const indexMoves = P.positions.value;
   const sumMin = parts.reduce((s, p) => s + p.min, 0) + indexMoves * T.index;
-  const identity = { parts, indexMoves, indexMin: T.index, sumMin, cycleMin: P.armCycleMin.value, unexplainedMin: P.armCycleMin.value - sumMin };
+  const steady = steadyCycle(baseRun);
+  const identity = { parts, indexMoves, indexMin: T.index, sumMin, cycleMin: P.armCycleMin.value, unexplainedMin: P.armCycleMin.value - sumMin, steady };
 
   // Demould placeholder: sweep its stated range in steps of (placeholder - low end).
   const dRange = rangeIn(invRow(P.demouldMin.row).notes);
@@ -494,8 +587,8 @@ export function validation(): Validation {
   for (let d = dRange[0]; d < dRange[1]; d += step) dValues.push(d);
   dValues.push(dRange[1]);
   const dSweep = dValues.map((d) => ({ value: d, run: simulate(withTimes({ demould: d })) }));
-  // "Holds": the cycle is unchanged, the output is unchanged and no arm is held up after the oven.
-  const keeps = (r: RunSummary) => Math.abs(r.cycleMin - base.cycleMin) < 0.05 && r.total === base.total && r.blockedMin < 1e-6;
+  // "Holds": the cycle and the output of the shift are unchanged.
+  const keeps = (r: RunSummary) => Math.abs(r.cycleMin - base.cycleMin) < 0.05 && r.total === base.total;
   let holdsCycleUpTo = dRange[0];
   let waitAtLimit = simulate(withTimes({ demould: dRange[0] })).waitOvenMin;
   let firstBroken: Sweep<number> | null = null;
@@ -534,19 +627,20 @@ export function validation(): Validation {
     diff: per((k) => wk9erp[k] - P.pipeline.value[k]),
     productionDays: per((k) => week(k, MONDAY_NOV9)?.productionDays ?? 0),
   };
-  const rejected = rejectedReadings(base);
+  const { rejected, alternative } = rejectedReadings(base);
 
   // ---- Summary rows
   const ntgShift = P.tanksPerShift.value;
   const ntgTotal = sumSku(ntgShift);
   const impliedVisits = P.arms.value * P.cyclesPerMouldPerDay.value;
   const waitGap = base.waitOvenMin - P.waitBeforeOvenMin.value;
-  const mid = dSweep.find((s) => s.value > T.demould && keeps(s.run));
-  const dLast = dSweep[dSweep.length - 1]!;
+  const dLo = dSweep[0]!;
   const iLo = iSweep[0]!;
   const iHi = iSweep[iSweep.length - 1]!;
   const ovenWait = base.waitByCause.oven ?? 0;
   const allWait = Object.values(base.waitByCause).reduce((s, x) => s + (x ?? 0), 0);
+  // "Near" for two untimed estimates: within one minute or 15 %.
+  const waitClose = Math.abs(waitGap) <= Math.max(1, 0.15 * P.waitBeforeOvenMin.value);
 
   const rows: ValidationRow[] = [
     {
@@ -559,14 +653,15 @@ export function validation(): Validation {
       ntgRows: [P.armCycleMin.row],
       ntgTitle: rowTitle(P.armCycleMin.row),
       difference: `${signed(base.cycleMin - P.armCycleMin.value, 1)} min`,
-      verdict: 'match',
+      verdict: Math.abs(base.cycleMin - P.armCycleMin.value) < 0.05 * P.armCycleMin.value ? 'match' : 'gap',
+      note: `${P.arms.value} arms x (${f(T.ovenVisit, 1)} + ${f(T.index, 1)}) min of oven turn.`,
       words:
-        `Same figure, but partly by construction. The oven takes one arm at a time, so the cycle is ${P.arms.value} arms x (${f(T.ovenVisit, 1)} min in the oven + ${f(T.index, 1)} min to change arms). ` +
+        `Same figure, but partly by construction. The oven takes one arm at a time, so the cycle is ${P.arms.value} arms x (${f(T.ovenVisit, 1)} min of oven visit + ${f(T.index, 1)} min to change arms). ` +
         `The ${f(T.index, 1)} min was not timed: it was chosen inside a ${f(iRange[0])} to ${f(iRange[1])} min range. At ${f(iLo.value)} min the cycle is ${f(iLo.run.cycleMin, 1)}, at ${f(iHi.value)} min it is ${f(iHi.run.cycleMin, 1)}.`,
     },
     {
       id: 'tanksTotal',
-      metric: 'Tanks from one shift of loading',
+      metric: 'Tanks from one shift',
       twin: `${triple(base.tanksTotal)} (${base.total})`,
       twinTitle: 'Tanks lifted out of the mould, including the run-out after the 8.5 h mark. Order: CTT4 / CTT2 / HTT2',
       ntg: `${triple(ntgShift)} (${ntgTotal})`,
@@ -575,6 +670,7 @@ export function validation(): Validation {
       ntgTitle: rowTitle(P.tanksPerShift.row, 50),
       difference: `${signed(base.total - ntgTotal)} tanks`,
       verdict: base.total === ntgTotal ? 'match' : 'gap',
+      note: 'The figure the twin was calibrated to.',
       words: `Every arm is loaded ${f(base.cyclesPerArm)} times in the shift and every load becomes a tank. This is the figure the twin was calibrated to.`,
     },
     {
@@ -588,6 +684,7 @@ export function validation(): Validation {
       ntgTitle: rowTitle(P.tanksPerShift.row),
       difference: `${signed(base.inShift - ntgTotal)} tanks`,
       verdict: base.inShift === ntgTotal ? 'match' : 'gap',
+      note: `Last ${base.lateArms} arms come out up to ${f(base.runOutMin, 1)} min late.`,
       words:
         `A real gap. In the twin the last ${base.lateArms} arms are still cooling at the mark, and the last tank is lifted out ${f(base.runOutMin, 1)} min after it. ` +
         `The twin starts the day with four empty moulds; NTG's figure does not say whether the crew stays to empty the machine or the first arm starts earlier. ` +
@@ -604,52 +701,70 @@ export function validation(): Validation {
       ntgTitle: rowTitle(P.cyclesPerMouldPerDay.row),
       difference: signed(base.cyclesPerArm - P.cyclesPerMouldPerDay.value, 2),
       verdict: base.cyclesPerArm === P.cyclesPerMouldPerDay.value ? 'match' : 'gap',
+      note: `${f(cfg.shiftMin)} min shift over a ${f(base.cycleMin)} min cycle: ${f(cfg.shiftMin / base.cycleMin, 2)}.`,
       words: `The shift is ${f(cfg.shiftMin)} min and the cycle ${f(base.cycleMin)} min: ${f(cfg.shiftMin / base.cycleMin, 2)} cycles, so ${Math.floor(cfg.shiftMin / base.cycleMin)} whole ones. NTG's weekly plan uses the same rule.`,
+    },
+    {
+      id: 'waitOven',
+      metric: 'Wait before the oven, loaded arm',
+      twin: `${f(base.waitOvenMin, 1)} min`,
+      twinTitle: 'Minutes arms stand loaded and waiting for the oven, divided by oven visits',
+      ntg: `${P.waitBeforeOvenMin.value} min`,
+      ntgTag: P.waitBeforeOvenMin.tag,
+      ntgRows: [P.waitBeforeOvenMin.row],
+      ntgTitle: rowTitle(P.waitBeforeOvenMin.row),
+      difference: `${signed(waitGap, 1)} min`,
+      verdict: waitClose ? 'match' : 'gap',
+      note: 'Follows from the layer handling; neither figure was timed.',
+      words:
+        `${waitClose ? 'Close' : 'Apart'}: ${f(base.waitOvenMin, 1)} min in the twin against NTG's estimate of ${P.waitBeforeOvenMin.value} min. This is a result, not a setting: it follows from the layer handling the team confirmed on 21 Nov 2026 (the arm leaves the oven for layers 2 and 3, and the loading position is kept for it). ` +
+        `It is not proof. NTG's ${P.waitBeforeOvenMin.value} min is an estimate, the twin's times are estimates too, and two untimed numbers agreeing is weaker than one stopwatch. ` +
+        `The figure moves with the demould placeholder (row ${P.demouldMin.row}): from ${f(dLo.value)} to ${f(holdsCycleUpTo)} min of demould the wait runs from ${f(dLo.run.waitOvenMin, 1)} down to ${f(waitAtLimit, 1)} min while the cycle does not move, so part of the agreement rests on that placeholder. ` +
+        `If the arm instead stayed in the oven for all layers, the same wait would be ${f(alternative.run.waitOvenMin, 1)} min.`,
+    },
+    {
+      id: 'waitLoad',
+      metric: 'Wait for loading, empty arm',
+      twin: `${f(base.waitLoadMin, 1)} min`,
+      twinTitle: 'Minutes an empty arm is held because the loading position is kept for the arm in its oven visit, divided by oven visits',
+      ntg: 'No figure',
+      ntgTag: null,
+      ntgRows: [],
+      ntgTitle: 'NTG gave no figure for this wait',
+      difference: 'n/a',
+      verdict: 'no-data',
+      note: `Shift mean; ${f(steady.waitLoad, 1)} min in a mid-shift cycle.`,
+      words:
+        `Not in NTG's figures. While an arm is in its oven visit the loading position is kept for it, so the arm behind waits empty at demould. Over the whole shift that is ${f(base.waitLoadMin, 1)} min per oven visit, start and end of the day included; in a mid-shift cycle it is ${f(steady.waitLoad, 1)} min. ` +
+        `This is where the minutes that no estimate covers go: NTG's and the team's times add up to ${f(sumMin, 1)} min of the ${P.armCycleMin.value} min cycle, and the other ${f(P.armCycleMin.value - sumMin, 1)} min are, in the twin, the empty arm waiting for the loading position (${f(steady.waitLoad, 1)} min) and full arms held after cooling (${f(steady.held, 1)} min). Nobody has timed either.`,
+    },
+    {
+      id: 'ovenUse',
+      metric: 'Oven in use',
+      twin: `${f(base.ovenUtilisation * 100)} %`,
+      twinTitle: 'Minutes the oven is held by an arm visit, divided by the shift length',
+      ntg: 'No figure',
+      ntgTag: null,
+      ntgRows: [],
+      ntgTitle: 'NTG gave no oven log',
+      difference: 'n/a',
+      verdict: 'no-data',
+      note: 'No oven log or burner hours were supplied.',
+      words: `Missing. No oven log or burner hours were supplied, so this figure is the twin's alone.`,
     },
     {
       id: 'ovenVisits',
       metric: 'Oven visits per day',
       twin: `${base.ovenVisits}`,
-      twinTitle: 'Arm entries into the oven in one shift, counted by the simulator',
+      twinTitle: 'Arm entries into the oven in one shift, counted by the simulator. A return for layer 2 or 3 is part of the same visit',
       ntg: `${impliedVisits} (implied)`,
       ntgTag: 'C',
       ntgRows: [P.arms.row, P.cyclesPerMouldPerDay.row],
       ntgTitle: `NTG gave no count of oven visits. Implied by ${P.arms.value} arms x ${P.cyclesPerMouldPerDay.value} cycles. ${rowTitle(P.arms.row, P.cyclesPerMouldPerDay.row)}`,
       difference: signed(base.ovenVisits - impliedVisits),
       verdict: base.ovenVisits === impliedVisits ? 'match' : 'gap',
-      words: `NTG never counted oven visits. The figure on the right is ${P.arms.value} arms x ${P.cyclesPerMouldPerDay.value} cycles, so this row repeats the one above and adds no new evidence.`,
-    },
-    {
-      id: 'ovenUse',
-      metric: 'Oven in use',
-      twin: `${f(base.ovenUtilisation * 100)} %`,
-      twinTitle: 'Minutes the oven holds an arm, divided by the shift length',
-      ntg: 'Not in the data',
-      ntgTag: null,
-      ntgRows: [],
-      ntgTitle: 'NTG gave no oven log',
-      difference: 'n/a',
-      verdict: 'no-data',
-      words: `Missing. No oven log or burner hours were supplied, so this figure is the twin's alone.`,
-    },
-    {
-      id: 'waitOven',
-      metric: 'Wait before the oven, mean per visit',
-      twin: `${f(base.waitOvenMin, 1)} min`,
-      twinTitle: 'Minutes arms stand loaded and waiting for the oven, divided by oven visits',
-      ntg: `${P.waitBeforeOvenMin.value} min (estimate)`,
-      ntgTag: P.waitBeforeOvenMin.tag,
-      ntgRows: [P.waitBeforeOvenMin.row],
-      ntgTitle: rowTitle(P.waitBeforeOvenMin.row),
-      difference: `${signed(waitGap, 1)} min`,
-      verdict: 'gap',
-      words:
-        `A real gap: the twin's wait is ${f(base.waitOvenMin / P.waitBeforeOvenMin.value, 1)} times NTG's estimate. Neither number was timed. ` +
-        `The demould time is a placeholder of ${f(T.demould)} min (row ${P.demouldMin.row}, range ${f(dRange[0])} to ${f(dRange[1])}). The oven fixes the cycle, so a minute not spent at demould is a minute spent waiting before the oven` +
-        (mid ? `: with a ${f(mid.value)} min demould the cycle is still ${f(mid.run.cycleMin)} min and the wait falls to ${f(mid.run.waitOvenMin, 1)} min. ` : '. ') +
-        `The longest demould that holds no arm up after the oven is ${f(holdsCycleUpTo)} min; the wait is then ${f(waitAtLimit, 1)} min, still ${f(waitAtLimit - P.waitBeforeOvenMin.value, 1)} min above NTG's figure. ` +
-        `Beyond that, arms are held in the cooling positions, and at ${f(dLast.value)} min the cycle is ${f(dLast.run.cycleMin, 1)} min. ` +
-        `So no demould time in the range gives both the ${f(P.armCycleMin.value)} min cycle and an ${f(P.waitBeforeOvenMin.value)} min wait. The split between waiting and demould cannot be settled without a timed shift.`,
+      note: `Implied by ${P.arms.value} arms x ${P.cyclesPerMouldPerDay.value} cycles; no new evidence.`,
+      words: `NTG never counted oven visits. The figure on the right is ${P.arms.value} arms x ${P.cyclesPerMouldPerDay.value} cycles, so this row repeats the cycles row and adds no new evidence.`,
     },
     {
       id: 'waitDemould',
@@ -662,20 +777,22 @@ export function validation(): Validation {
       ntgTitle: rowTitle(P.demouldWaitMin.row),
       difference: `${signed(base.waitDemouldMin - P.demouldWaitMin.value, 1)} min`,
       verdict: 'input',
+      note: `The twin is told to wait ${f(P.demouldWaitMin.value)} min.`,
       words: `Not a test. The twin is told to wait NTG's ${f(P.demouldWaitMin.value)} min at demould, so it plays the estimate back. The crew is not modelled as people who can be busy elsewhere.`,
     },
     {
       id: 'bottleneck',
       metric: 'Where arms queue',
       twin: `${base.bottleneck === 'oven' ? 'Oven' : base.bottleneck}: ${f(ovenWait)} of ${f(allWait)} waiting min`,
-      twinTitle: 'Waiting minutes by what the arm was waiting for, summed over the shift. The rest is the crew wait, which is an input',
+      twinTitle: 'Waiting minutes by what the arm was waiting for, summed over the shift. The crew wait in the total is an input',
       ntg: 'Before the oven',
       ntgTag: invRow(66).tag as Tag,
       ntgRows: [42, P.waitBeforeOvenMin.row, 66],
       ntgTitle: rowTitle(42, P.waitBeforeOvenMin.row, 66),
       difference: 'Same place',
-      verdict: 'match',
-      words: `NTG says the oven takes one arm at a time, by turn, and that the wait before it can never be reduced. The twin finds the same queue without being told where to put it: the oven is in use ${f(base.ovenUtilisation * 100)} % of the shift.`,
+      verdict: base.bottleneck === 'oven' ? 'match' : 'gap',
+      note: 'The oven sets the pace in both.',
+      words: `NTG says the oven takes one arm at a time, by turn, and that the wait before it can never be reduced. The twin finds the same: every other wait in the ring traces back to the oven's turn, and the oven is in use ${f(base.ovenUtilisation * 100)} % of the shift.`,
     },
   ];
 
@@ -683,6 +800,7 @@ export function validation(): Validation {
   cached = {
     base,
     rows,
+    visit,
     identity,
     demould: { range: dRange, sweep: dSweep, holdsCycleUpTo, waitAtLimit, firstBroken },
     index: { range: iRange, sweep: iSweep },
@@ -690,9 +808,11 @@ export function validation(): Validation {
     variation,
     hardStop,
     erp,
+    stock: stockHistory(),
     weekNov2: wk2,
     weekNov9,
     rejected,
+    alternative,
     conflicts: conflicts(partial),
   };
   return cached;

@@ -66,8 +66,8 @@ export function HubDetails() {
         </mesh>
       ))}
       {/* Cable trunking across the floor from the turret to the console, with a junction box */}
-      <Box size={[0.3, 0.05, 7.6]} position={[2.6, 0.026, 5.6]} rotation={[0, 0.5, 0]} material={M.rubber} radius={0.012} shadow={false} />
-      <Box size={[0.5, 0.36, 0.4]} position={[1.0, 0.2, 2.3]} material={M.console} radius={0.03} />
+      <Box size={[0.3, 0.05, 7.2]} position={[4.2, 0.026, 4.05]} rotation={[0, 0.8, 0]} material={M.rubber} radius={0.012} shadow={false} />
+      <Box size={[0.5, 0.36, 0.4]} position={[1.75, 0.2, 1.7]} rotation={[0, 0.8, 0]} material={M.console} radius={0.03} />
     </group>
   );
 }

@@ -1,7 +1,7 @@
 /**
  * Standalone entry for the Redesign and Report pages (preview-pages.html).
  * A 48 px bar with a two-button switch, then the page.
- * ?page=redesign or ?page=report picks the page; ?t=<minute> sets the clock.
+ * ?page=redesign or ?page=report picks the page; ?t=<minute> sets the clock; ?sources=1 shows the source letters.
  */
 import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -14,6 +14,8 @@ import { ReportPage } from './ReportPage';
 
 type PageId = 'redesign' | 'report';
 const q = new URLSearchParams(location.search);
+// ?sources=1 shows the source letters, as the "Sources" switch in the app's top bar does.
+if (q.has('sources')) useTwin.setState({ showSources: true });
 if (q.has('t')) {
   clock.t = Number(q.get('t'));
   useTwin.setState({ tUi: clock.t });

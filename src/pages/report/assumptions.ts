@@ -35,6 +35,10 @@ export interface Assumption {
   /** What the twin uses. */
   value: string;
   tag: Tag;
+  /** Who or what the value rests on, when it is more specific than the tag. */
+  source?: string;
+  /** One line for the Report page ("decision: value"), only on the entries listed in MAIN_ASSUMPTIONS. */
+  brief?: string;
   /** At least one real alternative that was considered. */
   alternative: string;
   /** Why the value used was preferred over the alternative. */
@@ -56,12 +60,13 @@ export function assumptions(): Assumption[] {
   const T = cfg.times;
   const base = v.base;
   const rej = (id: string) => v.rejected.find((r) => r.id === id)!.run;
-  const pauses = (cfg.layers - 1) * T.layerPause;
-  const heatEach = (T.ovenVisit - pauses) / cfg.layers;
+  const pauses = v.visit.pauses;
+  const heatEach = v.visit.heatEach;
+  const alt = v.alternative.run;
+  const TEAM_21_NOV = 'team (H), 21 Nov 2026';
   const iLo = v.index.sweep[0]!;
   const iHi = v.index.sweep[v.index.sweep.length - 1]!;
   const dLo = v.demould.sweep[0]!;
-  const dHi = v.demould.sweep[v.demould.sweep.length - 1]!;
   const kg = (k: (typeof SKUS)[number]) => P.layerKg[k].value;
   const kgSum = (k: (typeof SKUS)[number]) => kg(k).reduce((s, x) => s + x, 0);
   const visitKg = kgSum('CTT4');
@@ -76,6 +81,7 @@ export function assumptions(): Assumption[] {
   const placed = ntgPlan.days.reduce((s, d) => s + d.filter((a) => a.moulds.some((m) => m !== 'OTHER')).length, 0);
   const placement = ntgPlan.days.map((d, i) => `day ${i + 1}: ${d.map((a) => mouldsLabel(a.moulds).replace('Other product', 'other')).join(', ')}`).join('; ');
   const armDays = String(invRow(40).value).match(/(\d+)\s+of\s+(\d+)/)!;
+  const dLast = v.demould.sweep[v.demould.sweep.length - 1]!;
   const listAvail = String(invRow(80).value).split(';')[0]!.replace(/^Available\s*/i, '');
   const turnsNote = 'src/scene/machine/Arm.tsx (turns) and Cooling.tsx (fan)';
 
@@ -138,7 +144,7 @@ export function assumptions(): Assumption[] {
       value: 'All four moulds empty at minute 0. Arm 1 is at loading and the others follow in ring order.',
       tag: 'S',
       alternative: 'A rolling start: arms already loaded or cooked from the day before.',
-      why: `NTG counts tanks per shift and the ERP books whole multiples of ${P.cyclesPerMouldPerDay.value} on most days, which fits a machine that is emptied every day. A rolling start would bring the last tanks inside the ${f(P.shiftHours.value, 1)} h, but it needs yesterday's set-up as an input and the weekly plan does not give it. The cost of this choice is the ${f(base.runOutMin, 1)} min run-out shown on the Report page.`,
+      why: `NTG counts tanks per shift and the ERP books whole multiples of ${P.cyclesPerMouldPerDay.value} on most days, which fits a machine that is emptied every day. A rolling start would bring the last tanks inside the ${f(P.shiftHours.value, 1)} h, but it needs yesterday's set-up as an input and the weekly plan does not give it. The cost of this choice is the ${f(base.runOutMin, 1)} min run-out shown in the validation table.`,
       usedIn: 'src/sim/engine.ts (runSimulation, first ring positions)',
       replace: 'Note what is on each arm in the first minute of a shift.',
       rows: [49, 54, 113],
@@ -149,6 +155,7 @@ export function assumptions(): Assumption[] {
       decision: 'What happens at the end of the shift',
       value: `The oven takes no arm it cannot finish by the ${f(P.shiftHours.value, 1)} h mark. Arms already cooked are cooled and demoulded after it.`,
       tag: 'S',
+      brief: `End of the shift: the oven takes no arm it cannot finish by the ${f(P.shiftHours.value, 1)} h mark; cooked arms are finished after it.`,
       alternative: `Hard stop: everything freezes at ${f(P.shiftHours.value, 1)} h.`,
       why:
         `A hard stop leaves cooked tanks shut in hot moulds overnight and counts ${triple(v.hardStop.tanksTotal)} (${v.hardStop.total}) against NTG's ${triple(P.tanksPerShift.value)} (${sumSku(P.tanksPerShift.value)}). Finishing the cooked arms gives NTG's count, but ${f(base.runOutMin, 1)} min late, and the team recorded no overtime (row 113). ` +
@@ -161,24 +168,26 @@ export function assumptions(): Assumption[] {
     {
       id: 'A14',
       group: 'Oven and layers',
-      decision: 'What the oven time covers',
-      value: `${f(T.ovenVisit, 1)} min per arm visit, all ${cfg.layers} layers inside it.`,
-      tag: 'C',
-      alternative: `${f(T.ovenVisit, 1)} min per layer, so ${f(T.ovenVisit * cfg.layers, 1)} min of heating per tank arm.`,
-      why: `Per layer, the twin gives a ${f(rej('perLayer').cycleMin, 1)} min cycle and ${rej('perLayer').total} tanks a shift. NTG reports ${sumSku(P.tanksPerShift.value)} tanks a shift and ${P.cyclesPerMouldPerDay.value} cycles per mould a day (rows ${P.tanksPerShift.row}, ${P.cyclesPerMouldPerDay.row}), and the ERP shows ${triple(P.tanksPerShift.value)} on most production days. Only the per-visit reading can make that. It is a deduction, not NTG's statement.`,
-      usedIn: 'times.ovenVisit in src/sim/config.ts; ovenPhases and ovenHoldMin in engine.ts',
-      replace: 'Time one arm from oven door closed to door open for a full shift. Enter it as the oven visit in the set-up drawer.',
+      decision: `What the ${f(T.ovenVisit, 1)} min of oven time includes`,
+      value: `One arm visit, door to door, all ${cfg.layers} layers: ${cfg.layers} heats of ${f(heatEach, 1)} min, ${cfg.layers - 1} dosing pauses of ${f(T.layerPause, 1)} min and ${v.visit.tripCount} swings of ${f(T.index, 1)} min to the loading position and back.`,
+      tag: 'V',
+      source: TEAM_21_NOV,
+      brief: `Oven time: ${f(T.ovenVisit, 1)} min per arm visit, door to door, for all ${cfg.layers} layers.`,
+      alternative: `${f(T.ovenVisit, 1)} min is heating only and the swings come on top (${f(T.ovenVisit + v.visit.trips, 1)} min per tank arm); or ${f(T.ovenVisit, 1)} min per layer.`,
+      why: `The team confirmed on 21 Nov 2026 that the swings out and back are inside the ${f(T.ovenVisit, 1)} min it measured. The output agrees: with the swings on top the twin gives a ${f(rej('tripsOnTop').cycleMin, 1)} min cycle and ${rej('tripsOnTop').total} tanks a shift, and per layer ${f(rej('perLayer').cycleMin, 1)} min and ${rej('perLayer').total} tanks. NTG reports ${sumSku(P.tanksPerShift.value)} tanks a shift and ${P.cyclesPerMouldPerDay.value} cycles per mould a day (rows ${P.tanksPerShift.row}, ${P.cyclesPerMouldPerDay.row}).`,
+      usedIn: 'times.ovenVisit and tripsInsideVisit in src/sim/config.ts; ovenSplit and ovenPhases in engine.ts',
+      replace: 'Time one arm from its first oven door closing to its last oven door opening, for a full shift. Enter it as the oven visit in the set-up drawer.',
       rows: [43, 44],
     },
     {
       id: 'A15',
       group: 'Oven and layers',
-      decision: 'Layer pauses: inside the oven visit or on top of it',
-      value: `The ${cfg.layers - 1} pauses of ${f(T.layerPause, 1)} min are inside the ${f(T.ovenVisit, 1)} min. Heating is ${f(T.ovenVisit - pauses, 1)} min.`,
+      decision: 'Dosing pauses: inside the oven visit or on top of it',
+      value: `The ${cfg.layers - 1} dosing pauses of ${f(T.layerPause, 1)} min at the loading position are inside the ${f(T.ovenVisit, 1)} min.`,
       tag: 'S',
-      alternative: `Pauses on top: the oven is held ${f(T.ovenVisit + pauses, 1)} min per tank arm.`,
-      why: `On top, the cycle is ${f(rej('pausesOnTop').cycleMin, 1)} min and one arm misses its fourth turn: ${rej('pausesOnTop').total} tanks, not ${base.total}. Inside, ${f(T.ovenVisit, 1)} + ${f(T.index, 1)} min to change arms is ${f(T.ovenVisit + T.index)} min per arm, and ${P.arms.value} arms give NTG's ${P.armCycleMin.value} min. The pause itself is an NTG estimate of ${String(invRow(P.layerPauseMin.row).value).split('(')[0]!.trim()} min, not a timing.`,
-      usedIn: 'config.pausesInsideVisit; ovenHoldMin in engine.ts',
+      alternative: `Pauses on top: the oven's turn would last ${f(T.ovenVisit + pauses, 1)} min per tank arm.`,
+      why: `The pause happens in the middle of a swing the team says is inside the ${f(T.ovenVisit, 1)} min, so it is taken as inside too; nobody timed it separately. On top, the cycle is ${f(rej('pausesOnTop').cycleMin, 1)} min and one arm misses its fourth turn: ${rej('pausesOnTop').total} tanks, not ${base.total}. The pause itself is an NTG estimate of ${String(invRow(P.layerPauseMin.row).value).split('(')[0]!.trim()} min.`,
+      usedIn: 'config.pausesInsideVisit; ovenSplit in engine.ts',
       replace: 'Timed shift. Switch "Layer pauses" in the set-up drawer.',
       rows: [43, 45],
     },
@@ -186,13 +195,29 @@ export function assumptions(): Assumption[] {
       id: 'A2',
       group: 'Oven and layers',
       decision: 'How layers 2 and 3 get into the mould',
-      value: 'One oven visit. The arm stays at the oven position and pauses there while the next layer\'s powder goes in.',
+      value: 'The arm leaves the oven, swings back to the loading position, is dosed there and swings back in. Once for layer 2, once for layer 3.',
+      tag: 'V',
+      source: TEAM_21_NOV,
+      brief: 'Layers 2 and 3: the arm leaves the oven, is dosed at the loading position and swings back in.',
+      alternative: 'The arm stays in the oven for all layers and pauses there while the next layer goes in. This was the default until 21 Nov.',
+      why:
+        `The team saw the arm come out for layers 2 and 3. Output cannot choose between the two: both give a ${f(base.cycleMin)} min cycle and ${base.total} tanks. What differs is where arms wait. With the return, the loaded wait before the oven is ${f(base.waitOvenMin, 1)} min, close to NTG's estimate of ${P.waitBeforeOvenMin.value} (row ${P.waitBeforeOvenMin.row}), and the arm behind waits empty at demould. ` +
+        `With a pause in the oven the loaded wait would be ${f(alt.waitOvenMin, 1)} min. The observation decides; the wait only fits it.`,
+      usedIn: 'config.layerMode = returnToLoad; ovenPhases in engine.ts; the arm swings in the 3D machine',
+      replace: 'Film one full oven visit. Switch "How the next layer goes in" in the set-up drawer.',
+      rows: [26, 45, 46],
+    },
+    {
+      id: 'A37',
+      group: 'Oven and layers',
+      decision: 'Where the next arm waits while an arm is in its oven visit',
+      value: 'The loading position is kept free for the arm that comes back for layers 2 and 3. The arm behind waits empty at demould and is loaded when the visit ends.',
       tag: 'S',
-      alternative: 'The arm swings back to the loading side for each new layer and enters the oven again. This was the first default in the style bible.',
-      why: `Swinging back costs ${(cfg.layers - 1) * 2} extra index moves per visit and keeps the position before the oven reserved: ${f(rej('returnToLoad').cycleMin, 1)} min cycle, ${rej('returnToLoad').total} tanks, against NTG's ${sumSku(P.tanksPerShift.value)}. A pause of ${f(T.layerPause, 1)} min is also too short for a swing out and back through two doors. How the powder reaches the mould at the oven position was not observed.`,
-      usedIn: 'config.layerMode = singleVisit; ovenPhases in engine.ts',
-      replace: 'Ask NTG, or film one layer change. Switch "Layers" in the set-up drawer.',
-      rows: [26, 45],
+      alternative: 'The arm behind is loaded at once and waits, loaded, at a separate waiting position before the oven.',
+      why: `With ${P.positions.value} positions there is one place before the oven, and the returning arm needs it. A separate waiting position would mean both cooling phases share the chamber, which gives a ${f(rej('bothInChamber').cycleMin, 1)} min cycle (A13). The cost is an empty wait of ${f(base.waitLoadMin, 1)} min per oven visit over the shift, ${f(v.identity.steady.waitLoad, 1)} min in a mid-shift cycle. NTG gave no figure for it, so it is the twin's alone.`,
+      usedIn: 'reserved positions in tryMove, engine.ts; kpis.meanWaitLoadMin',
+      replace: 'Timed shift: the minute an arm is emptied and the minute it is loaded again.',
+      rows: [39, 46],
     },
     {
       id: 'A20',
@@ -201,7 +226,7 @@ export function assumptions(): Assumption[] {
       value: `Equal parts: ${f(heatEach, 1)} min for each of the ${cfg.layers} layers.`,
       tag: 'S',
       alternative: `In proportion to layer weight (the outer layer is the heaviest: ${kg('CTT4')[0]} of ${visitKg} kg for CTT4), or the real timer set points per layer.`,
-      why: `No per-layer time was recorded. The split only moves the minute at which each layer's powder leaves its hopper. The visit stays ${f(T.ovenVisit, 1)} min under any split, so the cycle, the tank counts and the oven use do not change.`,
+      why: `No per-layer time was recorded. The split only moves the minutes at which the arm swings out for the next layer. The visit stays ${f(T.ovenVisit, 1)} min under any split, so the cycle, the tank counts and the oven use do not change.`,
       usedIn: 'ovenPhases in engine.ts (heatEach); the "layer 1 of 3" label',
       replace: 'Read the three timer set points from the recipe page of the machine\'s HMI.',
       rows: [26, 43],
@@ -210,7 +235,7 @@ export function assumptions(): Assumption[] {
       id: 'A19',
       group: 'Oven and layers',
       decision: 'Arms that carry other products',
-      value: `An "other product" arm takes the same ${f(T.ovenVisit, 1)} min oven visit, the same cooling and demould, and gives one item per cycle. No powder is tracked for it.`,
+      value: `An "other product" arm takes one unbroken ${f(T.ovenVisit, 1)} min oven visit with no return to loading, the same cooling and demould, and gives one item per cycle. No powder is tracked for it.`,
       tag: 'S',
       alternative: 'Leave those arms empty, or give other products their own oven time and weights.',
       why:
@@ -224,11 +249,12 @@ export function assumptions(): Assumption[] {
     {
       id: 'A9',
       group: 'Times',
-      decision: 'Time to change arms (door opens, arm swings, door closes)',
-      value: `${f(assumed.indexMin.value, 1)} ${assumed.indexMin.unit}.`,
+      decision: 'Time to move an arm between two positions (door opens, arm swings, door closes)',
+      value: `${f(assumed.indexMin.value, 1)} ${assumed.indexMin.unit}, for every move and every swing.`,
       tag: assumed.indexMin.tag,
+      brief: `Arm move between positions: ${f(assumed.indexMin.value, 1)} min, not timed.`,
       alternative: `${f(iLo.value)} min or ${f(iHi.value)} min, the ends of the team's range.`,
-      why: `Not timed. With the ${f(T.ovenVisit, 1)} min oven visit it gives ${P.arms.value} x ${f(T.ovenVisit + T.index)} = ${f(base.cycleMin)} min, NTG's cycle. At ${f(iLo.value)} min the cycle is ${f(iLo.run.cycleMin)} and at ${f(iHi.value)} min it is ${f(iHi.run.cycleMin)}; the shift gives ${iLo.run.total === iHi.run.total ? `${iLo.run.total} tanks either way` : `${iLo.run.total} and ${iHi.run.total} tanks`}. So the choice moves the cycle by under 2 % and no tank count. It is a calibration, and the Report says so.`,
+      why: `Not timed. With the ${f(T.ovenVisit, 1)} min oven visit it gives ${P.arms.value} x ${f(T.ovenVisit + T.index)} = ${f(base.cycleMin)} min, NTG's cycle. At ${f(iLo.value)} min the cycle is ${f(iLo.run.cycleMin)} and at ${f(iHi.value)} min it is ${f(iHi.run.cycleMin)}; the shift gives ${iLo.run.total === iHi.run.total ? `${iLo.run.total} tanks either way` : `${iLo.run.total} and ${iHi.run.total} tanks`}. So the choice moves the cycle by under 2 % and no tank count. It is a calibration, and the validation says so.`,
       usedIn: 'times.index in src/sim/config.ts; every move in engine.ts',
       replace: 'Stopwatch on ten arm changes. Enter "Index time" in the set-up drawer.',
       rows: [47, 48],
@@ -251,10 +277,11 @@ export function assumptions(): Assumption[] {
       decision: 'Demould and mould preparation time',
       value: `${f(T.demould)} min per arm, whatever the moulds. A placeholder.`,
       tag: P.demouldMin.tag,
+      brief: `Demould and mould prep: ${f(T.demould)} min per arm, a placeholder (range ${f(v.demould.range[0])} to ${f(v.demould.range[1])}).`,
       alternative: `Any value in the inventory's ${f(v.demould.range[0])} to ${f(v.demould.range[1])} min range, or a time per mould.`,
       why:
-        `Row ${P.demouldMin.row} sets ${f(T.demould)} min so that the task times add up toward ${P.armCycleMin.value}. It is the least certain time in the twin. From ${f(dLo.value)} to ${f(v.demould.holdsCycleUpTo)} min the cycle and the ${base.total} tanks do not move; only the wait before the oven does (${f(dLo.run.waitOvenMin, 1)} down to ${f(v.demould.waitAtLimit, 1)} min). ` +
-        `Above ${f(v.demould.holdsCycleUpTo)} min arms are held in cooling, and at ${f(dHi.value)} min the twin makes ${dHi.run.total} tanks. A time per mould was not used because only one figure exists.`,
+        `Row ${P.demouldMin.row} sets ${f(T.demould)} min so that the task times add up toward ${P.armCycleMin.value}. It is the least certain time in the twin. From ${f(dLo.value)} to ${f(v.demould.holdsCycleUpTo)} min the cycle and the ${base.total} tanks do not move, and the loaded wait before the oven stays between ${f(v.demould.waitAtLimit, 1)} and ${f(dLo.run.waitOvenMin, 1)} min. ` +
+        `Above ${f(v.demould.holdsCycleUpTo)} min arms are held in cooling, and at ${f(dLast.value)} min the twin makes ${dLast.run.total} tanks. A time per mould was not used because only one figure exists.`,
       usedIn: 'times.demould; the demoulding stage in engine.ts',
       replace: 'Timed shift: hoist start to mould closed, per arm, for both mould sizes.',
       rows: [72, 73],
@@ -400,10 +427,10 @@ export function assumptions(): Assumption[] {
       id: 'A26',
       group: 'Week scenarios and stock',
       decision: 'Which mould sits on which arm on which day',
-      value: `NTG's plan is placed as ${placement}. That is ${placed} tank arm-days.`,
+      value: `NTG's plan is placed as ${placement}. That is ${placed} tank arm-days${placed === Number(armDays[1]) ? ', as on NTG\'s sheet' : ''}.`,
       tag: 'S',
-      alternative: `NTG's own arm sheet for the week (${armDays[1]} of ${armDays[2]} arm-days, row 40), if the mould on each arm on each day were known.`,
-      why: `The plan in the inventory gives quantities (${triple(P.pipeline.value)}) and arm-days, not the mould on each arm each day. The placement used is the smallest that makes those quantities at ${P.cyclesPerMouldPerDay.value} cycles per mould. The oven takes every arm in turn whatever it carries, so the placement changes the day a tank is made, not how many are made in the week.`,
+      alternative: `The real mould on each arm on each day, from NTG's arm sheet, if it were known. Or the fewest arm-days that make the quantities.`,
+      why: `The plan in the inventory gives quantities (${triple(P.pipeline.value)}) and arm-days per arm (${armDays[1]} of ${armDays[2]}, row 40), not the mould on each arm each day. The placement keeps NTG's arm-days per arm and fills in moulds so that the quantities come out. The oven takes every arm in turn whatever it carries, so the placement changes the day a tank is made, not how many are made in the week.`,
       usedIn: 'SCENARIOS in src/sim/scenarios.ts; the Redesign page',
       replace: 'Copy the arm rows of NTG\'s weekly plan sheet into SCENARIOS.',
       rows: [40, 56, 86, 90],
@@ -436,12 +463,12 @@ export function assumptions(): Assumption[] {
       id: 'A35',
       group: 'Week scenarios and stock',
       decision: 'Rule that picks the recommended scenario',
-      value: 'Among scenarios that keep every product inside the stock band and use at most one tank arm-day more than the baseline, take the smallest spread in weeks of cover. A tie goes to fewer arm-days.',
+      value: 'Among scenarios that keep every product inside the stock band and use no more tank arm-days than the baseline, take the smallest spread in weeks of cover. A tie goes to fewer arm-days.',
       tag: 'S',
       alternative: 'Most tanks in the week, or lowest cost (the linear programme on the Plan page).',
       why: `Every scenario loads the oven the same (${base.ovenVisits} visits a day), so output per arm-day is equal and cannot rank them. NTG plans to minimum stock plus special orders (row 88), and its stock leaves its own band in many weeks (row 105). Even cover measures that directly. Cost needs prices and belongs to the Plan page.`,
-      usedIn: 'recommend() in src/sim/scenarios.ts; the Redesign page prints the rule',
-      replace: 'Edit recommend(). The page states whatever rule is in the code.',
+      usedIn: 'recommend() in src/sim/scenarios.ts; the Redesign page',
+      replace: 'Edit recommend(). docs/MODEL.md states whatever rule is in the code.',
       rows: [82, 88, 95, 105],
     },
     // -------------------------------------------------------- Display only
@@ -510,6 +537,9 @@ export function assumptions(): Assumption[] {
   return rows;
 }
 
+/** The five entries the Report page lists. Each has a `brief`. */
+export const MAIN_ASSUMPTIONS = ['A2', 'A14', 'A9', 'A18', 'A16'] as const;
+
 export const GROUPS: AssumptionGroup[] = [
   'Machine and positions',
   'Oven and layers',
@@ -539,8 +569,9 @@ export function assumptionsMarkdown(): string {
     'The tag is that of the value used. "Rows" are rows of `data/NTG_Data_Inventory_v1.xlsx`.',
     'Entries in the last group change the picture only: no count, time or KPI depends on them.',
     '',
-    'IDs A1 to A8 keep their meaning from the first register of 20 Nov. A2 changed its default (one oven visit, not a',
-    'return to loading) and A3 its layer order (foam in the middle) once the inventory was loaded; both rows say why.',
+    'IDs A1 to A8 keep their meaning from the first register of 20 Nov. A3 changed its layer order (foam in the middle)',
+    'once the inventory was loaded. A2 and A14 were settled by the team on 21 Nov 2026: for layers 2 and 3 the arm leaves the',
+    'oven and returns to the loading position, and those swings are inside the oven time the team measured.',
     '',
   ];
   const out = [...head];
@@ -549,7 +580,7 @@ export function assumptionsMarkdown(): string {
     out.push('| ID | Decision | Value used | Tag | Alternative considered | Why this one | Where it is used | How to replace it | Rows |');
     out.push('| --- | --- | --- | --- | --- | --- | --- | --- | --- |');
     for (const r of rows.filter((x) => x.group === g))
-      out.push(`| ${[r.id, r.decision, r.value, r.tag, r.alternative, r.why, r.usedIn, r.replace, r.rows.join(', ') || 'none'].map(cell).join(' | ')} |`);
+      out.push(`| ${[r.id, r.decision, r.value, r.source ? `${r.tag} (${r.source})` : r.tag, r.alternative, r.why, r.usedIn, r.replace, r.rows.join(', ') || 'none'].map(cell).join(' | ')} |`);
     out.push('');
   }
   return out.join('\n');
