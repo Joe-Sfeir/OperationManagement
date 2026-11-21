@@ -1,10 +1,13 @@
 /**
- * Sourcing page: routes into Beirut and a buying decision panel.
+ * Sourcing page: routes into Beirut and a short buying table.
  *
- * Follows docs/STYLE_BIBLE.md, "Sourcing map and dashboard chrome". Every price,
- * tier and freight rate is a researched estimate from ./sources.ts and carries
- * an S badge and a link to its entry in the source list at the foot of the
- * page. The arithmetic is in ./model.ts.
+ * Follows docs/STYLE_BIBLE.md, "Sourcing map and dashboard chrome", trimmed
+ * after the team review to what the owner needs: the map, a few controls, five
+ * columns and one line of advice. Every figure still comes from ./sources.ts
+ * (researched estimates, tag S) and keeps its source as a hover title; the
+ * letters show when "Sources" is on in the top bar. The breakdown and links sit
+ * behind "Sources and details". The arithmetic is in ./model.ts; assumptions
+ * and route conditions are in ./NOTES.md.
  *
  * Nothing on the map moves by itself. The route draws and the ship or plane
  * mark crosses once when the user picks an option, changes the order quantity
@@ -26,15 +29,12 @@ import type { GeometryCollection, Topology } from 'topojson-specification';
 import type { MultiPolygon, Position } from 'geojson';
 import landTopo from 'world-atlas/land-50m.json';
 import { easeInOutCubic, font, neutral, palette } from '../../design/tokens';
-import { SourceBadge } from '../../design/SourceBadge';
 import { Button, Num, Panel, Segmented, fmt, sourceTitle } from '../../ui/kit';
 import { P, inventoryRows, numbers } from '../../data/params';
 import {
   evaluate,
   landedCost,
-  pathLengthNm,
   rankByTotal,
-  sailingDays,
   solveOption,
   travelMs,
   type OptionResult,
@@ -43,14 +43,10 @@ import {
 } from './model';
 import {
   AIR_LOT_KG,
-  ALL_RECORDS,
-  CONDITIONS,
   OPTION_IDS,
-  ORDER_COST_LINES,
   ORDER_COST_USD,
   PLACE,
   PRICE_TIERS,
-  RETRIEVAL_NOTE,
   SOURCE_NAME,
   SRC,
   optionSpec,
@@ -128,52 +124,12 @@ function usePrefersReducedMotion(): boolean {
   return reduced;
 }
 
-/** Scroll to a record in the source list and mark it. Not a hash link, so it cannot disturb the app's own navigation. */
-function useRecordJump() {
-  const [marked, setMarked] = useState<string | null>(null);
-  const jump = useCallback((id: string) => {
-    setMarked(id);
-    const el = document.getElementById(`src-${id}`);
-    if (!el) return;
-    el.scrollIntoView({ block: 'center' });
-    el.focus({ preventScroll: true });
-  }, []);
-  return { marked, jump };
+/** A researched figure: value in Plex Mono, tag S, source as the hover title. */
+function Est({ rec, value, unit, size = '14' }: { rec: SourceRecord; value: ReactNode; unit?: string; size?: '12' | '14' | '28' }) {
+  return <Num value={value} unit={unit} tag="S" title={recordTitle(rec)} size={size} />;
 }
 
-type Jump = (id: string) => void;
-
-/** A researched figure: value in Plex Mono, S badge, and a link to its entry in the source list. */
-function Est({
-  rec,
-  value,
-  unit,
-  size = '14',
-  jump,
-}: {
-  rec: SourceRecord;
-  value: ReactNode;
-  unit?: string;
-  size?: '12' | '14' | '28';
-  jump: Jump;
-}) {
-  return (
-    <a
-      href={`#src-${rec.id}`}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        jump(rec.id);
-      }}
-      aria-label={`${rec.label}: estimate. Go to its source.`}
-      className="inline-flex border-b border-dotted border-textFaint hover:border-text"
-    >
-      <Num value={value} unit={unit} tag="S" title={recordTitle(rec)} size={size} />
-    </a>
-  );
-}
-
-/** A figure worked out on this page from the estimates: S badge, no single source. */
+/** A figure worked out on this page from the estimates: tag S, no single source. */
 function Calc({ value, unit, title, size = '14' }: { value: ReactNode; unit?: string; title: string; size?: '12' | '14' | '28' }) {
   return <Num value={value} unit={unit} tag="S" title={title} size={size} />;
 }
@@ -577,9 +533,6 @@ function RouteMap({
             </g>
           )}
 
-          {/* Hormuz: red ring = blocked for this cargo on 20 Nov 2026. */}
-          <circle cx={xy(PLACE.hormuz)[0]} cy={xy(PLACE.hormuz)[1]} r={6} fill="none" stroke={palette.alertRed} strokeWidth={2} />
-
           {/* Beirut: small ring. */}
           <circle cx={xy(PLACE.beirut)[0]} cy={xy(PLACE.beirut)[1]} r={5} fill={palette.canvas} stroke={neutral.text} strokeWidth={1.5} />
 
@@ -697,9 +650,9 @@ function buildRows(scenario: Scenario, routing: GulfRouting, dutyCeiling: boolea
 
 // ----------------------------------------------------------------- small parts
 
-function Field({ label, htmlFor, children, hint }: { label: string; htmlFor?: string; children: ReactNode; hint?: ReactNode }) {
+function Field({ label, htmlFor, hint, children }: { label: string; htmlFor?: string; hint?: string; children: ReactNode }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1.5">
+    <div className="flex min-w-0 flex-col gap-1">
       {htmlFor ? (
         <label htmlFor={htmlFor} className="text-12 text-textMuted">
           {label}
@@ -714,44 +667,60 @@ function Field({ label, htmlFor, children, hint }: { label: string; htmlFor?: st
 }
 
 const INPUT =
-  'num w-24 rounded-control border border-hairlineStrong bg-canvas px-2 py-1 text-14 text-text placeholder:text-textFaint';
+  'num w-20 rounded-control border border-hairlineStrong bg-canvas px-2 py-1 text-12 text-text placeholder:text-textFaint';
 
-function ExternalLink({ url, children }: { url: string; children: ReactNode }) {
+const BASIS_WORD: Record<SourceRecord['basis'], string> = {
+  published: 'source',
+  derived: 'built from',
+  assumption: 'assumed; nearest figure',
+};
+
+/** One line of the details list: what it is, where it came from, the figure. */
+function DetailLine({ rec, value, unit }: { rec: SourceRecord; value: ReactNode; unit: string }) {
   return (
-    <a href={url} target="_blank" rel="noreferrer" className="underline decoration-textFaint underline-offset-2 hover:decoration-text">
+    <li className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 border-t border-hairline py-1 first:border-t-0">
+      <span className="min-w-0 text-12 text-textMuted">
+        {rec.label}
+        <span className="text-textFaint">
+          {rec.sourceUrl ? (
+            <>
+              {' '}
+              ({BASIS_WORD[rec.basis]}:{' '}
+              <a
+                href={rec.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                title={rec.sourceTitle}
+                className="underline decoration-textFaint underline-offset-2 hover:text-text"
+              >
+                {host(rec.sourceUrl)}
+              </a>
+              )
+            </>
+          ) : (
+            ' (assumed)'
+          )}
+        </span>
+      </span>
+      <Est rec={rec} size="12" value={value} unit={unit} />
+    </li>
+  );
+}
+
+function PlainLine({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <li className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 border-t border-hairline py-1 first:border-t-0">
+      <span className="min-w-0 text-12 text-text">{label}</span>
       {children}
-    </a>
+    </li>
   );
-}
-
-/** One line of a breakdown: label, figure with badge, and where it came from. */
-function Line({ label, children, source }: { label: ReactNode; children: ReactNode; source?: SourceRecord }) {
-  return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-0.5 border-t border-hairline py-1.5 first:border-t-0">
-      <dt className="min-w-0 text-12 text-textMuted">
-        {label}
-        {source && (
-          <span className="block text-textFaint">
-            {source.sourceUrl ? <ExternalLink url={source.sourceUrl}>{host(source.sourceUrl)}</ExternalLink> : 'No public figure found'}
-            {source.basis === 'assumption' && source.sourceUrl ? ' (nearest public figure; the number is an assumption)' : ''}
-          </span>
-        )}
-      </dt>
-      <dd className="text-right">{children}</dd>
-    </div>
-  );
-}
-
-function SubHead({ children }: { children: ReactNode }) {
-  return <h3 className="mb-1 mt-4 text-12 font-semibold text-text first:mt-0">{children}</h3>;
 }
 
 // ---------------------------------------------------------------- the page
 
 export function SourcingPage() {
-  const ids = { demand: useId(), qty: useId(), table: useId(), tableNote: useId() };
+  const ids = { demand: useId(), qty: useId(), mapNote: useId(), details: useId() };
   const reducedMotion = usePrefersReducedMotion();
-  const { marked, jump } = useRecordJump();
 
   const [demandMode, setDemandMode] = useState<DemandMode>('tanks');
   const [customT, setCustomT] = useState(Math.round(TANKS_T_PER_YEAR));
@@ -761,6 +730,7 @@ export function SourcingPage() {
   const [includeVat, setIncludeVat] = useState(false);
   const [dutyCeiling, setDutyCeiling] = useState(false);
   const [picked, setPicked] = useState<OptionId | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [playToken, setPlayToken] = useState(0);
   const play = useCallback(() => setPlayToken((n) => n + 1), []);
 
@@ -813,689 +783,344 @@ export function SourcingPage() {
     play();
   };
 
-  const calcTitle = 'Worked out on this page from the estimates in this row. Not a quote.';
-  const applied = PRICE_TIERS[selected.chosen.tierIndex] ?? PRICE_TIERS[0]!;
-  const seaNm = selected.spec.mode === 'sea'
-    ? routeLegs(selected.id, routing)
-        .filter((l) => l.kind !== 'road')
-        .reduce((s, l) => s + pathLengthNm(l.points), 0)
-    : 0;
-  const perLot = selected.spec.mode === 'sea' ? PAYLOAD_KG : 1;
-  const chosenLanded = selected.tiers[selected.chosen.tierIndex]?.landed;
-  const tierTotals = selected.eoq.perTier.flatMap((t) => (t ? [t.total] : []));
-  const tierSpread = (Math.max(...tierTotals) - Math.min(...tierTotals)) / Math.min(...tierTotals);
-  const gapToNtg = selected.chosen.unitCost - NTG_PRICE;
+  const calcTitle = 'Worked out from the estimates for this option. Not a quote.';
+  const sea = selected.spec.mode === 'sea';
+  const tier = PRICE_TIERS[selected.chosen.tierIndex] ?? PRICE_TIERS[0]!;
+  const demandTitle =
+    demandMode === 'tanks'
+      ? `${sourceTitle(P.weeklyResinT)}. Times ${WEEKS_PER_YEAR} weeks.`
+      : demandMode === 'plant'
+        ? `${plantTitle ?? ''}. Times ${WEEKS_PER_YEAR} weeks.`
+        : 'Typed in.';
 
-  const used = new Set<string>();
-  for (const r of rows) for (const rec of [r.spec.price, ...r.spec.freight, ...r.spec.destination, ...r.spec.lead, r.dutyRec]) used.add(rec.id);
-  for (const t of PRICE_TIERS) if (t.step) used.add(t.step.id);
-  for (const rec of [...ORDER_COST_LINES, SRC.vat, SRC.extraCustomsFee, SRC.shipSpeed]) used.add(rec.id);
-  const usedRecords = ALL_RECORDS.filter((r) => used.has(r.id));
-  const otherRecords = ALL_RECORDS.filter((r) => !used.has(r.id));
+  const th = 'border-b border-hairline px-1.5 pb-2 align-bottom font-medium sm:px-2';
+  const td = 'whitespace-nowrap border-b border-hairline px-1.5 py-1.5 text-right sm:px-2';
 
   return (
     <div className="min-h-full">
       <header className="sticky top-0 z-10 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-hairline bg-canvas px-4 py-3 md:px-6">
         <h1 className="text-14 font-semibold">Sourcing: resin into Beirut</h1>
-        <p className="flex items-center gap-2 text-14">
-          <SourceBadge tag="S" />
-          Prices are researched estimates, not supplier quotes.
-        </p>
+        <p className="text-14 text-textMuted">Prices are estimates, not supplier quotes.</p>
       </header>
 
-      <main className="mx-auto flex max-w-[1680px] flex-col gap-4 p-4 md:p-6">
-        <p className="max-w-[110ch] text-14 text-textMuted">
-          <span className="text-text">Raw material is not a bottleneck in NTG&rsquo;s data.</span> The plant has{' '}
-          <Num value={P.siloCount.value} unit="silos" datum={P.siloCount} /> of about{' '}
-          <Num value={P.siloCapacityT.value} unit="t" datum={P.siloCapacityT} /> each and the three studied tanks use{' '}
-          <Num value={fmt(P.weeklyResinT.value, 3)} unit="t a week" datum={P.weeklyResinT} />. This page is about buying cost and lead
-          time for resin R50035E, not about the machine.
-        </p>
-
-        <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,9fr)_minmax(0,14fr)] lg:items-start">
-          {/* Left on a wide screen: map, route conditions, how to read. On a phone the conditions and the guide follow the table. */}
-          <div className="contents lg:flex lg:flex-col lg:gap-4">
-            <Panel className="order-1 p-4 lg:order-none" aria-label="Route map">
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <h2 className="text-14 font-semibold">
-                  Route: {optionName(selected.id)}
-                  <span className="ml-2 font-normal text-textMuted">
-                    {selected.leadDays} days, order to plant
-                  </span>
-                </h2>
-                <Button onClick={play} disabled={reducedMotion} title={reducedMotion ? 'Motion is turned off in your system settings' : undefined}>
-                  Replay
-                </Button>
-              </div>
-              <RouteMap
-                rows={rows}
-                selectedId={selected.id}
-                bestId={best.id}
-                routing={routing}
-                leadDays={selected.leadDays}
-                playToken={playToken}
-                reducedMotion={reducedMotion}
-                describedBy={ids.tableNote}
-                onSelect={select}
-              />
-              <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-12 text-textMuted">
-                <LegendLine kind="sea" label="Sea" />
-                <LegendLine kind="road" label="Road" />
-                <LegendLine kind="air" label="Air" />
-                <LegendLine kind="sea" label="Other options" faint />
-                <li className="flex items-center gap-2">
-                  <svg width={16} height={16} aria-hidden="true">
-                    <circle cx={8} cy={8} r={6.5} fill="none" stroke={neutral.text} strokeWidth={1} />
-                    <circle cx={8} cy={8} r={3} fill={neutral.text} />
-                  </svg>
-                  Origin of the best option
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg width={14} height={14} aria-hidden="true">
-                    <circle cx={7} cy={7} r={5} fill="none" stroke={palette.alertRed} strokeWidth={2} />
-                  </svg>
-                  Hormuz: no large container line sailing, 20 Nov 2026
-                </li>
-              </ul>
-              <p className="mt-2 text-12 text-textFaint">
-                {selected.spec.routeNote} The mark crosses in {fmt(travelMs(selected.leadDays) / 1000, 1)} s: 40 ms for each day of lead
-                time. Air arcs start at the port marks; Dammam and Bahrain airports are within 60 km of them.
-              </p>
-            </Panel>
-
-            <Panel className="order-5 p-4 lg:order-none" aria-label="Route conditions">
-              <h2 className="mb-2 text-14 font-semibold">Route conditions on 20 Nov 2026</h2>
-              <ul className="flex flex-col gap-2">
-                {CONDITIONS.map((c) => (
-                  <li key={c.id} className="text-12 text-textMuted">
-                    {c.text}{' '}
-                    <ExternalLink url={c.sourceUrl}>{c.sourceTitle}</ExternalLink>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-
-            <Panel className="order-6 p-4 lg:order-none" aria-label="How to read this">
-              <h2 className="mb-2 text-14 font-semibold">How to read this</h2>
-              <ol className="flex list-decimal flex-col gap-2 pl-5 text-14 text-textMuted marker:text-textFaint">
-                <li>
-                  Each row of the table is one way to buy resin: where it comes from and whether it travels by sea or by air. The row
-                  with the outline has the lowest cost for a year of resin.
-                </li>
-                <li>
-                  <span className="text-text">Landed cost</span> is what a kilo costs at the plant gate: price at origin, freight, port
-                  charges and the truck, and duty.
-                </li>
-                <li>
-                  <span className="text-text">EOQ</span> is the order size that makes the yearly total lowest. A bigger order means a
-                  lower price per kilo and fewer orders, but more resin sitting in stock.
-                </li>
-                <li>
-                  <span className="text-text">Reorder point</span> is the stock level at which to order again: the resin the plant uses
-                  while the order is on its way. No safety stock is added.
-                </li>
-                <li>
-                  Every figure with an <SourceBadge tag="S" /> badge is an estimate from public sources, not a quote. The ranges are
-                  wide: wider than the gap between the best row and the {fmt(NTG_PRICE, 2)} USD/kg NTG pays now. Use the table to
-                  decide who to ask for quotes, not to conclude that NTG overpays.
-                </li>
-                <li>
-                  What holds up better than the exact numbers: sea is far cheaper than air; Gulf resin was cheaper than European on
-                  every public benchmark found, though the ranges overlap; and ordering two containers at a time only pays if the
-                  supplier gives a price step for it.
-                </li>
-              </ol>
-            </Panel>
+      <main className="mx-auto flex max-w-[1680px] flex-col gap-4 p-4 md:p-6 lg:grid lg:grid-cols-2 lg:items-start">
+        <Panel className="p-4" aria-label="Route map">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-14 font-semibold">
+              Route: {optionName(selected.id)}
+              <span className="ml-2 font-normal text-textMuted">{selected.leadDays} days, order to plant</span>
+            </h2>
+            <Button onClick={play} disabled={reducedMotion} title={reducedMotion ? 'Motion is turned off in your system settings' : undefined}>
+              Replay
+            </Button>
           </div>
+          <RouteMap
+            rows={rows}
+            selectedId={selected.id}
+            bestId={best.id}
+            routing={routing}
+            leadDays={selected.leadDays}
+            playToken={playToken}
+            reducedMotion={reducedMotion}
+            describedBy={ids.mapNote}
+            onSelect={select}
+          />
+          <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-12 text-textMuted">
+            <LegendLine kind="sea" label="Sea" />
+            <LegendLine kind="road" label="Road" />
+            <LegendLine kind="air" label="Air" />
+            <LegendLine kind="sea" label="Other options" faint />
+            <li className="flex items-center gap-2">
+              <svg width={16} height={16} aria-hidden="true">
+                <circle cx={8} cy={8} r={6.5} fill="none" stroke={neutral.text} strokeWidth={1} />
+                <circle cx={8} cy={8} r={3} fill={neutral.text} />
+              </svg>
+              Best option
+            </li>
+          </ul>
+          <p id={ids.mapNote} className="sr-only">
+            The options table lists the same routes with their cost and lead time.
+          </p>
+        </Panel>
 
-          {/* Right on a wide screen: the decision panel. */}
-          <div className="contents lg:flex lg:flex-col lg:gap-4">
-            <Panel className="order-2 p-4 lg:order-none" aria-label="Demand and order quantity">
-              <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-3">
-                <Field
-                  label="Demand, tonnes of resin a year"
-                  htmlFor={ids.demand}
-                  hint={
-                    <>
-                      Studied tanks: <Num size="12" value={fmt(P.weeklyResinT.value, 3)} unit="t a week" datum={P.weeklyResinT} /> x{' '}
-                      {WEEKS_PER_YEAR}. Whole plant:{' '}
-                      <Num size="12" value={fmt(PLANT_KG_PER_WEEK / 1000, 3)} unit="t a week" tag="N" title={plantTitle} /> x{' '}
-                      {WEEKS_PER_YEAR}.
-                    </>
-                  }
-                >
-                  <Segmented<DemandMode>
-                    label="Demand basis"
-                    value={demandMode}
-                    onChange={(m) => {
-                      if (m === 'custom') setCustomT(Math.round(demandT));
-                      setDemandMode(m);
-                    }}
-                    options={[
-                      { value: 'tanks', label: 'Studied tanks' },
-                      { value: 'plant', label: 'Whole plant' },
-                      { value: 'custom', label: 'Other' },
-                    ]}
-                  />
-                  <input
-                    id={ids.demand}
-                    className={INPUT}
-                    type="number"
-                    inputMode="decimal"
-                    min={1}
-                    max={5000}
-                    step={1}
-                    value={Math.round(demandT)}
-                    onChange={(e) => {
-                      const v = Number(e.target.value);
-                      if (Number.isFinite(v) && v > 0) {
-                        setCustomT(clamp(v, 1, 5000));
-                        setDemandMode('custom');
-                      }
-                    }}
-                  />
-                </Field>
+        <div className="flex min-w-0 flex-col gap-4">
+          <Panel className="p-4" aria-label="Controls">
+            <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+              <Field label="Demand, tonnes a year" htmlFor={ids.demand}>
+                <Segmented<DemandMode>
+                  label="Demand basis"
+                  value={demandMode}
+                  onChange={(m) => {
+                    if (m === 'custom') setCustomT(Math.round(demandT));
+                    setDemandMode(m);
+                  }}
+                  options={[
+                    { value: 'tanks', label: 'Studied tanks' },
+                    { value: 'plant', label: 'Whole plant' },
+                    { value: 'custom', label: 'Other' },
+                  ]}
+                />
+                <input
+                  id={ids.demand}
+                  className={INPUT}
+                  type="number"
+                  inputMode="decimal"
+                  min={1}
+                  max={5000}
+                  step={1}
+                  title={demandTitle}
+                  value={Math.round(demandT)}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    if (Number.isFinite(v) && v > 0) {
+                      setCustomT(clamp(v, 1, 5000));
+                      setDemandMode('custom');
+                    }
+                  }}
+                />
+              </Field>
 
-                <Field
-                  label={`Order quantity, containers of ${fmt(P.deliveryLotT.value)} t`}
-                  htmlFor={ids.qty}
-                  hint={
-                    qtyMode === 'eoq'
-                      ? 'Each option is costed at its own best order size.'
-                      : `Every option is costed at ${containers} ${containers === 1 ? 'container' : 'containers'} an order. The EOQ column still shows its own best size.`
-                  }
-                >
-                  <Segmented<QtyMode>
-                    label="Order quantity"
-                    value={qtyMode}
-                    onChange={(m) => setQty(m)}
-                    options={[
-                      { value: 'eoq', label: 'Solve EOQ' },
-                      { value: 'fixed', label: 'Set by hand' },
-                    ]}
-                  />
-                  <input
-                    id={ids.qty}
-                    className={INPUT}
-                    type="number"
-                    inputMode="numeric"
-                    min={1}
-                    max={20}
-                    step={1}
-                    placeholder="EOQ"
-                    value={qtyMode === 'fixed' ? containers : ''}
-                    onChange={(e) => {
-                      const v = Math.round(Number(e.target.value));
-                      if (e.target.value !== '' && Number.isFinite(v)) setQty('fixed', clamp(v, 1, 20));
-                    }}
-                  />
-                </Field>
+              <Field label={`Order quantity, containers of ${fmt(P.deliveryLotT.value)} t`} htmlFor={ids.qty}>
+                <Segmented<QtyMode>
+                  label="Order quantity"
+                  value={qtyMode}
+                  onChange={(m) => setQty(m)}
+                  options={[
+                    { value: 'eoq', label: 'Solve' },
+                    { value: 'fixed', label: 'By hand' },
+                  ]}
+                />
+                <input
+                  id={ids.qty}
+                  className={INPUT}
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={20}
+                  step={1}
+                  placeholder="best"
+                  value={qtyMode === 'fixed' ? containers : ''}
+                  onChange={(e) => {
+                    const v = Math.round(Number(e.target.value));
+                    if (e.target.value !== '' && Number.isFinite(v)) setQty('fixed', clamp(v, 1, 20));
+                  }}
+                />
+              </Field>
 
-                <Field label="Gulf containers travel">
-                  <Segmented<GulfRouting>
-                    label="Gulf routing"
-                    value={routing}
-                    onChange={(r) => {
-                      setRouting(r);
-                      play();
-                    }}
-                    options={[
-                      { value: 'jeddah', label: 'Road to Jeddah (now)' },
-                      { value: 'hormuz', label: 'Sea through Hormuz' },
-                    ]}
-                  />
-                </Field>
+              <Field label="Gulf route" hint="Large carriers are not sailing through Hormuz now.">
+                <Segmented<GulfRouting>
+                  label="Gulf route"
+                  value={routing}
+                  onChange={(r) => {
+                    setRouting(r);
+                    play();
+                  }}
+                  options={[
+                    { value: 'jeddah', label: 'Road to Jeddah (now)' },
+                    { value: 'hormuz', label: 'Sea through Hormuz' },
+                  ]}
+                />
+              </Field>
 
-                <Field label="Customs duty" hint="The Lebanese rate for HS 3901 was not found. 5% is the top of the general range.">
-                  <Segmented<'pref' | 'ceiling'>
-                    label="Customs duty"
-                    value={dutyCeiling ? 'ceiling' : 'pref'}
-                    onChange={(v) => setDutyCeiling(v === 'ceiling')}
-                    options={[
-                      { value: 'pref', label: '0% with origin certificate' },
-                      { value: 'ceiling', label: '5% worst case' },
-                    ]}
-                  />
-                </Field>
+              <Field label="Customs duty">
+                <Segmented<'pref' | 'ceiling'>
+                  label="Customs duty"
+                  value={dutyCeiling ? 'ceiling' : 'pref'}
+                  onChange={(v) => setDutyCeiling(v === 'ceiling')}
+                  options={[
+                    { value: 'pref', label: '0% with origin certificate' },
+                    { value: 'ceiling', label: '5% worst case' },
+                  ]}
+                />
+              </Field>
 
-                <Field label="VAT at the border" hint="Normally recovered by a registered manufacturer, so left out of cost.">
-                  <Segmented<'out' | 'in'>
-                    label="VAT"
-                    value={includeVat ? 'in' : 'out'}
-                    onChange={(v) => setIncludeVat(v === 'in')}
-                    options={[
-                      { value: 'out', label: 'Left out' },
-                      { value: 'in', label: 'Count it' },
-                    ]}
-                  />
-                  <Est rec={SRC.vat} value={fmt(SRC.vat.value)} unit="%" jump={jump} />
-                </Field>
+              <Field label={`VAT, ${fmt(SRC.vat.value)}%`}>
+                <Segmented<'out' | 'in'>
+                  label="VAT"
+                  value={includeVat ? 'in' : 'out'}
+                  onChange={(v) => setIncludeVat(v === 'in')}
+                  options={[
+                    { value: 'out', label: 'Left out (recovered)' },
+                    { value: 'in', label: 'Count it' },
+                  ]}
+                />
+              </Field>
+            </div>
+          </Panel>
 
-                <Field label="Held fixed">
-                  <span className="flex flex-wrap gap-x-4 gap-y-1">
-                    <Num value={fmt(P.holdingRatePerYear.value * 100)} unit="% a year to hold stock" datum={P.holdingRatePerYear} />
-                    <Est rec={ORDER_COST_LINES[0]!} value={fmt(ORDER_COST_USD)} unit="USD an order" jump={jump} />
-                  </span>
-                </Field>
-              </div>
-            </Panel>
-
-            <Panel className="order-3 min-w-0 p-4 lg:order-none" aria-label="Options">
-              <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h2 className="text-14 font-semibold">Options, cheapest year first</h2>
-                <p id={ids.tableNote} className="text-12 text-textMuted">
-                  The table lists every route on the map. Choose a row to draw its route.
-                </p>
-              </div>
-              <div className="-mx-4 overflow-x-auto px-4">
-                <table className="w-full min-w-[880px] border-collapse text-left">
-                  <caption className="sr-only">
-                    Six sourcing options ranked by total annual cost, with NTG&rsquo;s current price as a reference line.
-                  </caption>
-                  <thead>
-                    <tr className="text-12 text-textMuted">
-                      {[
-                        ['Option', 'left'],
-                        ['Price at origin, USD/kg', 'right'],
-                        ['Freight to plant, USD/kg', 'right'],
-                        ['Duty, %', 'right'],
-                        ['Landed cost, USD/kg', 'right'],
-                        ['Lead time, days', 'right'],
-                        ['EOQ, t', 'right'],
-                        ['Orders a year', 'right'],
-                        ['Total, USD a year', 'right'],
-                      ].map(([h, align], i) => (
-                        <th
-                          key={h}
-                          scope="col"
-                          className={[
-                            'border-b border-hairline px-1.5 pb-2 align-bottom font-medium',
-                            align === 'right' ? 'text-right' : 'text-left',
-                            i === 0 ? 'sticky left-0 z-[1] bg-panel pl-0' : '',
-                          ].join(' ')}
-                        >
-                          {h}
+          <Panel className="min-w-0 p-4" aria-label="Options">
+            <div className="-mx-4 overflow-x-auto px-4">
+              <table className="w-full border-collapse text-left">
+                <caption className="sr-only">
+                  Six sourcing options, cheapest year first, with what NTG pays today as a reference line. Choose a row to draw its route.
+                </caption>
+                <thead>
+                  <tr className="text-12 text-textMuted">
+                    <th scope="col" className={`${th} sticky left-0 z-[1] bg-panel pl-2 text-left`}>
+                      Option
+                    </th>
+                    <th scope="col" className={`${th} text-right`}>
+                      Landed cost, USD/kg
+                    </th>
+                    <th scope="col" className={`${th} text-right`}>
+                      Lead time, days
+                    </th>
+                    <th scope="col" className={`${th} text-right`}>
+                      Order size, t
+                    </th>
+                    <th scope="col" className={`${th} text-right`}>
+                      Total, USD a year
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r) => {
+                    const isSelected = r.id === selected.id;
+                    const cellBg = isSelected ? 'bg-canvas' : 'bg-panel';
+                    const name = SOURCE_NAME[r.spec.source];
+                    const weight = r.best ? 'font-semibold' : '';
+                    return (
+                      <tr
+                        key={r.id}
+                        onClick={() => select(r.id)}
+                        className={['cursor-pointer', cellBg, r.best ? 'outline outline-1 -outline-offset-1 outline-textMuted' : ''].join(' ')}
+                      >
+                        <th scope="row" className={`sticky left-0 z-[1] border-b border-hairline py-1.5 pl-2 pr-1.5 text-left font-normal sm:pr-2 ${cellBg}`}>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              select(r.id);
+                            }}
+                            aria-pressed={isSelected}
+                            className="flex flex-col text-left sm:flex-row sm:items-baseline sm:gap-2"
+                          >
+                            <span className={`whitespace-nowrap text-14 ${weight}`}>
+                              {name.place}, {r.spec.mode}
+                            </span>
+                            {r.best && <span className="text-12 font-semibold">Best</span>}
+                            <span className="hidden text-12 text-textMuted md:inline">{name.supplier}</span>
+                          </button>
                         </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((r) => {
-                      const isSelected = r.id === selected.id;
-                      const tier = PRICE_TIERS[r.chosen.tierIndex] ?? PRICE_TIERS[0]!;
-                      const cellBg = isSelected ? 'bg-canvas' : 'bg-panel';
-                      const name = SOURCE_NAME[r.spec.source];
-                      // Lead parts end with: main transit leg, then release at Beirut. Link the total to the transit leg.
-                      const transit = r.spec.lead[r.spec.lead.length - 2] ?? r.spec.lead[0]!;
-                      return (
-                        <tr
-                          key={r.id}
-                          onClick={() => select(r.id)}
-                          className={[
-                            'cursor-pointer align-top',
-                            cellBg,
-                            r.best ? 'outline outline-1 -outline-offset-1 outline-textMuted' : '',
-                          ].join(' ')}
-                        >
-                          <th scope="row" className={`sticky left-0 z-[1] border-b border-hairline py-2 pl-2 pr-2 text-left font-normal ${cellBg}`}>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                select(r.id);
-                              }}
-                              aria-pressed={isSelected}
-                              className="flex min-w-[9.5rem] items-baseline gap-2 text-left"
-                            >
-                              <span className="num text-12 text-textFaint">{r.rank}</span>
-                              <span>
-                                <span className={`block text-14 ${r.best ? 'font-semibold' : 'font-normal'}`}>
-                                  {name.place}, {r.spec.mode}
-                                  {r.best && <span className="ml-2 text-12 font-semibold text-text">Best</span>}
-                                </span>
-                                <span className="block text-12 text-textMuted">{name.supplier}</span>
-                              </span>
-                            </button>
-                          </th>
-                          <td className="whitespace-nowrap border-b border-hairline px-1.5 py-2 text-right">
-                            <Est rec={r.spec.price} value={fmt(r.tiers[r.chosen.tierIndex]?.unitPrice ?? 0, 2)} jump={jump} />
-                            <span className="mt-0.5 flex items-center justify-end gap-1.5 text-12 text-textMuted">
-                              {tier.step ? (
-                                <a
-                                  href={`#src-${tier.step.id}`}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    jump(tier.step!.id);
-                                  }}
-                                  className="border-b border-dotted border-textFaint hover:border-text"
-                                >
-                                  {tier.label}
-                                </a>
-                              ) : (
-                                tier.label
-                              )}
-                              <SourceBadge tag="S" title={tier.step ? recordTitle(tier.step) : 'Price tiers are an assumption: no public tier data found.'} />
-                            </span>
-                          </td>
-                          <td className="whitespace-nowrap border-b border-hairline px-1.5 py-2 text-right">
-                            <Est rec={r.spec.freight[r.spec.freight.length - 1]!} value={fmt(r.freightPerKg + r.destinationPerKg, 3)} jump={jump} />
-                          </td>
-                          <td className="whitespace-nowrap border-b border-hairline px-1.5 py-2 text-right">
-                            <Est rec={r.dutyRec} value={fmt(r.dutyRec.value)} jump={jump} />
-                          </td>
-                          <td className="whitespace-nowrap border-b border-hairline px-1.5 py-2 text-right">
-                            <span className={r.best ? 'font-semibold' : ''}>
-                              <Calc value={fmt(r.chosen.unitCost, 3)} title={calcTitle} />
-                            </span>
-                            <span className="num mt-0.5 block text-12 text-textMuted">
-                              {fmt(r.landedLow, 2)} to {fmt(r.landedHigh, 2)}
-                            </span>
-                          </td>
-                          <td className="whitespace-nowrap border-b border-hairline px-1.5 py-2 text-right">
-                            <Est rec={transit} value={r.leadDays} jump={jump} />
-                          </td>
-                          <td className="whitespace-nowrap border-b border-hairline px-1.5 py-2 text-right">
-                            <Calc value={tonnes(r.eoq.best.qty)} title={`${calcTitle} Square-root quantity before rounding: ${tonnes(r.eoq.best.qStar, 1)} t.`} />
-                            <span className="mt-0.5 block text-12 text-textMuted">
-                              {r.spec.mode === 'sea'
-                                ? `${r.eoq.best.qty / PAYLOAD_KG} ${r.eoq.best.qty === PAYLOAD_KG ? 'container' : 'containers'}`
-                                : 'by the tonne'}
-                            </span>
-                          </td>
-                          <td className="whitespace-nowrap border-b border-hairline px-1.5 py-2 text-right">
-                            <Calc value={fmt(r.chosen.ordersPerYear, 1)} title={calcTitle} />
-                          </td>
-                          <td className="whitespace-nowrap border-b border-hairline py-2 pl-1.5 pr-2 text-right">
-                            <span className={r.best ? 'font-semibold' : ''}>
-                              <Calc value={usdK(r.total)} title={`${calcTitle} Rounded to the nearest 1,000.`} />
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    <tr className="align-top">
-                      <th scope="row" className="sticky left-0 z-[1] bg-panel py-2 pl-2 pr-2 text-left font-normal">
-                        <span className="block pl-[1.1rem] text-14">NTG today</span>
-                        <span className="block pl-[1.1rem] text-12 text-textMuted">Reference line. Supplier and terms not recorded.</span>
-                      </th>
-                      <td className="whitespace-nowrap px-1.5 py-2 text-right">
-                        <Num value={fmt(NTG_PRICE, 2)} datum={P.resinPriceUsdKg} />
-                      </td>
-                      <td className="whitespace-nowrap px-1.5 py-2 text-right text-12 text-textMuted">not recorded</td>
-                      <td className="whitespace-nowrap px-1.5 py-2 text-right text-12 text-textMuted">not recorded</td>
-                      <td className="whitespace-nowrap px-1.5 py-2 text-right">
-                        <Num value={fmt(NTG_PRICE, 3)} datum={P.resinPriceUsdKg} />
-                        <span className="mt-0.5 block text-12 text-textMuted">taken as landed</span>
-                      </td>
-                      <td className="whitespace-nowrap px-1.5 py-2 text-right">
-                        <Num
-                          value={NTG_LEAD_DAYS}
-                          tag={P.replenishLeadMonths.tag}
-                          title={`${sourceTitle(P.replenishLeadMonths)}. ${P.replenishLeadMonths.value} months at 30 days.`}
-                        />
-                      </td>
-                      <td className="whitespace-nowrap px-1.5 py-2 text-right">
-                        <Num value={fmt(P.deliveryLotT.value)} datum={P.deliveryLotT} />
-                        <span className="mt-0.5 block text-12 text-textMuted">lot, not an EOQ</span>
-                      </td>
-                      <td className="whitespace-nowrap px-1.5 py-2 text-right">
-                        <Num value={fmt(ntg.ordersPerYear, 1)} tag="C" title="Demand divided by the 24 t lot (inventory row 10)." />
-                      </td>
-                      <td className="whitespace-nowrap py-2 pl-1.5 pr-2 text-right">
-                        <Num
-                          value={usdK(ntg.total)}
-                          tag="C"
-                          title="NTG price, lot and lead time (inventory rows 9 to 11) through the same formula, with the estimated order cost and the 25% holding rate."
-                        />
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p className="mt-3 text-12 text-textMuted min-[1580px]:hidden">Slide the table sideways to see every column.</p>
-              <p className="mt-2 text-12 text-textFaint">
-                Under each landed cost: the same sum with every estimate at the low and at the high end of its range. Totals are rounded
-                to the nearest 1,000 USD and include resin, ordering, holding and stock on the way.
-              </p>
-            </Panel>
-
-            <Panel className="order-4 p-4 lg:order-none" aria-label="Selected option">
-              <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-                <div>
-                  <h2 className="text-14 font-semibold">
-                    {optionName(selected.id)}
-                    {selected.best ? ': best option' : `: rank ${selected.rank} of ${rows.length}`}
-                  </h2>
-                  <p className="text-12 text-textMuted">{SOURCE_NAME[selected.spec.source].supplier}</p>
-                </div>
-                <dl className="flex flex-wrap gap-x-8 gap-y-3">
-                  <div>
-                    <dt className="text-12 text-textMuted">Landed cost</dt>
-                    <dd>
-                      <Calc size="28" value={fmt(selected.chosen.unitCost, 3)} unit="USD/kg" title={calcTitle} />
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-12 text-textMuted">Order</dt>
-                    <dd>
-                      <Calc size="28" value={tonnes(selected.chosen.qty)} unit="t" title={calcTitle} />
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-12 text-textMuted">Reorder point</dt>
-                    <dd>
-                      <Calc
-                        size="28"
-                        value={tonnes(selected.reorderKg, 1)}
-                        unit="t"
-                        title="Demand during the lead time: demand a year x lead days / 365. No safety stock."
-                      />
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-              <p className="mt-2 text-12 text-textMuted">
-                {gapToNtg <= 0 ? `${fmt(-gapToNtg, 3)} USD/kg below` : `${fmt(gapToNtg, 3)} USD/kg above`} NTG&rsquo;s{' '}
-                <Num size="12" value={fmt(NTG_PRICE, 2)} unit="USD/kg" datum={P.resinPriceUsdKg} />. The estimate runs from{' '}
-                <span className="num">{fmt(selected.landedLow, 2)}</span> to <span className="num">{fmt(selected.landedHigh, 2)}</span>, so
-                this gap is inside its range. Order again when stock on hand and on order falls to the reorder point:{' '}
-                {selected.leadDays} days of demand.
-              </p>
-
-              <div className="mt-4 grid gap-x-8 gap-y-2 md:grid-cols-2">
-                <div>
-                  <SubHead>Price by order size (all units)</SubHead>
-                  <dl>
-                    {PRICE_TIERS.map((t, k) => {
-                      const tc = selected.tiers[k];
-                      if (!tc) return null;
-                      const on = k === selected.chosen.tierIndex;
-                      return (
-                        <Line
-                          key={t.label}
-                          source={k === 0 ? selected.spec.price : (t.step ?? undefined)}
-                          label={
-                            <span className={on ? 'font-semibold text-text' : ''}>
-                              {t.label}
-                              {on ? ' (applied)' : ''}
-                            </span>
-                          }
-                        >
-                          <Est rec={k === 0 ? selected.spec.price : (t.step ?? selected.spec.price)} value={fmt(tc.unitPrice, 2)} unit="USD/kg" jump={jump} />
-                        </Line>
-                      );
-                    })}
-                  </dl>
-
-                  <SubHead>Freight to plant</SubHead>
-                  <dl>
-                    {[...selected.spec.freight, ...selected.spec.destination].map((rec) => (
-                      <Line key={rec.id} label={rec.label} source={rec}>
-                        <Est
-                          rec={rec}
-                          value={selected.spec.mode === 'sea' ? fmt(rec.value) : fmt(rec.value, 2)}
-                          unit={selected.spec.mode === 'sea' ? 'USD per 40 ft' : 'USD/kg'}
-                          jump={jump}
-                        />
-                      </Line>
-                    ))}
-                    <Line
-                      label={
-                        selected.spec.mode === 'sea'
-                          ? `Per kg, over ${fmt(P.deliveryLotT.value)} t a container`
-                          : 'Per kg'
-                      }
-                    >
-                      <Calc value={fmt(selected.freightPerKg + selected.destinationPerKg, 3)} unit="USD/kg" title={calcTitle} />
-                    </Line>
-                    {selected.spec.mode === 'sea' && (
-                      <Line label="NTG container load" >
-                        <Num value={fmt(P.deliveryLotT.value)} unit="t" datum={P.deliveryLotT} />
-                      </Line>
-                    )}
-                  </dl>
-
-                  <SubHead>Duty and VAT</SubHead>
-                  <dl>
-                    <Line label={selected.dutyRec.label} source={selected.dutyRec}>
-                      <Est rec={selected.dutyRec} value={fmt(selected.dutyRec.value)} unit="%" jump={jump} />
-                    </Line>
-                    <Line label={SRC.extraCustomsFee.label} source={SRC.extraCustomsFee}>
-                      <Est rec={SRC.extraCustomsFee} value={fmt(SRC.extraCustomsFee.value)} unit="%" jump={jump} />
-                    </Line>
-                    <Line label={`VAT, ${includeVat ? 'counted in landed cost' : 'paid and recovered, not in landed cost'}`} source={SRC.vat}>
-                      <Calc value={fmt(chosenLanded?.vat ?? 0, 3)} unit="USD/kg" title="11% of price plus freight plus duty." />
-                    </Line>
-                  </dl>
-                </div>
-
-                <div>
-                  <SubHead>Lead time, order to plant</SubHead>
-                  <dl>
-                    {selected.spec.lead.map((rec) => (
-                      <Line key={rec.id} label={rec.label} source={rec}>
-                        <Est rec={rec} value={rec.value} unit="days" jump={jump} />
-                      </Line>
-                    ))}
-                    <Line label="Total">
-                      <Calc value={selected.leadDays} unit="days" title="Sum of the parts above." />
-                    </Line>
-                    <Line label="NTG reports, for its present supply">
+                        <td className={`${td} ${weight}`}>
+                          <Calc
+                            value={fmt(r.chosen.unitCost, 3)}
+                            title={`${calcTitle} Between ${fmt(r.landedLow, 2)} and ${fmt(r.landedHigh, 2)} with every estimate at the low or high end of its range.`}
+                          />
+                        </td>
+                        <td className={td}>
+                          <Calc value={r.leadDays} title="Sum of the lead-time parts for this route. Estimates." />
+                        </td>
+                        <td className={td}>
+                          <Calc
+                            value={tonnes(r.chosen.qty)}
+                            title={
+                              r.spec.mode === 'sea'
+                                ? `${r.chosen.qty / PAYLOAD_KG} ${r.chosen.qty === PAYLOAD_KG ? 'container' : 'containers'}. ${calcTitle}`
+                                : `Air cargo, by the tonne. ${calcTitle}`
+                            }
+                          />
+                        </td>
+                        <td className={`${td} ${weight}`}>
+                          <Calc value={usdK(r.total)} title={`Resin, ordering, holding and stock on the way. Rounded to the nearest 1,000. ${calcTitle}`} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  <tr>
+                    <th scope="row" className="sticky left-0 z-[1] bg-panel py-1.5 pl-2 pr-1.5 text-left font-normal sm:pr-2">
+                      <span className="flex items-baseline gap-2">
+                        <span className="whitespace-nowrap text-14">NTG today</span>
+                        <span className="hidden text-12 text-textMuted md:inline">What the plant pays and waits now</span>
+                      </span>
+                    </th>
+                    <td className="whitespace-nowrap px-1.5 py-1.5 text-right sm:px-2">
+                      <Num value={fmt(NTG_PRICE, 3)} datum={P.resinPriceUsdKg} />
+                    </td>
+                    <td className="whitespace-nowrap px-1.5 py-1.5 text-right sm:px-2">
                       <Num
                         value={NTG_LEAD_DAYS}
-                        unit="days"
                         tag={P.replenishLeadMonths.tag}
                         title={`${sourceTitle(P.replenishLeadMonths)}. ${P.replenishLeadMonths.value} months at 30 days.`}
                       />
-                    </Line>
-                    {selected.spec.mode === 'sea' && (
-                      <Line label={`Cross-check: sea legs as drawn, ${fmt(seaNm)} nautical miles at an assumed ${SRC.shipSpeed.value} knots`}>
-                        <Calc
-                          value={fmt(sailingDays(seaNm, SRC.shipSpeed.value), 1)}
-                          unit="days under way"
-                          title="Length of the sea legs on the map divided by speed. Port and transshipment time come on top."
-                        />
-                      </Line>
-                    )}
-                  </dl>
+                    </td>
+                    <td className="whitespace-nowrap px-1.5 py-1.5 text-right sm:px-2">
+                      <Num value={fmt(P.deliveryLotT.value)} datum={P.deliveryLotT} />
+                    </td>
+                    <td className="whitespace-nowrap px-1.5 py-1.5 text-right sm:px-2">
+                      <Num
+                        value={usdK(ntg.total)}
+                        tag="C"
+                        title="NTG price, lot and lead time (inventory rows 9 to 11) through the same formula as the options."
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-                  <SubHead>Order size: each price tier tried</SubHead>
-                  <dl>
-                    {selected.eoq.perTier.map((t, k) => {
-                      const label = PRICE_TIERS[k]?.label ?? '';
-                      if (!t) return null;
-                      const on = t.qty === selected.eoq.best.qty && k === selected.eoq.best.tierIndex;
-                      return (
-                        <Line
-                          key={label}
-                          label={
-                            <span className={on ? 'font-semibold text-text' : ''}>
-                              {label}: square-root size {tonnes(t.qStar, 1)} t, moved to {tonnes(t.qty)} t{on ? ' (EOQ)' : ''}
-                            </span>
-                          }
-                        >
-                          <Calc value={usdK(t.total)} unit="USD a year" title={calcTitle} />
-                        </Line>
-                      );
-                    })}
-                  </dl>
+            <p className="mt-3 text-14">
+              {optionName(selected.id)}: order <Calc value={tonnes(selected.chosen.qty)} unit="t" title={calcTitle} /> when stock falls to{' '}
+              <Calc
+                value={tonnes(selected.reorderKg, 1)}
+                unit="t"
+                title="Demand during the lead time: demand a year x lead days / 365. No safety stock."
+              />
+              ; about <Calc value={fmt(selected.chosen.ordersPerYear, 1)} title={calcTitle} /> orders a year.
+            </p>
+            <p className="mt-1 text-12 text-textMuted">Raw material is not a bottleneck in NTG&rsquo;s data.</p>
 
-                  <p className="mt-1 text-12 text-textFaint">
-                    The order sizes tried are within {fmt(tierSpread * 100, 1)}% of each other on the yearly total. Order size matters
-                    far less here than the price per kilo.
-                  </p>
+            <div className="mt-3">
+              <Button aria-expanded={detailsOpen} aria-controls={ids.details} onClick={() => setDetailsOpen((o) => !o)}>
+                Sources and details
+              </Button>
+            </div>
+          </Panel>
 
-                  <SubHead>Cost of a year at {tonnes(selected.chosen.qty)} t an order ({applied.label.toLowerCase()} price)</SubHead>
-                  <dl>
-                    <Line label={`Resin, landed: ${fmt(demandT)} t`}>
-                      <Calc value={usdK(selected.chosen.purchase)} unit="USD" title={calcTitle} />
-                    </Line>
-                    <Line label={`Ordering: ${fmt(selected.chosen.ordersPerYear, 1)} orders`}>
-                      <Calc value={fmt(selected.chosen.ordering)} unit="USD" title={calcTitle} />
-                    </Line>
-                    <Line label="Holding: half an order on average">
-                      <Calc value={fmt(selected.chosen.holding)} unit="USD" title={calcTitle} />
-                    </Line>
-                    <Line label={`Stock on the way: ${selected.leadDays} days of demand`}>
-                      <Calc value={fmt(selected.chosen.pipeline)} unit="USD" title={calcTitle} />
-                    </Line>
-                    <Line label="Fixed cost of one order">
-                      <Est rec={ORDER_COST_LINES[0]!} value={fmt(ORDER_COST_USD)} unit="USD" jump={jump} />
-                    </Line>
-                  </dl>
+          {detailsOpen && (
+            <Panel id={ids.details} className="p-4" aria-label="Sources and details">
+              <h2 className="mb-2 text-14 font-semibold">{optionName(selected.id)}: where the figures come from</h2>
+              <div className="grid gap-x-8 gap-y-3 md:grid-cols-2">
+                <div>
+                  <h3 className="mb-1 text-12 font-semibold">Cost per kg</h3>
+                  <ul>
+                    <DetailLine rec={selected.spec.price} value={fmt(selected.spec.price.value, 2)} unit="USD/kg" />
+                    {tier.step && <DetailLine rec={tier.step} value={fmt(tier.step.value, 2)} unit="USD/kg" />}
+                    {[...selected.spec.freight, ...selected.spec.destination].map((rec) => (
+                      <DetailLine key={rec.id} rec={rec} value={sea ? fmt(rec.value) : fmt(rec.value, 2)} unit={sea ? 'USD per 40 ft' : 'USD/kg'} />
+                    ))}
+                    <DetailLine rec={selected.dutyRec} value={fmt(selected.dutyRec.value)} unit="%" />
+                    <PlainLine label={sea ? `Landed, with freight spread over ${fmt(P.deliveryLotT.value)} t a container` : 'Landed'}>
+                      <Calc
+                        size="12"
+                        value={fmt(selected.chosen.unitCost, 3)}
+                        unit="USD/kg"
+                        title={`${calcTitle} Between ${fmt(selected.landedLow, 2)} and ${fmt(selected.landedHigh, 2)} across the ranges.`}
+                      />
+                    </PlainLine>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="mb-1 text-12 font-semibold">Lead time</h3>
+                  <ul>
+                    {selected.spec.lead.map((rec) => (
+                      <DetailLine key={rec.id} rec={rec} value={rec.value} unit="days" />
+                    ))}
+                    <PlainLine label="Order to plant">
+                      <Calc size="12" value={selected.leadDays} unit="days" title="Sum of the parts above." />
+                    </PlainLine>
+                  </ul>
                 </div>
               </div>
-              {perLot === 1 && (
-                <p className="mt-3 text-12 text-textFaint">
-                  Air cargo is costed by the tonne. A year of resin by air costs about three times the sea total: it is here to show what
-                  speed costs, for a part load in an emergency.
-                </p>
-              )}
+              <p className="mt-3 text-12 text-textFaint">
+                Estimates read from public pages on 20 Nov 2026, with {fmt(ORDER_COST_USD)} USD an order and{' '}
+                {fmt(P.holdingRatePerYear.value * 100)}% a year to hold stock. Every assumption and the full source list are in the
+                project notes.
+              </p>
             </Panel>
-          </div>
+          )}
         </div>
-
-        <Panel className="p-4" aria-label="Sources">
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="text-14 font-semibold">Sources and assumptions</h2>
-            <p className="max-w-[90ch] text-12 text-textMuted">{RETRIEVAL_NOTE}</p>
-          </div>
-          <h3 className="mb-2 text-12 font-semibold">Used in the table now</h3>
-          <RecordList records={usedRecords} marked={marked} />
-          <h3 className="mb-2 mt-5 text-12 font-semibold">Benchmarks and figures for the other settings</h3>
-          <RecordList records={otherRecords} marked={marked} />
-        </Panel>
       </main>
     </div>
-  );
-}
-
-function RecordList({ records, marked }: { records: SourceRecord[]; marked: string | null }) {
-  return (
-    <ul className="grid gap-x-8 md:grid-cols-2">
-      {records.map((r) => (
-        <li
-          key={r.id}
-          id={`src-${r.id}`}
-          tabIndex={-1}
-          className={[
-            'scroll-mt-16 border-t border-hairline py-2 text-12',
-            marked === r.id ? 'outline outline-1 outline-offset-2 outline-textMuted' : '',
-          ].join(' ')}
-        >
-          <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-            <span className="text-text">{r.label}</span>
-            <Num size="12" value={fmt(r.value, Number.isInteger(r.value) ? 0 : 2)} unit={r.unit} tag="S" title={recordTitle(r)} />
-          </div>
-          <p className="text-textMuted">
-            {BASIS_LABEL[r.basis]}
-            {r.low !== r.high ? `. Range ${rangeText(r)}` : ''}.{' '}
-            {r.sourceUrl ? <ExternalLink url={r.sourceUrl}>{r.sourceTitle}</ExternalLink> : null}
-          </p>
-          <p className="text-textFaint">{r.note}</p>
-        </li>
-      ))}
-    </ul>
   );
 }

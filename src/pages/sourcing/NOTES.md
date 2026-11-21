@@ -1,6 +1,24 @@
 # Sourcing page: notes, assumptions and gaps
 
-20 Nov 2026. Stretch feature. Every price, tier and freight rate on the page is a researched estimate (S), not a supplier or forwarder quote.
+20 Nov 2026, page trimmed 21 Nov after the team review. Stretch feature. Every price, tier and freight rate is a researched estimate (S), not a supplier or forwarder quote.
+
+## What the page shows now, and what lives here instead
+
+The team asked for less on the page. It now shows: one header line; the map with its route animation, Replay and a one-line legend; a compact block of five controls; a five-column table (option, landed cost, lead time, order size, total a year) with the "NTG today" reference row; one line of advice for the selected option; and a "Sources and details" button, closed by default, that opens the selected option's cost and lead-time parts with their source links.
+
+Moved off the page and kept here and in `sources.ts`: the route conditions (next section), the reading guide ("How to read the result" below), the price benchmarks, the full source list, the order-cost parts, the per-tier EOQ working and the ranges on each figure. Source letters are hidden unless "Sources" is on in the top bar; each figure keeps its source as a hover title.
+
+## Route conditions on 20 Nov 2026
+
+Read from web-search summaries of the linked pages, like every other figure here (see the next section). These are dated statements, not numbers used in the arithmetic. They are why the default Gulf route is by road to Jeddah.
+
+- **Strait of Hormuz, container lines.** None of the large container lines has resumed services through the strait since February 2026. Regional operators run occasional small ships. [CNBC, 16 Oct 2026, citing Drewry](https://www.cnbc.com/2026/10/16/strait-hormuz-singapore-ships-attacked.html)
+- **Maersk bookings.** Bookings to and from Dammam and Jubail are suspended, with Jeddah and King Abdullah Port open (operational update 51, 8 Oct 2026). Bahrain bookings are also suspended. [Maersk, Middle East operational updates](https://www.maersk.com/stay-ahead)
+- **Hormuz traffic, all ship types.** 170 outbound and 155 inbound transits in the week to 10 Nov 2026, "below normal, but not stalled". [Gulf News, reporting UKMTO](https://gulfnews.com/world/mena/hormuz-shipping-below-normal-but-not-stalled-ukmto-1.500741839)
+- **SABIC.** Moves polymer by road from the east coast and ships it from Jeddah and Yanbu on the Red Sea; the volume moved west more than doubled in the second quarter of 2026. [Hellenic Shipping News](https://hellenicshippingnews.com/saudi-sabic-shipments-via-red-sea-unaffected-by-mideast-conflict)
+- **Red Sea and Suez.** 63% of Far East to Europe container capacity was back on the Suez route between 15 Sep and 15 Oct 2026; a full return is expected in early 2027. Hamburg to Beirut does not use Suez. [Ship & Bunker, 21 Oct 2026, citing Alphaliner](https://shipandbunker.com/news/emea/932812-container-lines-shift-63-of-far-east-europe-capacity-back-to-suez-canal-alphaliner)
+
+The same five notes are in `sources.ts` as `CONDITIONS`.
 
 ## How the research was done, and its main weakness
 
@@ -14,7 +32,7 @@
 
 - Decision: the page has a switch, "Gulf containers travel". Default **Road to Jeddah (now)**: dotted road leg to Jeddah, then sea through Suez. The other setting, **Sea through Hormuz**, is the route the bible describes.
 - Alternative considered: default to the bible's route with a warning. Rejected: the default table would rank a route that cannot be booked.
-- A red ring marks Hormuz in both settings. Alert red means "waiting or blocked" in the palette; it is a mark, not text.
+- The map carries no warning mark at Hormuz (an earlier red ring was removed in the trim). The control says "Road to Jeddah (now)" with the hint "Large carriers are not sailing through Hormuz now."
 
 ## Assumptions (alternative considered, and why)
 
@@ -77,3 +95,4 @@
 - Sea waypoints are hand-placed. A test samples every sea leg against the land polygons. Three legs are exempt by design: the Suez Canal, the Elbe below Hamburg, and the dotted road legs.
 - Air arcs start at the port marks. Dammam and Bahrain airports are within 60 km of them, less than a label's width at this scale. The Hamburg air option goes by road to Frankfurt first.
 - Nothing moves until the user selects an option, changes the order quantity or the routing, or presses Replay. With reduced motion the route simply appears and Replay is disabled.
+- The best option's origin carries a ring on the map; no colour is used beyond the neutral text tokens.

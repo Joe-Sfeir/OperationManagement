@@ -6,7 +6,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../../index.css';
+import { useTwin } from '../../app/store';
 import { SourcingPage } from './SourcingPage';
+
+// Same switch as the app: add ?sources to show the source letters.
+if (new URLSearchParams(window.location.search).has('sources')) useTwin.setState({ showSources: true });
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
