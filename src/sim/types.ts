@@ -51,6 +51,11 @@ export interface SimConfig {
   /** true: the between-layer pauses are part of the 28.5 min visit. false: they are added on top. */
   pausesInsideVisit: boolean;
   /**
+   * Only for returnToLoad. true: the swings out to loading and back are part of the 28.5 min
+   * visit the team timed (door to door). false: 28.5 min is heating only and the swings come on top.
+   */
+  tripsInsideVisit: boolean;
+  /**
    * airAtOpenPosition: load, oven, open air position, cooling chamber, demould.
    * bothInChamber: load, waiting position, oven, cooling chamber (air then water), demould.
    */
@@ -168,7 +173,10 @@ export interface Kpis {
   ovenUtilisation: number;
   /** Mean minutes between two oven entries of the same arm. */
   cycleMin: number;
+  /** Mean minutes a loaded arm waits for the oven, per oven visit. */
   meanWaitOvenMin: number;
+  /** Mean minutes an empty arm is held before the loading position (kept for the arm in the oven), per oven visit. */
+  meanWaitLoadMin: number;
   meanWaitDemouldMin: number;
   meanBlockedMin: number;
   /** Minutes after shift end until the last tank is out. 0 if all done in the shift. */

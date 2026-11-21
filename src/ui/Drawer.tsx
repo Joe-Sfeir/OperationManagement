@@ -71,35 +71,46 @@ export function ConfigDrawer() {
 
             <Row
               label="New layer of powder"
-              help="Not confirmed by NTG. Default: the arm stays in the oven and pauses about 1.5 min for each new layer. The other reading swings the arm back to loading for each layer; it adds four arm moves per visit."
+              help="Default: for layers 2 and 3 the arm leaves the oven and swings back to where layer 1 was fed (team, 21 Nov). The other reading keeps the arm in the oven and pauses there."
             >
               <Segmented
                 label="How the next layer goes in"
                 value={config.layerMode}
                 onChange={(v) => setConfig({ layerMode: v })}
                 options={[
+                  { value: 'returnToLoad', label: 'Back to loading' },
                   { value: 'singleVisit', label: 'Pause in the oven' },
-                  { value: 'returnToLoad', label: 'Return to loading' },
                 ]}
               />
             </Row>
 
             <Row
-              label="Oven visit of 28.5 min"
-              help="Default: the two layer pauses are part of the 28.5 min the team observed. That gives the 120 min cycle NTG reports. Adding the pauses on top gives about 129 min."
+              label="What the 28.5 min oven visit includes"
+              help="Default: the 28.5 min the team timed is door to door, so it includes the two layer pauses and the swings to loading. That gives the 120 min cycle NTG reports. With the swings on top the cycle is about 138 min."
             >
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="grid gap-2">
                 <Segmented
-                  label="Layer pauses"
-                  value={config.pausesInsideVisit ? 'in' : 'on'}
-                  onChange={(v) => setConfig({ pausesInsideVisit: v === 'in' })}
+                  label="Swings to loading"
+                  value={config.tripsInsideVisit ? 'in' : 'on'}
+                  onChange={(v) => setConfig({ tripsInsideVisit: v === 'in' })}
                   options={[
-                    { value: 'in', label: 'Includes the pauses' },
-                    { value: 'on', label: 'Pauses on top' },
+                    { value: 'in', label: 'Swings inside' },
+                    { value: 'on', label: 'Swings on top' },
                   ]}
                 />
-                <Num size="12" value={P.ovenVisitMin.value} unit="min" datum={P.ovenVisitMin} />
-                <Num size="12" value={P.layerPauseMin.value} unit="min pause" datum={P.layerPauseMin} />
+                <div className="flex flex-wrap items-center gap-2">
+                  <Segmented
+                    label="Layer pauses"
+                    value={config.pausesInsideVisit ? 'in' : 'on'}
+                    onChange={(v) => setConfig({ pausesInsideVisit: v === 'in' })}
+                    options={[
+                      { value: 'in', label: 'Pauses inside' },
+                      { value: 'on', label: 'Pauses on top' },
+                    ]}
+                  />
+                  <Num size="12" value={P.ovenVisitMin.value} unit="min" datum={P.ovenVisitMin} />
+                  <Num size="12" value={P.layerPauseMin.value} unit="min pause" datum={P.layerPauseMin} />
+                </div>
               </div>
             </Row>
 

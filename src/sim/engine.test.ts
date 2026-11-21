@@ -8,9 +8,10 @@ import type { SimConfig, SimResult } from './types';
 const variants: [string, Partial<SimConfig>][] = [
   ['default', {}],
   ['pauses on top of the visit', { pausesInsideVisit: false }],
+  ['trips to loading on top of the visit', { tripsInsideVisit: false }],
   ['both cooling phases in the chamber', { cooling: 'bothInChamber' }],
-  ['return to loading for each layer', { layerMode: 'returnToLoad' }],
-  ['return to loading, chamber cooling', { layerMode: 'returnToLoad', cooling: 'bothInChamber' }],
+  ['pause in the oven for each layer', { layerMode: 'singleVisit' }],
+  ['pause in the oven, chamber cooling', { layerMode: 'singleVisit', cooling: 'bothInChamber' }],
   ['hard stop at shift end', { endOfShift: 'hardStop' }],
   ['one arm empty', { arms: [{ moulds: [] }, { moulds: ['CTT4'] }, { moulds: ['CTT2', 'CTT2'] }, { moulds: ['HTT2', 'HTT2'] }] }],
   ['mixed moulds on an arm', { arms: [{ moulds: ['CTT2', 'HTT2'] }, { moulds: ['CTT4'] }, { moulds: ['CTT2', 'HTT2'] }, { moulds: ['OTHER'] }] }],
@@ -144,6 +145,32 @@ describe('calibration against the inventory (default settings)', () => {
     // Per-layer oven time and one 43 min cooling position both give fewer than 4 cycles a day.
     expect(run({ cooling: 'bothInChamber' }).kpis.ovenVisits).toBeLessThan(k.ovenVisits);
     expect(run({ pausesInsideVisit: false }).kpis.cycleMin).toBeGreaterThan(125);
+    // If the swings to loading came on top of the 28.5 min, the cycle would be about 138 min.
+    expect(run({ tripsInsideVisit: false }).kpis.cycleMin).toBeGreaterThan(130);
+    expect(run({ tripsInsideVisit: false }).kpis.ovenVisits).toBeLessThan(k.ovenVisits);
+  });
+
+  it('sends the arm back to loading for layers 2 and 3, inside the 28.5 min visit (H, 21 Nov)', () => {
+    const tankArm = r.segments[1]!;
+    const pauses = tankArm.filter((s) => s.stage === 'layerPause');
+    expect(pauses.length).toBeGreaterThan(0);
+    for (const p of pauses) expect(p.station).toBe('load');
+    // Every dose of layer 2 or 3 happens while that arm is at the loading position.
+    for (const d of r.doses.filter((x) => x.layer > 0)) {
+      const seg = r.segments[d.arm]!.find((s) => s.t0 <= d.t0 + 1e-9 && d.t0 < s.t1)!;
+      expect([seg.stage, seg.station]).toEqual(['layerPause', 'load']);
+    }
+    // Door to door, one visit of a tank arm is exactly the 28.5 min the team timed.
+    const firstIn = tankArm.find((s) => s.stage === 'heating')!.t0;
+    const out = tankArm.find((s) => s.stage === 'moving' && s.from === 'oven' && s.layer === 0)!.t0;
+    expect(out - firstIn).toBeCloseTo(P.ovenVisitMin.value, 9);
+  });
+
+  it('keeps the two kinds of waiting apart', () => {
+    // A loaded arm waits for the oven; an empty arm waits for the loading position the oven arm comes back to.
+    expect(k.meanWaitOvenMin).toBeGreaterThan(0);
+    expect(k.meanWaitLoadMin).toBeGreaterThan(0);
+    expect(k.waitByCause.oven).toBeGreaterThan(k.waitByCause.demould ?? 0);
   });
 
   it('explains the 5-cycle days in the ERP: three working arms cycle faster', () => {

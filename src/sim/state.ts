@@ -75,10 +75,17 @@ export function stateAt(t: number, r: SimResult): PlantState {
   // Oven
   const o = r.oven[locate(r.oven, x, (e) => e.t0)]!;
   const inOven = arms.find((a) => a.station === 'oven' && a.stage !== 'moving');
+  const ring = r.ring;
+  const preOven = ring[(ring.indexOf('oven') - 1 + ring.length) % ring.length]!;
   const entering = arms.find((a) => a.stage === 'moving' && a.station === 'oven');
-  const leaving = arms.find((a) => a.stage === 'moving' && a.from === 'oven');
+  // Out through the entry door, back to loading for the next layer.
+  const backOut = arms.find((a) => a.stage === 'moving' && a.from === 'oven' && a.station === preOven);
+  const leaving = arms.find((a) => a.stage === 'moving' && a.from === 'oven' && a.station !== preOven);
   const doorAmount = (p: number) => Math.sin(Math.PI * Math.min(1, Math.max(0, p)));
+  const ramp = (p: number) => Math.min(1, Math.max(0, p) / 0.3);
   const pauseArm = arms.find((a) => a.stage === 'layerPause');
+  // Entry door: opens as the arm swings out for a new layer, stays open while it is dosed, closes behind it.
+  const doorIn = backOut ? ramp(backOut.moveProgress) : entering && entering.layer > 0 ? ramp(1 - entering.moveProgress) : entering ? doorAmount(entering.moveProgress) : pauseArm ? 1 : 0;
 
   // Cooling
   const chamberArm = arms.find((a) => a.station === 'chamber' && a.stage !== 'moving');
@@ -147,7 +154,7 @@ export function stateAt(t: number, r: SimResult): PlantState {
       arm: inOven?.id ?? pauseArm?.id ?? null,
       layer: inOven?.layer ?? pauseArm?.layer ?? 0,
       tempC: sample(r.ovenTemp, x),
-      doorIn: entering ? doorAmount(entering.moveProgress) : pauseArm ? 1 : 0,
+      doorIn,
       doorOut: leaving ? doorAmount(leaving.moveProgress) : 0,
       state: o.state,
     },
@@ -181,7 +188,7 @@ export function stateAt(t: number, r: SimResult): PlantState {
     finishing,
     finished,
     tanksOut,
-    ovenQueue: arms.filter((a) => a.stage === 'waitOven').length,
+    ovenQueue: arms.filter((a) => a.stage === 'waitOven' || (a.stage === 'blocked' && a.waitFor === 'oven')).length,
     bottleneck: top ? top[0] : r.kpis.bottleneck,
     shiftOver: x >= r.config.shiftMin,
   };

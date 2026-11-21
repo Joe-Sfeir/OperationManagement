@@ -28,8 +28,11 @@ export function defaultConfig(): SimConfig {
       index: assumed.indexMin.value,
       finishing: P.finishingMin.value,
     },
-    layerMode: 'singleVisit',
+    // H, 21 Nov: for layers 2 and 3 the arm leaves the oven and goes back to where layer 1 was fed.
+    layerMode: 'returnToLoad',
     pausesInsideVisit: true,
+    // H, 21 Nov: those trips are inside the 28.5 min the team timed.
+    tripsInsideVisit: true,
     cooling: 'airAtOpenPosition',
     endOfShift: 'finishWip',
     layerKg: { CTT4: P.layerKg.CTT4.value, CTT2: P.layerKg.CTT2.value, HTT2: P.layerKg.HTT2.value },

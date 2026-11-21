@@ -10,12 +10,14 @@ export function stageView(a: ArmState, layers: number): { label: string; color: 
     case 'waitOven':
       return { label: 'Waiting for oven', color: stageColor.waiting, waiting: true };
     case 'moving':
+      if (a.layer > 0) return { label: a.station === 'oven' ? `Back into the oven, layer ${a.layer}` : `Out to loading for layer ${a.layer}`, color: stageColor.oven, waiting: false };
       return { label: `Indexing to ${STATION_LABEL[a.station].toLowerCase()}`, color: stageColor.indexing, waiting: false };
     case 'heating':
       return { label: a.moulds.includes('OTHER') ? 'In oven' : `In oven, layer ${a.layer} of ${layers}`, color: stageColor.oven, waiting: false };
     case 'layerPause':
       return { label: `Layer ${a.layer} powder going in`, color: stageColor.oven, waiting: false };
     case 'blocked':
+      if (a.waitFor === 'oven') return { label: 'Waiting for oven', color: stageColor.waiting, waiting: true };
       return { label: `Held: ${a.waitFor && a.waitFor !== 'crew' ? STATION_LABEL[a.waitFor].toLowerCase() : 'next position'} is occupied`, color: stageColor.waiting, waiting: true };
     case 'airCooling':
       return { label: 'Cooling in air', color: stageColor.cooling, waiting: false };

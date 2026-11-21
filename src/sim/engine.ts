@@ -82,11 +82,20 @@ export function tankMoulds(moulds: MouldKind[]): Exclude<MouldKind, 'OTHER'>[] {
 
 /** Minutes the oven is held by one arm visit, for this configuration. */
 export function ovenHoldMin(cfg: SimConfig, moulds: MouldKind[]): number {
+  const { heatTotal, pauses, trips } = ovenSplit(cfg, moulds);
+  return heatTotal + pauses + trips;
+}
+
+/**
+ * How one oven visit divides into heating, layer pauses and (if the arm returns to loading
+ * for each layer) the swings out and back. What is "inside" comes out of the heating time.
+ */
+export function ovenSplit(cfg: SimConfig, moulds: MouldKind[]): { layers: number; heatTotal: number; pauses: number; trips: number } {
   const layers = tankMoulds(moulds).length > 0 ? cfg.layers : 1;
   const pauses = (layers - 1) * cfg.times.layerPause;
-  const heat = cfg.pausesInsideVisit ? cfg.times.ovenVisit - pauses : cfg.times.ovenVisit;
-  const extraMoves = cfg.layerMode === 'returnToLoad' ? (layers - 1) * 2 * cfg.times.index : 0;
-  return heat + pauses + extraMoves;
+  const trips = cfg.layerMode === 'returnToLoad' ? (layers - 1) * 2 * cfg.times.index : 0;
+  const heatTotal = Math.max(0, cfg.times.ovenVisit - (cfg.pausesInsideVisit ? pauses : 0) - (cfg.tripsInsideVisit ? trips : 0));
+  return { layers, heatTotal, pauses, trips };
 }
 
 export function runSimulation(cfg: SimConfig, seed = 1): SimResult {
@@ -143,10 +152,8 @@ export function runSimulation(cfg: SimConfig, seed = 1): SimResult {
   const kgFor = (arm: Rt, layer: number) => tankMoulds(arm.moulds).reduce((s, m) => s + cfg.layerKg[m][layer]!, 0);
 
   function ovenPhases(arm: Rt): Phase[] {
-    const hasTanks = tankMoulds(arm.moulds).length > 0;
-    const layers = hasTanks ? cfg.layers : 1;
-    const pauses = (layers - 1) * T.layerPause;
-    const heatEach = (cfg.pausesInsideVisit ? T.ovenVisit - pauses : T.ovenVisit) / layers;
+    const { layers, heatTotal } = ovenSplit(cfg, arm.moulds);
+    const heatEach = heatTotal / layers;
     const out: Phase[] = [];
     for (let l = 1; l <= layers; l++) {
       out.push({
@@ -312,7 +319,8 @@ export function runSimulation(cfg: SimConfig, seed = 1): SimResult {
 
   function waitStage(arm: Rt): Stage {
     if (arm.product === 'loaded') return ovenClosed ? 'idle' : 'waitOven';
-    if (arm.product === 'empty') return 'idle';
+    // An empty arm that still has a load to pick up is held up, not idle.
+    if (arm.product === 'empty') return !loadingClosed && arm.moulds.length > 0 ? 'blocked' : 'idle';
     return 'blocked';
   }
 
@@ -334,7 +342,11 @@ export function runSimulation(cfg: SimConfig, seed = 1): SimResult {
       }
     }
     if (!canEnter(to, arm)) {
-      begin(arm, t, { stage: waitStage(arm), station: here, layer: 0, content: contentOf(arm.product), waitFor: dest });
+      // If the position ahead is being kept for the arm in the oven (it comes back there for each
+      // layer), what this arm is really waiting for is the oven turn.
+      const keptFor = reserved.get(to);
+      const waitFor = keptFor !== undefined && keptFor !== arm.id ? 'oven' : dest;
+      begin(arm, t, { stage: waitStage(arm), station: here, layer: 0, content: contentOf(arm.product), waitFor });
       return false;
     }
     if (here === 'oven' && arm.product === 'cooked') {
@@ -587,6 +599,7 @@ function kpis(
   for (const a of arms) for (let i = 1; i < a.ovenEntries.length; i++) gaps.push(a.ovenEntries[i]! - a.ovenEntries[i - 1]!);
   const waitByCause: Kpis['waitByCause'] = {};
   let waitOven = 0;
+  let waitLoad = 0;
   let waitDemould = 0;
   let blocked = 0;
   for (const segs of segments)
@@ -594,7 +607,11 @@ function kpis(
       const d = s.t1 - s.t0;
       if (s.stage === 'waitOven') waitOven += d;
       if (s.stage === 'waitDemould') waitDemould += d;
-      if (s.stage === 'blocked') blocked += d;
+      // An empty arm held before loading is waiting for its turn; a full one is blocked by the position ahead.
+      if (s.stage === 'blocked') {
+        if (s.content === 'empty') waitLoad += d;
+        else blocked += d;
+      }
       if ((s.stage === 'waitOven' || s.stage === 'blocked' || s.stage === 'waitDemould') && s.waitFor)
         waitByCause[s.waitFor] = (waitByCause[s.waitFor] ?? 0) + d;
       else if (s.stage === 'waitOven') waitByCause.oven = (waitByCause.oven ?? 0) + d;
@@ -615,6 +632,7 @@ function kpis(
     ovenUtilisation: hold / cfg.shiftMin,
     cycleMin: gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : 0,
     meanWaitOvenMin: ovenVisits ? waitOven / ovenVisits : 0,
+    meanWaitLoadMin: ovenVisits ? waitLoad / ovenVisits : 0,
     meanWaitDemouldMin: armCycles ? waitDemould / armCycles : 0,
     meanBlockedMin: ovenVisits ? blocked / ovenVisits : 0,
     runOutMin: Math.max(0, lastOut - cfg.shiftMin),
