@@ -360,6 +360,14 @@ export function ChartsSection({ view }: { view: View }) {
 export function WhatIfSection({ view, cells, pending }: { view: View; cells: WhatIfCell[] | null; pending: boolean }) {
   const { settings } = view;
   const at = (a: number, d: number) => cells?.find((c) => c.armDays === a && c.demandPct === d);
+  // When every arm-days row gives the same answer, say why, or the table looks broken.
+  const capacityFree =
+    !!cells &&
+    cells.length >= WHAT_IF_ARM_DAYS.length * WHAT_IF_DEMAND_PCT.length &&
+    WHAT_IF_DEMAND_PCT.every((d) => {
+      const col = WHAT_IF_ARM_DAYS.map((a) => at(a, d));
+      return col.every((c) => c && c.status === col[0]?.status && Math.abs(c.hours - (col[0]?.hours ?? 0)) < 1e-6);
+    });
   return (
     <Panel className="p-4" aria-labelledby="plan-whatif">
       <header className="mb-2 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
@@ -421,6 +429,7 @@ export function WhatIfSection({ view, cells, pending }: { view: View; cells: Wha
           </tbody>
         </table>
       </div>
+      {capacityFree && <p className="mt-2 text-12 text-textMuted">The rows are the same because machine time does not limit the plan here: the oven has spare arm-days at every level shown.</p>}
     </Panel>
   );
 }
