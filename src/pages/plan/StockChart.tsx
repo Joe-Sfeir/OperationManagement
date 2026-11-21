@@ -23,11 +23,10 @@ export interface StockChartProps {
   cap: number | null;
   /** The minimum and the cap as figures with their source. */
   limits: ReactNode;
-  dates: (t: number) => string;
 }
 
-const H = 168;
-const M = { top: 20, right: 12, bottom: 34, left: 34 };
+const H = 176;
+const M = { top: 28, right: 12, bottom: 34, left: 34 };
 /** Shortages smaller than this are rounding, not tanks. */
 const SHOWN_FROM = 0.05;
 
@@ -56,7 +55,7 @@ function axisStep(max: number): number {
   return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * pow;
 }
 
-export function StockChart({ sku, stock, shortage, minStock, cap, limits, dates }: StockChartProps) {
+export function StockChart({ sku, stock, shortage, minStock, cap, limits }: StockChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
   const T = stock.length - 1;
@@ -116,8 +115,8 @@ export function StockChart({ sku, stock, shortage, minStock, cap, limits, dates 
       </div>
       <p aria-live="polite" className="flex min-h-[1.25rem] flex-wrap items-center gap-x-1.5 text-12 text-textMuted">
         {short && <StatusMark kind="fail" />}
-        <span>{active === null ? `Lowest, week ${at}:` : at === 0 ? 'Start:' : `Week ${at}, ${dates(at)}:`}</span>
-        <Calc size="12" value={fmt(stock[at]!, 1)} unit={short ? `tanks, ${fmt(shortage[at - 1]!, 1)} below the minimum` : 'tanks'} title="Stock at the end of the week: stock before, plus tanks arriving, plus returns, minus demand" />
+        <span>{active === null ? `Lowest, week ${at}:` : at === 0 ? 'Start:' : `Week ${at}:`}</span>
+        <Calc size="12" value={fmt(stock[at]!, 1)} unit={short ? `tanks, ${fmt(shortage[at - 1]!, 1)} short` : 'tanks'} title="Stock at the end of the week: stock before, plus tanks arriving, plus returns, minus demand" />
       </p>
 
       {width > 0 && (
