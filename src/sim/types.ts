@@ -216,6 +216,8 @@ export interface ArmState {
   stage: Stage;
   stageProgress: number;
   stageRemainingMin: number;
+  /** Length of the current stretch in minutes. */
+  stageDurMin: number;
   layer: number;
   lidOpen: boolean;
   waitingMin: number;

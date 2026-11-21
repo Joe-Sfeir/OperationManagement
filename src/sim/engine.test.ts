@@ -67,7 +67,8 @@ describe.each(variants)('simulator: %s', (_name, patch) => {
     for (let l = 0; l < 3; l++) {
       // In a hard stop some arms are cut off between layers, so only the first layer can be checked against loads.
       if (r.config.endOfShift === 'finishWip' || l === 0) {
-        const expected = SKUS.reduce((s, k) => s + loaded[k] * r.config.layerKg[k][l]!, 0);
+        // A carried-over arm has its first layer only.
+        const expected = SKUS.reduce((s, k) => s + (loaded[k] - (l > 0 ? carried[k] : 0)) * r.config.layerKg[k][l]!, 0);
         expect(r.kpis.dosedKg[l]).toBeCloseTo(expected, 6);
       }
       const end = Math.max(r.endMin, ...r.grinds.map((g) => g.t1));

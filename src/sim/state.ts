@@ -60,6 +60,7 @@ export function stateAt(t: number, r: SimResult): PlantState {
       stage: s.stage,
       stageProgress: p,
       stageRemainingMin: Math.max(0, s.t1 - x),
+      stageDurMin: dur,
       layer: s.layer,
       lidOpen: s.stage === 'loading' || s.stage === 'demoulding' || s.stage === 'layerPause',
       waitingMin: waiting ? x - s.t0 : 0,
