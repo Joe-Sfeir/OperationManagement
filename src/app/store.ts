@@ -26,6 +26,8 @@ interface Twin {
   reduced: boolean;
   /** Skip ambient occlusion and bloom, for slower laptops. */
   simpleLight: boolean;
+  /** Show the N / V / C / S source letters beside numbers. Off by default for a clean screen. */
+  showSources: boolean;
   /** The clock, copied a few times a second for the panels. */
   tUi: number;
   setConfig: (patch: Partial<SimConfig>) => void;
@@ -35,7 +37,7 @@ interface Twin {
   setScene: (s: SceneId) => void;
   select: (s: StationId | null) => void;
   seek: (t: number) => void;
-  set: (p: Partial<Pick<Twin, 'drawerOpen' | 'panelsOpen' | 'tUi' | 'reduced' | 'simpleLight'>>) => void;
+  set: (p: Partial<Pick<Twin, 'drawerOpen' | 'panelsOpen' | 'tUi' | 'reduced' | 'simpleLight' | 'showSources'>>) => void;
 }
 
 const first = defaultConfig();
@@ -52,6 +54,7 @@ export const useTwin = create<Twin>((set, get) => ({
   panelsOpen: true,
   reduced: typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
   simpleLight: false,
+  showSources: false,
   tUi: 0,
   setConfig: (patch) => {
     const config = { ...get().config, ...patch };

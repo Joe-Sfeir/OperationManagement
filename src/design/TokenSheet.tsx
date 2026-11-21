@@ -137,7 +137,7 @@ export function TokenSheet() {
             <ul className="grid gap-2">
               {(Object.keys(provenance) as ProvenanceTag[]).map((t) => (
                 <li key={t} className="flex items-center gap-3">
-                  <SourceBadge tag={t} />
+                  <SourceBadge tag={t} always />
                   <span className="text-14">{provenance[t].label}</span>
                   {provenance[t].dashed && <span className="text-12 text-textMuted">dashed: an estimate</span>}
                 </li>

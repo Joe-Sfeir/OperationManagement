@@ -5,6 +5,7 @@
  */
 import type { ReactNode, ButtonHTMLAttributes } from 'react';
 import { SourceBadge } from '../design/SourceBadge';
+import { useTwin } from '../app/store';
 import type { Datum, Tag } from '../data/params';
 
 export function Panel({ className = '', children, ...rest }: { className?: string; children: ReactNode } & React.HTMLAttributes<HTMLElement>) {
@@ -39,15 +40,18 @@ export function Num({
   size?: '12' | '14' | '28';
   className?: string;
 }) {
+  const show = useTwin((s) => s.showSources);
   const t = tag ?? datum?.tag;
   const sz = size === '28' ? 'text-28' : size === '12' ? 'text-12' : 'text-14';
+  const tip = title ?? (datum ? sourceTitle(datum) : undefined);
   return (
-    <span className={`inline-flex items-baseline gap-1.5 whitespace-nowrap ${className}`}>
+    // With the letters hidden, the source is still one hover away.
+    <span className={`inline-flex items-baseline gap-1.5 whitespace-nowrap ${className}`} title={show ? undefined : tip}>
       <span className={`num ${sz}`}>{value}</span>
       {unit && <span className="text-12 text-textMuted">{unit}</span>}
-      {t && (
+      {t && show && (
         <span className="self-center">
-          <SourceBadge tag={t} title={title ?? (datum ? sourceTitle(datum) : undefined)} />
+          <SourceBadge tag={t} title={tip} />
         </span>
       )}
     </span>

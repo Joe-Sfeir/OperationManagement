@@ -27,6 +27,7 @@ if (q.has('scene')) useTwin.setState({ scene: q.get('scene') as SceneId });
 if (q.has('select')) useTwin.setState({ selected: q.get('select') as never });
 if (q.has('panels')) useTwin.setState({ panelsOpen: q.get('panels') !== '0' });
 if (q.has('drawer')) useTwin.setState({ drawerOpen: true });
+if (q.has('sources')) useTwin.setState({ showSources: true });
 if (q.has('cooling')) useTwin.getState().setConfig({ cooling: q.get('cooling') as never });
 if (q.has('layer')) useTwin.getState().setConfig({ layerMode: q.get('layer') as never });
 if (q.has('t')) clock.t = Number(q.get('t'));

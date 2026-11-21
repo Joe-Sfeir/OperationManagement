@@ -34,7 +34,7 @@ export function useUiState(): PlantState {
 }
 
 export function TopBar() {
-  const { scene, setScene, playing, tUi, result, panelsOpen, drawerOpen, set } = useTwin();
+  const { scene, setScene, playing, tUi, result, panelsOpen, drawerOpen, showSources, set } = useTwin();
   const over = tUi >= result.config.shiftMin;
   return (
     <header className="pointer-events-auto flex h-12 items-center gap-3 border-b border-hairline bg-panel px-3 md:px-4">
@@ -67,6 +67,9 @@ export function TopBar() {
         ))}
       </nav>
       <div className="flex items-center gap-1 border-l border-hairline pl-2">
+        <Button aria-pressed={showSources} active={showSources} title="Show where each number comes from: N from NTG, V seen on the visit, C calculated, S an estimate" onClick={() => set({ showSources: !showSources })} className="hidden sm:block">
+          Sources
+        </Button>
         <Button aria-label={panelsOpen ? 'Hide panels' : 'Show panels'} aria-pressed={!panelsOpen} title={panelsOpen ? 'Hide panels' : 'Show panels'} onClick={() => set({ panelsOpen: !panelsOpen })} className="!px-1.5">
           <PanelsIcon />
         </Button>

@@ -1,3 +1,4 @@
+import { useTwin } from '../app/store';
 import { provenance, type ProvenanceTag } from './tokens';
 
 /**
@@ -5,8 +6,11 @@ import { provenance, type ProvenanceTag } from './tokens';
  * Neutral on purpose: the letter carries the meaning. S (estimate) is dashed
  * so it reads as less certain without adding a colour.
  */
-export function SourceBadge({ tag, title }: { tag: ProvenanceTag; title?: string }) {
+export function SourceBadge({ tag, title, always = false }: { tag: ProvenanceTag; title?: string; always?: boolean }) {
+  const show = useTwin((s) => s.showSources);
   const p = provenance[tag];
+  // Hidden unless "Sources" is switched on in the top bar. `always` is for the legend that explains the letters.
+  if (!show && !always) return null;
   return (
     <abbr
       title={title ?? p.label}
