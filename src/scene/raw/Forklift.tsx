@@ -4,8 +4,8 @@ import { useFrame } from '@react-three/fiber';
 import { clock } from '../../app/store';
 import { usePlant } from '../plant';
 import { mats } from '../materials';
-import { Bar, Box, Cyl } from '../parts';
-import { Boxes, Plain, type BoxItem } from './bits';
+import { Bar, Cyl } from '../parts';
+import { Boxes, Eased, Plain, type BoxItem } from './bits';
 import { BIN_BASE_H, BIN_BODY_H, BIN_FWD, BIN_HALF, BIN_Z, FORK_LOW, FORK_TIP, HOPPER_TOP, POCKET_TOP, SILO_X, WHEELBASE, logistics } from './layout';
 
 const R_FRONT = 0.33;
@@ -62,7 +62,7 @@ function Operator() {
   );
 }
 
-/** A transfer bin: steel tipping body on a base frame with fork pockets. Local +x is the hinge (front) side. */
+/** A transfer bin: grey polyethylene tipping body on a steel base frame with fork pockets. Local +x is the hinge (front) side. */
 function Bin({ body, powder }: { body: (el: THREE.Group | null) => void; powder: (el: THREE.Mesh | null) => void }) {
   const M = mats();
   const w = BIN_HALF * 2;
@@ -103,7 +103,7 @@ function Bin({ body, powder }: { body: (el: THREE.Group | null) => void; powder:
     <group>
       <Boxes items={base} material={M.steelDark} />
       <group ref={body} position={[BIN_HALF, BIN_BASE_H, 0]}>
-        <Boxes items={walls} material={M.galvanised} />
+        <Boxes items={walls} material={M.tank} />
         <Boxes items={rim} material={M.steelDark} />
         <mesh ref={powder} position={[-w / 2, 0.03, 0]} material={M.powder} visible={false}>
           <boxGeometry args={[w - 0.06, 1, w - 0.06]} />
@@ -252,17 +252,17 @@ export function Forklift() {
     <group>
       <group ref={truck}>
         {/* Chassis, hood and the black counterweight */}
-        <Box size={[1.62, 0.44, 1.04]} position={[-0.72, 0.56, 0]} material={M.forklift} radius={0.06} />
-        <Box size={[1.02, 0.42, 0.98]} position={[-1.12, 0.96, 0]} material={M.forklift} radius={0.08} />
-        <Box size={[0.62, 0.98, 1.04]} position={[-1.84, 0.75, 0]} material={M.rubber} radius={0.14} />
-        <Box size={[0.3, 0.78, 1.0]} position={[-0.16, 1.02, 0]} material={M.forklift} radius={0.06} />
+        <Eased size={[1.62, 0.44, 1.04]} position={[-0.72, 0.56, 0]} material={M.forklift} radius={0.06} />
+        <Eased size={[1.02, 0.42, 0.98]} position={[-1.12, 0.96, 0]} material={M.forklift} radius={0.08} segments={2} />
+        <Eased size={[0.62, 0.98, 1.04]} position={[-1.84, 0.75, 0]} material={M.rubber} radius={0.14} segments={2} />
+        <Eased size={[0.3, 0.78, 1.0]} position={[-0.16, 1.02, 0]} material={M.forklift} radius={0.06} />
         {[-1, 1].map((s) => (
-          <Box key={s} size={[0.74, 0.1, 0.3]} position={[0.0, 0.76, s * 0.5]} material={M.forklift} radius={0.04} />
+          <Eased key={s} size={[0.74, 0.1, 0.3]} position={[0.0, 0.76, s * 0.5]} material={M.forklift} radius={0.04} />
         ))}
         <Plain size={[0.5, 0.04, 0.9]} position={[-0.52, 0.8, 0]} material={M.steelDark} />
         {/* Seat, steering column and wheel */}
-        <Box size={[0.48, 0.12, 0.5]} position={[-1.08, 1.23, 0]} material={M.rubber} radius={0.04} />
-        <Box size={[0.12, 0.52, 0.5]} position={[-1.33, 1.5, 0]} rotation={[0, 0, 0.12]} material={M.rubber} radius={0.04} />
+        <Eased size={[0.48, 0.12, 0.5]} position={[-1.08, 1.23, 0]} material={M.rubber} radius={0.04} />
+        <Eased size={[0.12, 0.52, 0.5]} position={[-1.33, 1.5, 0]} rotation={[0, 0, 0.12]} material={M.rubber} radius={0.04} />
         <Bar from={[-0.28, 1.36, 0]} to={[-0.46, 1.52, 0]} r={0.03} material={M.steelDark} segments={6} />
         <group position={[-0.48, 1.54, 0]} rotation={[0, 0, -0.72]}>
           <mesh rotation={[0, Math.PI / 2, 0]} material={M.rubber}>

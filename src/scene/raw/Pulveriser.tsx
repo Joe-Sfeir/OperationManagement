@@ -4,12 +4,12 @@ import { useFrame } from '@react-three/fiber';
 import { clock } from '../../app/store';
 import { usePlant } from '../plant';
 import { mats } from '../materials';
-import { Bar, Box, Cyl, Motor } from '../parts';
-import { Boxes, MiniMotor, Pipe, Plain, type BoxItem } from './bits';
+import { Bar, Cyl, Motor } from '../parts';
+import { Boxes, Eased, MiniMotor, Pipe, Plain, type BoxItem } from './bits';
 import { CYCLONE, MILL, RISER_X, SILO_Z } from './layout';
 import { PELLET_OUT } from './Extruder';
 
-const GRAINS = 40;
+const GRAINS = 64;
 /** Cyclone outlet and the funnel it drops into: the short open fall where the powder shows. */
 const OUT_Y = 2.22;
 const FUNNEL_Y = 1.72;
@@ -25,6 +25,12 @@ export function Pulveriser() {
   const M = mats();
   const burst = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  /** Per grain: phase, direction, distance from the axis, size. Seeded, so every load looks the same. */
+  const scatter = useMemo(() => {
+    let s = 3700;
+    const rnd = () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+    return Array.from({ length: GRAINS }, () => [rnd(), rnd() * Math.PI * 2, Math.sqrt(rnd()), 0.7 + 0.6 * rnd()] as const);
+  }, []);
   const [mx, mz] = MILL;
   const [cx, cz] = CYCLONE;
 
@@ -36,13 +42,12 @@ export function Pulveriser() {
     if (!on) return;
     const fall = OUT_Y - FUNNEL_Y + 0.12;
     for (let i = 0; i < GRAINS; i++) {
+      const g = scatter[i]!;
       // Each grain's place in its fall comes from the simulated minute: the burst freezes when the clock stops.
-      const p = (clock.t * 9 + i * 0.6180339) % 1;
-      const a = i * 2.399963;
-      const spread = 0.025 + 0.085 * p;
-      const rad = spread * (0.35 + 0.65 * ((i * 0.37) % 1));
-      dummy.position.set(Math.cos(a) * rad, -fall * p * p, Math.sin(a) * rad);
-      dummy.scale.setScalar(0.7 + 0.6 * ((i * 0.53) % 1));
+      const p = (clock.t * 9 + g[0]) % 1;
+      const rad = (0.04 + 0.13 * p) * g[2];
+      dummy.position.set(Math.cos(g[1]) * rad, -fall * p * p, Math.sin(g[1]) * rad);
+      dummy.scale.setScalar(g[3]);
       dummy.updateMatrix();
       m.setMatrixAt(i, dummy.matrix);
     }
@@ -72,7 +77,7 @@ export function Pulveriser() {
       {/* Disc mill */}
       <group position={[mx, 0, mz]}>
         <Plain size={[1.2, 0.1, 1.3]} position={[0, 0.05, -0.05]} material={M.steelDark} />
-        <Box size={[0.9, 0.56, 0.8]} position={[0, 0.38, -0.1]} material={M.creamDark} radius={0.03} />
+        <Eased size={[0.9, 0.56, 0.8]} position={[0, 0.38, -0.1]} material={M.creamDark} radius={0.03} />
         <Cyl r={0.5} h={0.44} position={[0, 1.15, 0.1]} rotation={[Math.PI / 2, 0, 0]} material={M.cream} segments={28} />
         <Cyl r={0.4} h={0.05} position={[0, 1.15, 0.33]} rotation={[Math.PI / 2, 0, 0]} material={M.steel} segments={28} />
         <Cyl r={0.13} h={0.12} position={[0, 1.15, 0.38]} rotation={[Math.PI / 2, 0, 0]} material={M.steelDark} segments={14} />
@@ -99,7 +104,7 @@ export function Pulveriser() {
         <group position={[0, 2.0, -0.5]} rotation={[0, -Math.PI / 2, 0]}>
           <Motor length={0.72} r={0.25} />
         </group>
-        <Box size={[0.52, 1.3, 0.1]} position={[0, 1.6, -0.17]} material={M.blueDark} radius={0.04} />
+        <Eased size={[0.52, 1.3, 0.1]} position={[0, 1.6, -0.17]} material={M.blueDark} radius={0.04} />
       </group>
 
       {/* Pellets from the pelletiser up to the mill's feed funnel */}
@@ -143,7 +148,7 @@ export function Pulveriser() {
 
         {/* Burst of powder at the outlet: only while grinding */}
         <instancedMesh ref={burst} args={[undefined, undefined, GRAINS]} position={[0, OUT_Y, 0]} material={M.powder} frustumCulled={false} visible={false}>
-          <icosahedronGeometry args={[0.022, 0]} />
+          <icosahedronGeometry args={[0.028, 0]} />
         </instancedMesh>
 
         {/* Receiving funnel and the blower that sends the powder up the duct to the silos */}
@@ -151,7 +156,7 @@ export function Pulveriser() {
         <Cyl r={0.36} h={0.03} position={[0, FUNNEL_Y - 0.015, 0]} material={M.creamDark} segments={20} />
         <Cyl r={0.31} h={0.01} position={[0, FUNNEL_Y + 0.004, 0]} material={M.section} segments={20} shadow={false} />
         <Cyl r={0.1} h={0.44} position={[0, 1.1, 0]} material={M.cream} segments={14} />
-        <Box size={[0.74, 0.8, 0.74]} position={[0, 0.5, 0]} material={M.cream} radius={0.04} />
+        <Eased size={[0.74, 0.8, 0.74]} position={[0, 0.5, 0]} material={M.cream} radius={0.04} />
         <group position={[-0.02, 0.36, 0.62]}>
           <Motor length={0.5} r={0.17} />
         </group>

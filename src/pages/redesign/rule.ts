@@ -7,8 +7,8 @@ import { SKUS } from '../../data/params';
 import type { WeekResult, WeekScenario } from '../../sim/scenarios';
 
 export const BASELINE_ID = 'ntg';
-/** recommend() lets a scenario use this many tank arm-days more than the baseline. */
-export const EXTRA_ARM_DAYS_ALLOWED = 1;
+/** recommend() lets a scenario use this many tank arm-days more than the baseline: none. */
+export const EXTRA_ARM_DAYS_ALLOWED = 0;
 
 export interface RuleCheck {
   id: string;

@@ -43,9 +43,37 @@ export function Sacks() {
   const shown = useRef(-1);
 
   const { sackGeo, bandGeo } = useMemo(() => {
-    const sackGeo = new RoundedBoxGeometry(SL, SH, SW, 1, 0.06);
-    // The print wraps the middle of the bag: same section, a hair proud of the cloth.
-    const bandGeo = sackGeo.clone().scale(0.3, 1.035, 1.02);
+    const r = 0.06;
+    const sackGeo = new RoundedBoxGeometry(SL, SH, SW, 1, r);
+    // The print wraps the middle of the bag: a sleeve with the bag's own eight-sided section, a hair proud of the cloth.
+    const bz = (SW / 2 - r) * 1.02;
+    const by = (SH / 2 - r) * 1.035;
+    const oz = (SW / 2) * 1.02;
+    const oy = (SH / 2) * 1.035;
+    // Section points (z, y) with their outward normals, going round from the top.
+    const sec: [number, number, number, number][] = [
+      [bz, oy, 0, 1],
+      [-bz, oy, 0, 1],
+      [-oz, by, -1, 0],
+      [-oz, -by, -1, 0],
+      [-bz, -oy, 0, -1],
+      [bz, -oy, 0, -1],
+      [oz, -by, 1, 0],
+      [oz, by, 1, 0],
+    ];
+    const pos: number[] = [];
+    const nor: number[] = [];
+    const idx: number[] = [];
+    sec.forEach(([z, y, nz, ny], i) => {
+      pos.push(-0.09, y, z, 0.09, y, z);
+      nor.push(0, ny, nz, 0, ny, nz);
+      const j = (i + 1) % sec.length;
+      idx.push(2 * i, 2 * i + 1, 2 * j + 1, 2 * i, 2 * j + 1, 2 * j);
+    });
+    const bandGeo = new THREE.BufferGeometry();
+    bandGeo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    bandGeo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+    bandGeo.setIndex(idx);
     return { sackGeo, bandGeo };
   }, []);
 

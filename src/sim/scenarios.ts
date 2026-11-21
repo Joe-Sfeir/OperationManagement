@@ -38,8 +38,12 @@ export const SCENARIOS: WeekScenario[] = [
     id: 'ntg',
     name: 'NTG plan, 9 to 13 Nov',
     change: 'Baseline: the week as NTG planned it, a long HTT2 campaign and little CTT2.',
-    days: [day(O, H2, C4, MIX), day(O, H2, C4, O), day(O, H2, O, O), day(O, H2, O, O)],
-    notes: ['Quantities are NTG\'s (8 / 4 / 36). The placement of moulds on arms and days is assumed.'],
+    // Inventory row 40: studied tanks on ARM2 for 4 days, ARM3 for 2 days, ARM4 for 2 days = 8 arm-days.
+    days: [day(O, H2, C4, ['CTT2']), day(O, H2, C4, ['HTT2']), day(O, H2, O, O), day(O, H2, O, O)],
+    notes: [
+      'Quantities are NTG\'s (8 / 4 / 36) and the arm-days per arm follow NTG\'s sheet (arm 2 four days, arms 3 and 4 two days each).',
+      'Which mould sat on which arm on which day is assumed so that the quantities come out.',
+    ],
   },
   {
     id: 'level',
@@ -137,7 +141,7 @@ export function evaluateWeek(scenario: WeekScenario, patch: Partial<SimConfig> =
  */
 export function recommend(results: WeekResult[]): { id: string; reason: string } {
   const base = results.find((r) => r.scenario.id === 'ntg') ?? results[0]!;
-  const ok = results.filter((r) => SKUS.every((k) => r.band[k] === 'in') && r.tankArmDays <= base.tankArmDays + 1);
+  const ok = results.filter((r) => SKUS.every((k) => r.band[k] === 'in') && r.tankArmDays <= base.tankArmDays);
   const pool = ok.length > 0 ? ok : results;
   const best = [...pool].sort((a, b) => a.coverSpread - b.coverSpread || a.tankArmDays - b.tankArmDays)[0]!;
   return {

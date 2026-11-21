@@ -463,8 +463,15 @@ export function RedesignPage() {
             </ul>
             <h4 className="mt-4 text-12 font-medium">The rule that picked it</h4>
             <p className="mt-1 text-12 text-textMuted">
-              Among the scenarios that leave every product between NTG's minimum stock and the warehouse cap, and that use at most{' '}
-              <span className="num text-text">{EXTRA_ARM_DAYS_ALLOWED}</span> tank arm-day more than the baseline (<span className="num text-text">{base.tankArmDays}</span>), take the one with the smallest cover spread. A tie goes to fewer arm-days.{' '}
+              Among the scenarios that leave every product between NTG's minimum stock and the warehouse cap, and that use{' '}
+              {EXTRA_ARM_DAYS_ALLOWED === 0 ? (
+                <>no more tank arm-days than the baseline</>
+              ) : (
+                <>
+                  at most <span className="num text-text">{EXTRA_ARM_DAYS_ALLOWED}</span> tank arm-day more than the baseline
+                </>
+              )}{' '}
+              (<span className="num text-text">{base.tankArmDays}</span>), take the one with the smallest cover spread. A tie goes to fewer arm-days.{' '}
               <span className="num text-text">{passed.length}</span> of <span className="num text-text">{results.length}</span> scenarios pass the two conditions
               {passed.length === results.length ? ', the baseline included, so the cover spread alone decides.' : `: ${passed.map((r) => shortName(r.scenario.name)).join('; ')}.`}
             </p>

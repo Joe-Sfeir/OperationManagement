@@ -237,13 +237,13 @@ const MONDAY_NOV9 = '2026-11-09';
 const addDays = (iso: string, n: number) => new Date(Date.parse(`${iso}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
 
 /**
- * Week of 2 to 6 Nov. The ERP does not record which moulds were on the arms.
- * The set-up used is the first day of NTG's plan for the following week
- * (SCENARIOS 'ntg', day 1), which the ERP shows running on the same daily
- * quantities.
+ * Week of 2 to 6 Nov. The ERP does not record which moulds were on the arms,
+ * so the set-up is read off that week's daily quantities (see below).
  */
 function weekNov2(): WeekCheck {
-  const setup = SCENARIOS.find((s) => s.id === 'ntg')!.days[0]!;
+  // Read off the ERP's daily quantities that week (4 CTT4, 4 CTT2 and 12 HTT2 a day): one CTT4 mould,
+  // one CTT2 mould and three HTT2 moulds, with the fourth arm on other products. Which arm carried which is assumed.
+  const setup: ArmSetup[] = [{ moulds: ['OTHER'] }, { moulds: ['HTT2', 'HTT2'] }, { moulds: ['CTT4'] }, { moulds: ['CTT2', 'HTT2'] }];
   const count = (k: MouldKind) => setup.reduce((s, a) => s + a.moulds.filter((m) => m === k).length, 0);
   const moulds = { CTT4: count('CTT4'), CTT2: count('CTT2'), HTT2: count('HTT2') };
   const perDay = simulate({ arms: setup }).tanksTotal;

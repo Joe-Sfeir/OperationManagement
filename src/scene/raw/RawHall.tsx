@@ -19,7 +19,7 @@ import { Silos } from './Silos';
 import { BIN_Z, DECK_EDGE_X, LANE_HALF, LANE_Z, SILO_X, SLAB, TURN_R } from './layout';
 
 /** Hall-local point the camera should look at, and the metres (wide, high) that must fit on screen. */
-export const HALL_VIEW_CENTER: [number, number, number] = [0, 2, -2.4];
+export const HALL_VIEW_CENTER: [number, number, number] = [0, 2.8, -2.4];
 export const HALL_SPAN: [number, number] = [26, 16];
 
 const LINE = 0.1;

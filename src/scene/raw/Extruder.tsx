@@ -4,8 +4,8 @@ import { useFrame } from '@react-three/fiber';
 import { clock } from '../../app/store';
 import { usePlant } from '../plant';
 import { mats } from '../materials';
-import { Bar, Box, Cyl, Motor, Railing } from '../parts';
-import { Boxes, MiniMotor, Plain, type BoxItem } from './bits';
+import { Bar, Cyl, Motor, Railing } from '../parts';
+import { Boxes, Eased, MiniMotor, Plain, type BoxItem } from './bits';
 import { EXTRUDER } from './layout';
 
 /** Screw axis height. */
@@ -99,7 +99,7 @@ export function Extruder() {
       <Boxes items={steps} material={M.cream} />
 
       {/* Big blue motor on its pedestal */}
-      <Box size={[1.5, 0.6, 0.9]} position={[-2.3, 0.44, 0]} material={M.creamDark} radius={0.03} />
+      <Eased size={[1.5, 0.6, 0.9]} position={[-2.3, 0.44, 0]} material={M.creamDark} radius={0.03} />
       <group position={[-2.3, AY, 0]}>
         <Motor length={1.2} r={0.4} />
       </group>
@@ -112,21 +112,22 @@ export function Extruder() {
         <Plain size={[0.12, 0.07, 0.09]} position={[-0.1, 0.19, 0]} material={M.rubber} />
       </group>
       {/* Gearbox */}
-      <Box size={[1.0, 0.5, 0.82]} position={[-0.82, 0.39, 0]} material={M.creamDark} radius={0.03} />
-      <Box size={[0.95, 1.0, 0.9]} position={[-0.82, AY - 0.02, 0]} material={M.blue} radius={0.05} />
-      <Box size={[0.8, 0.07, 0.74]} position={[-0.82, AY + 0.5, 0]} material={M.blueDark} radius={0.02} />
+      <Eased size={[1.0, 0.5, 0.82]} position={[-0.82, 0.39, 0]} material={M.creamDark} radius={0.03} />
+      <Eased size={[0.95, 1.0, 0.9]} position={[-0.82, AY - 0.02, 0]} material={M.blue} radius={0.05} />
+      <Eased size={[0.8, 0.07, 0.74]} position={[-0.82, AY + 0.5, 0]} material={M.blueDark} radius={0.02} />
       <Cyl r={0.05} h={0.14} position={[-0.6, AY + 0.6, 0.2]} material={M.steelDark} segments={8} />
 
       {/* Feed throat and the cream feed hopper on its frame */}
-      <Box size={[0.62, 0.56, 0.56]} position={[0, AY, 0]} material={M.blue} radius={0.03} />
+      <Eased size={[0.62, 0.56, 0.56]} position={[0, AY, 0]} material={M.blue} radius={0.03} />
       <Cyl r={0.2} rTop={0.92} h={0.75} position={[0, 1.8, 0]} rotation={[0, Math.PI / 4, 0]} material={M.cream} segments={4} />
-      <Box size={[1.3, 0.62, 1.3]} position={[0, 2.47, 0]} material={M.cream} radius={0.04} />
-      <Box size={[1.38, 0.07, 1.38]} position={[0, 2.79, 0]} material={M.creamDark} radius={0.02} />
-      {/* Open top: resin in the hopper */}
-      <Plain size={[1.2, 0.02, 1.2]} position={[0, 2.822, 0]} material={M.sack} shadow={false} />
+      <Eased size={[1.3, 0.62, 1.3]} position={[0, 2.47, 0]} material={M.cream} radius={0.04} />
+      <Eased size={[1.38, 0.07, 1.38]} position={[0, 2.79, 0]} material={M.creamDark} radius={0.02} />
+      {/* Open top: dark inside, a heap of resin showing */}
+      <Plain size={[1.22, 0.02, 1.22]} position={[0, 2.822, 0]} material={M.section} shadow={false} />
+      <Cyl r={0.8} rTop={0.06} h={0.16} position={[0, 2.9, 0]} rotation={[0, Math.PI / 4, 0]} material={M.sack} segments={4} shadow={false} />
 
       {/* Operator deck in front of the hopper, with steps */}
-      <Box size={[1.7, 0.08, 1.1]} position={[0, DECK_Y - 0.04, 1.35]} material={M.cream} radius={0.02} />
+      <Eased size={[1.7, 0.08, 1.1]} position={[0, DECK_Y - 0.04, 1.35]} material={M.cream} radius={0.02} />
       <group position={[0, DECK_Y, 1.35]}>
         <Railing
           points={[
@@ -154,7 +155,7 @@ export function Extruder() {
       <Doser z={0.27} size={0.8} material={M.cream} />
 
       {/* Base cabinet, barrel with heater bands, die */}
-      <Box size={[2.9, 0.72, 0.8]} position={[1.6, 0.5, 0]} material={M.cream} radius={0.03} />
+      <Eased size={[2.9, 0.72, 0.8]} position={[1.6, 0.5, 0]} material={M.cream} radius={0.03} />
       <Boxes items={doors} material={M.creamDark} shadow={false} />
       <Cyl r={0.14} h={2.78} position={[1.69, AY, 0]} rotation={[0, 0, Math.PI / 2]} material={M.steel} segments={20} />
       {Array.from({ length: 6 }, (_, i) => (
@@ -165,8 +166,8 @@ export function Extruder() {
       <Cyl r={0.21} h={0.2} position={[3.14, AY, 0]} rotation={[0, 0, Math.PI / 2]} material={M.blueDark} segments={20} />
 
       {/* Pelletiser on the die: hood, cutter motor, pellet outlet */}
-      <Box size={[0.5, 0.66, 0.6]} position={[3.55, 0.47, 0]} material={M.creamDark} radius={0.03} />
-      <Box size={[0.58, 0.72, 0.66]} position={[3.55, AY, 0]} material={M.cream} radius={0.05} />
+      <Eased size={[0.5, 0.66, 0.6]} position={[3.55, 0.47, 0]} material={M.creamDark} radius={0.03} />
+      <Eased size={[0.58, 0.72, 0.66]} position={[3.55, AY, 0]} material={M.cream} radius={0.05} />
       <group position={[3.55, AY + 0.5, 0]} rotation={[0, 0, -Math.PI / 2]}>
         <MiniMotor length={0.3} r={0.09} />
       </group>

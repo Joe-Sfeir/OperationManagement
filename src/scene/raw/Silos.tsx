@@ -4,15 +4,15 @@ import { useFrame } from '@react-three/fiber';
 import { clock } from '../../app/store';
 import { usePlant } from '../plant';
 import { mats } from '../materials';
-import { Bar, Box, Cyl, Ladder, Motor } from '../parts';
-import { Boxes, Pipe, Plain, type BoxItem } from './bits';
+import { Bar, Cyl, Motor } from '../parts';
+import { Boxes, CagedLadder, Eased, Pipe, Plain, type BoxItem } from './bits';
 import { BIN_Z, CONE_Y0, HEADER_Y, RISER_X, SHELL_H, SHELL_Y0, SILO_R, SILO_X, SILO_Z, logistics } from './layout';
 
 const DEG = Math.PI / 180;
 const SHELL_TOP = SHELL_Y0 + SHELL_H;
 /** The gauge faces the camera: the view looks along (-0.26, 0, -0.97) in hall coordinates. */
 const GAUGE_AZ = 15 * DEG;
-const GAUGE_W = 0.42; // radians of shell
+const GAUGE_W = 0.48; // radians of shell: a 0.6 m slot
 const GAUGE_Y0 = SHELL_Y0 + 0.22;
 const GAUGE_H = SHELL_H - 0.44;
 /** Reorder level (data inventory, assumption A11): a grinding batch is due below 30 %. */
@@ -41,7 +41,7 @@ function ScrewFeeder() {
       {/* Slide gate and inlet boot under the cone outlet */}
       <Cyl r={0.23} h={0.05} position={[0, CONE_Y0 - 0.02, 0]} material={M.steelDark} segments={20} />
       <Plain size={[0.5, 0.06, 0.34]} position={[0.08, CONE_Y0 - 0.08, 0]} material={M.galvanised} />
-      <Box size={[0.36, 0.3, 0.4]} position={[0, yAt(0) + 0.12, 0]} material={M.blue} radius={0.03} />
+      <Eased size={[0.36, 0.3, 0.4]} position={[0, yAt(0) + 0.12, 0]} material={M.blue} radius={0.03} />
       {/* Tube, along the feeder's own axis */}
       <group position={from} quaternion={quat}>
         <Cyl r={0.12} h={len} position={[len / 2, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={M.blue} segments={18} />
@@ -51,7 +51,7 @@ function ScrewFeeder() {
         <Cyl r={0.125} h={0.03} position={[-0.015, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={M.blueDark} segments={18} />
       </group>
       {/* Drive at the top end: angle gearbox and a small blue motor standing on it */}
-      <Box size={[0.24, 0.24, 0.26]} position={[0, to.y + 0.02, to.z + 0.1]} material={M.blueDark} radius={0.03} />
+      <Eased size={[0.24, 0.24, 0.26]} position={[0, to.y + 0.02, to.z + 0.1]} material={M.blueDark} radius={0.03} />
       <group position={[0, to.y + 0.42, to.z + 0.1]} rotation={[0, 0, -Math.PI / 2]}>
         <Motor length={0.36} r={0.1} />
       </group>
@@ -90,13 +90,11 @@ function SiloBody() {
       <Bar from={[-LEG, 0.35, -LEG]} to={[LEG, 2.2, -LEG]} r={0.022} material={M.creamDark} segments={6} />
       <Bar from={[-LEG, 2.2, -LEG]} to={[LEG, 0.35, -LEG]} r={0.022} material={M.creamDark} segments={6} />
 
-      {/* Cone, skirt, shell with two plate seams, roof */}
+      {/* Cone, skirt, shell with one plate seam (clear of the reorder mark), roof */}
       <Cyl r={0.17} rTop={SILO_R} h={SHELL_Y0 - CONE_Y0} position={[0, (SHELL_Y0 + CONE_Y0) / 2, 0]} material={M.cream} segments={36} open />
       <Cyl r={SILO_R + 0.035} h={0.14} position={[0, SHELL_Y0 + 0.02, 0]} material={M.creamDark} segments={36} />
       <Cyl r={SILO_R} h={SHELL_H} position={[0, SHELL_Y0 + SHELL_H / 2, 0]} material={M.cream} segments={40} open />
-      {[1 / 3, 2 / 3].map((f) => (
-        <Cyl key={f} r={SILO_R + 0.012} h={0.05} position={[0, SHELL_Y0 + SHELL_H * f, 0]} material={M.creamDark} segments={40} open />
-      ))}
+      <Cyl r={SILO_R + 0.012} h={0.05} position={[0, SHELL_Y0 + SHELL_H * 0.55, 0]} material={M.creamDark} segments={40} open />
       <Cyl r={SILO_R + 0.04} h={0.1} position={[0, SHELL_TOP - 0.03, 0]} material={M.creamDark} segments={36} />
       <Cyl r={SILO_R + 0.02} rTop={0.2} h={0.34} position={[0, SHELL_TOP + 0.19, 0]} material={M.cream} segments={36} />
       <Cyl r={0.15} h={0.26} position={[0, SHELL_TOP + 0.45, 0]} material={M.galvanised} segments={16} />
@@ -107,7 +105,7 @@ function SiloBody() {
       {/* Roof rail */}
       {[1.0, 0.52].map((h) => (
         <mesh key={h} position={[0, SHELL_TOP + h, 0]} rotation={[Math.PI / 2, 0, 0]} material={M.cream} castShadow>
-          <torusGeometry args={[SILO_R - 0.03, h === 1.0 ? 0.03 : 0.022, 6, 36]} />
+          <torusGeometry args={[SILO_R - 0.03, h === 1.0 ? 0.03 : 0.022, 5, 32]} />
         </mesh>
       ))}
       {Array.from({ length: railPosts }, (_, i) => {
@@ -117,9 +115,9 @@ function SiloBody() {
 
       {/* Ladder with cage up the side */}
       <group position={az(SILO_R + 0.14, LADDER_AZ)} rotation={[0, LADDER_AZ, 0]}>
-        <Ladder height={SHELL_TOP} material={M.galvanised} />
+        <CagedLadder height={SHELL_TOP} material={M.cream} />
         {[0.42, 0.7, 0.96].map((f) => (
-          <Plain key={f} size={[0.5, 0.04, 0.16]} position={[0, SHELL_TOP * f, -0.07]} material={M.galvanised} />
+          <Plain key={f} size={[0.5, 0.04, 0.16]} position={[0, SHELL_TOP * f, -0.07]} material={M.creamDark} />
         ))}
       </group>
 
@@ -160,6 +158,8 @@ export function Silos() {
   const sights = useRef<(THREE.Mesh | null)[]>([]);
   const streams = useRef<(THREE.Group | null)[]>([]);
   const grains = useRef<(THREE.Group | null)[]>([]);
+  // The gauge has to read in the shade of the shell: the same matte white as the powder, lifted a little.
+  const gaugePowder = useMemo(() => new THREE.MeshStandardMaterial({ color: '#F2F1EC', roughness: 0.95, metalness: 0, emissive: '#ECEBE6', emissiveIntensity: 0.5 }), []);
 
   useFrame(() => {
     const s = plant.get();
@@ -207,12 +207,12 @@ export function Silos() {
         <group key={i} position={[x, 0, SILO_Z]}>
           <SiloBody />
           {/* Powder column in the gauge: its height is the simulated stock */}
-          <mesh ref={(el) => void (columns.current[i] = el)} material={M.powder}>
-            <cylinderGeometry args={[SILO_R + 0.014, SILO_R + 0.014, GAUGE_H, 8, 1, true, GAUGE_AZ - GAUGE_W / 2 + 0.035, GAUGE_W - 0.07]} />
+          <mesh ref={(el) => void (columns.current[i] = el)} material={gaugePowder}>
+            <cylinderGeometry args={[SILO_R + 0.014, SILO_R + 0.014, GAUGE_H, 8, 1, true, GAUGE_AZ - GAUGE_W / 2 + 0.075, GAUGE_W - 0.15]} />
           </mesh>
           {/* Drop from the duct, with a diverter and a sight band */}
           <Cyl r={0.1} h={HEADER_Y - SHELL_TOP - 0.5} position={[0, (HEADER_Y + SHELL_TOP + 0.5) / 2, 0]} material={M.galvanised} segments={14} />
-          <Box size={[0.3, 0.26, 0.3]} position={[0, HEADER_Y, 0]} material={M.galvanised} radius={0.03} />
+          <Eased size={[0.3, 0.26, 0.3]} position={[0, HEADER_Y, 0]} material={M.galvanised} radius={0.03} />
           <mesh ref={(el) => void (sights.current[i] = el)} position={[0, HEADER_Y - 0.42, 0]} material={M.steelDark}>
             <cylinderGeometry args={[0.115, 0.115, 0.26, 14]} />
           </mesh>
